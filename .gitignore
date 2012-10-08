@@ -1,0 +1,5 @@
+Makefile
+build/*
+doc/html
+doc/latex
+*.pro.user

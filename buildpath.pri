@@ -1,0 +1,16 @@
+isEmpty(BUILD){
+        BUILD = $$PWD/build/$$TARGET
+}
+isEmpty(DESTDIR){
+        DESTDIR = $$BUILD
+}
+
+OBJECTS_DIR = $$BUILD
+MOC_DIR = $$BUILD
+UI_DIR = $$BUILD
+UI_HEADERS_DIR = $$BUILD
+UI_SOURCES_DIR = $$BUILD
+RCC_DIR = $$BUILD
+
+LIBS += -L$$PWD/build/libssu
+INCLUDEPATH += $$PWD/libssu

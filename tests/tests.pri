@@ -1,0 +1,1 @@
+TESTS_PATH = /opt/tests/ssu

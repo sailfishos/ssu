@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testdefinition version="0.1">
+  <!-- Test suite, name mandatory - the same as test package name -->
+  <suite name="sync-app-tests" domain="ssu">
+    <!-- At least one set per suite, name and description mandatory -->
+    <set name="urlresolver" description="Test to determine if URL resolving works properly" feature="urlresolver">
+      <case name="ut_urlresolver" type="Functional" description="URL resolver tests" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/ut_urlresolver</step>
+      </case>
+    </set>
+  </suite>
+</testdefinition>

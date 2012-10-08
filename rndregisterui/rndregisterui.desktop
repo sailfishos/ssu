@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Version=1.0
+Type=Application
+Terminal=false
+Name=Jolla RND
+Exec=invoker --type=q -s /usr/bin/rndregisterui
+Icon=mad-developer
+StartupNotify=true
