@@ -31,12 +31,69 @@ Ssu::Ssu(): QObject(){
 
   settings = new QSettings(SSU_CONFIGURATION, QSettings::IniFormat);
   repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+  QSettings defaultSettings(SSU_DEFAULT_CONFIGURATION, QSettings::IniFormat);
 
-  bool initialized=settings->value("initialized").toBool();
-  if (!initialized){
-    // FIXME, there's currently no fallback for missing configuration
-    settings->setValue("initialized", true);
-    settings->setValue("flavour", "testing");
+  int configVersion=0;
+  int defaultConfigVersion=0;
+  if (settings->contains("configVersion"))
+    configVersion = settings->value("configVersion").toInt();
+  if (defaultSettings.contains("configVersion"))
+    defaultConfigVersion = defaultSettings.value("configVersion").toInt();
+
+  if (configVersion < defaultConfigVersion){
+    qDebug() << "Configuration is outdated, updating from " << configVersion
+             << " to " << defaultConfigVersion;
+
+    for (int i=configVersion+1;i<=defaultConfigVersion;i++){
+      QStringList defaultKeys;
+      QString currentSection = QString("%1/").arg(i);
+
+      qDebug() << "Processing configuration version " << i;
+      defaultSettings.beginGroup(currentSection);
+      defaultKeys = defaultSettings.allKeys();
+      defaultSettings.endGroup();
+      foreach (const QString &key, defaultKeys){
+        if (!settings->contains(key)){
+          // Add new keys..
+          settings->setValue(key, defaultSettings.value(currentSection + key));
+          qDebug() << "Adding new key: " << key;
+        } else {
+          // ... or update the ones where default values has changed.
+          QVariant oldValue;
+
+          // check if an old value exists in an older configuration version
+          for (int j=i-1;j>0;j--){
+            if (defaultSettings.contains(QString("%1/").arg(j)+key)){
+              oldValue = defaultSettings.value(QString("%1/").arg(j)+key);
+              break;
+            }
+          }
+
+          // skip updating if there is no old value, since we can't check if the
+          // default value has changed
+          if (oldValue.isNull())
+            continue;
+
+          QVariant newValue = defaultSettings.value(currentSection + key);
+          if (oldValue == newValue){
+            // old and new value match, no need to do anything, apart from beating the
+            // person who added a useless key
+            continue;
+          } else {
+            // default value has changed, so check if the configuration is still
+            // using the old default value...
+            QVariant currentValue = settings->value(key);
+            // testcase: handles properly default update of thing with changed value in ssu.ini?
+            if (currentValue == oldValue){
+              // ...and update the key if it does
+              settings->setValue(key, newValue);
+              qDebug() << "Updating " << key << " from " << currentValue << " to " << newValue;
+            }
+          }
+        }
+      }
+      settings->setValue("configVersion", i);
+    }
   }
 
 #ifdef TARGET_ARCH

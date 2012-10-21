@@ -14,6 +14,8 @@
 #define SSU_CONFIGURATION "/etc/ssu/ssu.ini"
 /// Path to the main SSU configuration file
 #define SSU_REPO_CONFIGURATION "/usr/share/ssu/repos.ini"
+/// Path to the main SSU configuration file
+#define SSU_DEFAULT_CONFIGURATION "/usr/share/ssu/ssu-defaults.ini"
 /// The SSU protocol version used by the ssu client libraries
 #define SSU_PROTOCOL_VERSION "1"
 #endif
