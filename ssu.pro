@@ -4,7 +4,12 @@ contains(QT_VERSION, ^4\\.[0-7]\\..*) {
 
 TEMPLATE = subdirs
 SUBDIRS = libssu
-SUBDIRS += rndssucli rndregisterui ssuurlresolver ssuconfperm
+SUBDIRS += rndssucli rndregisterui ssuurlresolver
+
+ssuconfhack {
+    SUBDIRS += ssuconfperm
+}
+
 SUBDIRS += tests
 
 rndssucli.depends = libssu

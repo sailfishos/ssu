@@ -16,6 +16,7 @@ QTM_USE_NAMESPACE
 Ssu::Ssu(): QObject(){
   errorFlag = false;
 
+#ifdef SSUCONFHACK
   // dirty hack to make sure we can write to the configuration
   // this is currently required since there's no global gconf,
   // and we migth not yet have users on bootstrap
@@ -26,6 +27,7 @@ Ssu::Ssu(): QObject(){
     proc.start("/usr/bin/ssuconfperm");
     proc.waitForFinished();
   }
+#endif
 
   settings = new QSettings(SSU_CONFIGURATION, QSettings::IniFormat);
   repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);

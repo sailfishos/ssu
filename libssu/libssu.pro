@@ -12,4 +12,8 @@ MOBILITY += systeminfo
 unix:target.path = $${PREFIX}/usr/lib
 INSTALLS += target
 
+ssuconfhack {
+    DEFINES += SSUCONFHACK
+}
+
 !include( ../buildpath.pri ) { error("Unable to find build path specification") }
