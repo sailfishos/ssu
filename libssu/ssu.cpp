@@ -224,14 +224,18 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
   repoParameters.insert("adaptation", settings->value("adaptation").toString());
   repoParameters.insert("deviceFamily", deviceFamily());
 
-  foreach (const QString &section, configSections){
-    repoSettings->beginGroup(section);
-    if (repoSettings->contains(repoName)){
-      r = repoSettings->value(repoName).toString();
+  if (settings->contains("repository-urls/" + repoName))
+    r = settings->value("repository-urls/" + repoName).toString();
+  else {
+    foreach (const QString &section, configSections){
+      repoSettings->beginGroup(section);
+      if (repoSettings->contains(repoName)){
+        r = repoSettings->value(repoName).toString();
+        repoSettings->endGroup();
+        break;
+      }
       repoSettings->endGroup();
-      break;
     }
-    repoSettings->endGroup();
   }
 
   QHashIterator<QString, QString> i(repoParameters);
