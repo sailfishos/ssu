@@ -108,6 +108,11 @@ QString Ssu::deviceModel(){
 QString Ssu::deviceUid(){
   QString IMEI;
   QSystemDeviceInfo devInfo;
+
+  // for all devices where we know that they have an IMEI we can't fall back other UID
+  if (deviceFamily() == "n950-n9" || deviceFamily() == "n900")
+    return devInfo.imei();
+
   IMEI = devInfo.imei();
   // this might not be completely unique (or might change on reflash), but works for now
   if (IMEI == "")
@@ -298,6 +303,10 @@ void Ssu::sendRegistration(QString username, QString password){
     ssuRegisterUrl = settings->value("register-url").toString();
 
   QString IMEI = deviceUid();
+  if (IMEI == ""){
+    setError("No valid UID available for your device. For phones: is your modem online?");
+    return;
+  }
 
   QSslConfiguration sslConfiguration;
   if (!useSslVerify())
@@ -390,6 +399,11 @@ void Ssu::setRelease(QString release, bool rnd){
 
 void Ssu::updateCredentials(bool force){
   errorFlag = false;
+
+  if (deviceUid() == ""){
+    setError("No valid UID available for your device. For phones: is your modem online?");
+    return;
+  }
 
   QString ssuCaCertificate, ssuCredentialsUrl;
   if (!settings->contains("ca-certificate")){
