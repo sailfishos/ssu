@@ -186,9 +186,19 @@ QString Ssu::release(bool rnd){
 QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> repoParameters){
   QString r;
   QStringList configSections;
+  QStringList repoVariables;
 
   errorFlag = false;
 
+  // fill in all arbitrary variables from ssu.ini
+  settings->beginGroup("repository-url-variables");
+  repoVariables = settings->allKeys();
+  foreach (const QString &key, repoVariables){
+    repoParameters.insert(key, settings->value(key).toString());
+  }
+  settings->endGroup();
+
+  // add/overwrite some of the variables with sane ones
   if (rndRepo){
     repoParameters.insert("flavour", repoSettings->value(flavour()+"-flavour/flavour-pattern").toString());
     repoParameters.insert("release", settings->value("rndRelease").toString());
