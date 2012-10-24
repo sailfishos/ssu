@@ -84,7 +84,7 @@ void SsuUrlResolver::run(){
       credentialsFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
       QTextStream out(&credentialsFile);
       QPair<QString, QString> credentials = ssu.credentials(credentialsScope);
-      out << "[ssu-credentials]\n";
+      out << "[" << ssu.credentialsUrl(credentialsScope) << "]\n";
       out << "username=" << credentials.first << "\n";
       out << "password=" << credentials.second << "\n";
       out.flush();

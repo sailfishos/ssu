@@ -37,6 +37,10 @@ class Ssu: public QObject {
      */
     QString credentialsScope(QString repoName, bool rndRepo=false);
     /**
+     * Return the URL for which credentials scope is valid
+     */
+    QString credentialsUrl(QString scope);
+    /**
      * Try to find the device family for the system this is running on
      */
     Q_INVOKABLE QString deviceFamily();

@@ -126,6 +126,13 @@ QString Ssu::credentialsScope(QString repoName, bool rndRepo){
     return "your-configuration-is-broken-and-does-not-contain-credentials-scope";
 }
 
+QString Ssu::credentialsUrl(QString scope){
+  if (settings->contains("credentials-url-" + scope))
+    return settings->value("credentials-url-" + scope).toString();
+  else
+    return "your-configuration-is-broken-and-does-not-contain-credentials-url-for-" + scope;
+}
+
 QString Ssu::deviceFamily(){
   QString model = deviceModel();
 
