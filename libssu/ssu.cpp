@@ -173,14 +173,21 @@ QString Ssu::deviceUid(){
   QString IMEI;
   QSystemDeviceInfo devInfo;
 
-  // for all devices where we know that they have an IMEI we can't fall back other UID
-  if (deviceFamily() == "n950-n9" || deviceFamily() == "n900")
-    return devInfo.imei();
+  QString IMEIenv = getenv("imei");
+  bool ok;
 
   IMEI = devInfo.imei();
   // this might not be completely unique (or might change on reflash), but works for now
-  if (IMEI == "")
-    IMEI = devInfo.uniqueDeviceID();
+  if (IMEI == ""){
+    if (deviceFamily() == "n950-n9" || deviceFamily() == "n900"){
+      bool ok;
+      QString IMEIenv = getenv("imei");
+      IMEIenv.toLongLong(&ok, 10);
+      if (ok && (IMEIenv.length() == 16 || IMEIenv.length() == 15))
+        IMEI = IMEIenv;
+    } else
+      IMEI = devInfo.uniqueDeviceID();
+  }
   return IMEI;
 }
 
