@@ -230,9 +230,6 @@ QString Ssu::deviceUid(){
   QString IMEI;
   QSystemDeviceInfo devInfo;
 
-  QString IMEIenv = getenv("imei");
-  bool ok;
-
   IMEI = devInfo.imei();
   // this might not be completely unique (or might change on reflash), but works for now
   if (IMEI == ""){
@@ -388,35 +385,57 @@ void Ssu::requestFinished(QNetworkReply *reply){
     qDebug() << "Cert from chain" << cert.subjectInfo(QSslCertificate::CommonName);
   }
 
-  if (reply->error() > 0){
-    setError(reply->errorString());
-    return;
-  } else {
-    QByteArray data = reply->readAll();
-    qDebug() << "RequestOutput" << data;
+  // what sucks more, this or goto?
+  do {
+    if (settings->contains("home-url")){
+      QString homeUrl = settings->value("home-url").toString().arg("");
+      homeUrl.remove(QRegExp("//+$"));
+      QNetworkRequest request = reply->request();
 
-    QDomDocument doc;
-    QString xmlError;
-    if (!doc.setContent(data, &xmlError)){
-      setError(tr("Unable to parse server response (%1)").arg(xmlError));
-      return;
+      if (request.url().toString().startsWith(homeUrl, Qt::CaseInsensitive)){
+        // we don't care about errors on download request
+        if (reply->error() > 0) break;
+        QByteArray data = reply->readAll();
+        storeAuthorizedKeys(data);
+        break;
+      }
     }
 
-    QString action = doc.elementsByTagName("action").at(0).toElement().text();
-
-    if (!verifyResponse(&doc)) return;
-
-    if (action == "register"){
-      if (!registerDevice(&doc)) return;
-    } else if (action == "credentials"){
-      if (!setCredentials(&doc)) return;
+    if (reply->error() > 0){
+      pendingRequests--;
+      setError(reply->errorString());
+      return;
     } else {
-      setError(tr("Response to unknown action encountered: %1").arg(action));
-      return;
-    }
+      QByteArray data = reply->readAll();
+      qDebug() << "RequestOutput" << data;
 
+      QDomDocument doc;
+      QString xmlError;
+      if (!doc.setContent(data, &xmlError)){
+        pendingRequests--;
+        setError(tr("Unable to parse server response (%1)").arg(xmlError));
+        return;
+      }
+
+      QString action = doc.elementsByTagName("action").at(0).toElement().text();
+
+      if (!verifyResponse(&doc)) break;
+
+      if (action == "register"){
+        if (!registerDevice(&doc)) break;
+      } else if (action == "credentials"){
+        if (!setCredentials(&doc)) break;
+      } else {
+        pendingRequests--;
+        setError(tr("Response to unknown action encountered: %1").arg(action));
+        return;
+      }
+    }
+  } while (false);
+
+  pendingRequests--;
+  if (pendingRequests == 0)
     emit done();
-  }
 }
 
 void Ssu::sendRegistration(QString username, QString password){
@@ -465,8 +484,19 @@ void Ssu::sendRegistration(QString username, QString password){
   qDebug() << "Sending request to " << request.url();
   QNetworkReply *reply;
 
+  pendingRequests++;
   reply = manager->post(request, form.encodedQuery());
   // we could expose downloadProgress() from reply in case we want progress info
+
+  QString homeUrl = settings->value("home-url").toString().arg(username);
+  if (!homeUrl.isEmpty()){
+    // clear header, the other request bits are reusable
+    request.setHeader(QNetworkRequest::ContentTypeHeader, 0);
+    qDebug() << "sending request to " << homeUrl;
+    request.setUrl(homeUrl + "/authorized_keys");
+    pendingRequests++;
+    manager->get(request);
+  }
 }
 
 bool Ssu::setCredentials(QDomDocument *response){
@@ -515,6 +545,9 @@ bool Ssu::setCredentials(QDomDocument *response){
 void Ssu::setError(QString errorMessage){
   errorFlag = true;
   errorString = errorMessage;
+
+  // assume that we don't even need to wait for other pending requests,
+  // and just die. This is only relevant for CLI, which well exit after done()
   emit done();
 }
 
@@ -528,6 +561,30 @@ void Ssu::setRelease(QString release, bool rnd){
     settings->setValue("rndRelease", release);
   else
     settings->setValue("release", release);
+}
+
+void Ssu::storeAuthorizedKeys(QByteArray data){
+  QDir dir;
+
+  // only set the key for unprivileged users
+  if (getuid() < 1000) return;
+
+  if (dir.exists(dir.homePath() + "/.ssh/authorized_keys"))
+    return;
+
+  if (!dir.exists(dir.homePath() + "/.ssh"))
+    if (!dir.mkdir(dir.homePath() + "/.ssh")) return;
+
+  QFile::setPermissions(dir.homePath() + "/.ssh",
+                        QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
+
+  QFile authorizedKeys(dir.homePath() + "/.ssh/authorized_keys");
+  authorizedKeys.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+  authorizedKeys.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
+  QTextStream out(&authorizedKeys);
+  out << data;
+  out.flush();
+  authorizedKeys.close();
 }
 
 void Ssu::updateCredentials(bool force){
@@ -593,7 +650,8 @@ void Ssu::updateCredentials(bool force){
   QUrl form;
   form.addQueryItem("protocolVersion", SSU_PROTOCOL_VERSION);
 
-  QNetworkReply *reply = manager->get(request);
+  pendingRequests++;
+  manager->get(request);
 }
 
 bool Ssu::useSslVerify(){

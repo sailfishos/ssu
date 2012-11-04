@@ -117,10 +117,12 @@ class Ssu: public QObject {
     QString cachedModel, cachedFamily;
     bool errorFlag;
     QNetworkAccessManager *manager;
+    int pendingRequests;
     QSettings *settings, *repoSettings, *boardMappings;
     bool registerDevice(QDomDocument *response);
     bool setCredentials(QDomDocument *response);
     bool verifyResponse(QDomDocument *response);
+    void storeAuthorizedKeys(QByteArray data);
 
   private slots:
     void requestFinished(QNetworkReply *reply);
