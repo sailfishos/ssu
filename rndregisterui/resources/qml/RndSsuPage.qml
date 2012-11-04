@@ -208,8 +208,16 @@ Page {
                     ButtonColumn {
                         width: parent.width
 
-                        Button { text: "latest"; onClicked: ssu.setRelease("latest", true) }
-                        Button { text: "next"; onClicked: ssu.setRelease("next", true) }
+                        Button {
+                            text: "latest"
+                            onClicked: ssu.setRelease("latest", true)
+                            checked: ssu.release(true) == "latest"
+                        }
+                        Button {
+                            text: "next"
+                            onClicked: ssu.setRelease("next", true)
+                            checked: ssu.release(true) == "next"
+                        }
                     }
                 }
             }
