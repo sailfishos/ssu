@@ -114,9 +114,10 @@ class Ssu: public QObject {
 
   private:
     QString errorString;
+    QString cachedModel, cachedFamily;
     bool errorFlag;
     QNetworkAccessManager *manager;
-    QSettings *settings, *repoSettings;
+    QSettings *settings, *repoSettings, *boardMappings;
     bool registerDevice(QDomDocument *response);
     bool setCredentials(QDomDocument *response);
     bool verifyResponse(QDomDocument *response);

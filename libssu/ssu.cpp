@@ -31,6 +31,7 @@ Ssu::Ssu(): QObject(){
 
   settings = new QSettings(SSU_CONFIGURATION, QSettings::IniFormat);
   repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+  boardMappings = new QSettings(SSU_BOARD_MAPPING_CONFIGURATION, QSettings::IniFormat);
   QSettings defaultSettings(SSU_DEFAULT_CONFIGURATION, QSettings::IniFormat);
 
   int configVersion=0;
@@ -136,37 +137,93 @@ QString Ssu::credentialsUrl(QString scope){
 QString Ssu::deviceFamily(){
   QString model = deviceModel();
 
-  if (model == "N900")
-    return "n900";
-  if (model == "N9" || model == "N950")
-    return "n950-n9";
+  if (!cachedFamily.isEmpty())
+    return cachedFamily;
 
-  return "UNKNOWN";
+  cachedFamily = "UNKNOWN";
+
+  if (boardMappings->contains("variants/" + model))
+    model = boardMappings->value("variants/" + model).toString();
+
+  if (boardMappings->contains(model + "/family"))
+    cachedFamily = boardMappings->value(model + "/family").toString();
+
+  return cachedFamily;
 }
 
 QString Ssu::deviceModel(){
   QDir dir;
   QFile procCpuinfo;
+  QStringList keys;
 
-  if (dir.exists("/mer-sdk-chroot"))
-    return "SDK";
+  if (!cachedModel.isEmpty())
+    return cachedModel;
 
-  // This part should be handled using QTM::SysInfo, but that's currently broken
-  // on Nemo for N9/N950
+  boardMappings->beginGroup("file.exists");
+  keys = boardMappings->allKeys();
+
+  // check if the device can be identified by testing for a file
+  foreach (const QString &key, keys){
+    QString value = boardMappings->value(key).toString();
+    if (dir.exists(value)){
+      cachedModel = key;
+      break;
+    }
+  }
+  boardMappings->endGroup();
+  if (!cachedModel.isEmpty()) return cachedModel;
+
+  // check if the QSystemInfo model is useful
+  QSystemDeviceInfo devInfo;
+  QString model = devInfo.model();
+  boardMappings->beginGroup("systeminfo.equals");
+  keys = boardMappings->allKeys();
+  foreach (const QString &key, keys){
+    QString value = boardMappings->value(key).toString();
+    if (model == value){
+      cachedModel = key;
+      break;
+    }
+  }
+  boardMappings->endGroup();
+  if (!cachedModel.isEmpty()) return cachedModel;
+
+  // check if the device can be identified by a string in /proc/cpuinfo
   procCpuinfo.setFileName("/proc/cpuinfo");
   procCpuinfo.open(QIODevice::ReadOnly | QIODevice::Text);
   if (procCpuinfo.isOpen()){
     QTextStream in(&procCpuinfo);
     QString cpuinfo = in.readAll();
-    if (cpuinfo.contains("Nokia RX-51 board"))
-      return "N900";
-    if (cpuinfo.contains("Nokia RM-680 board"))
-      return "N950";
-    if (cpuinfo.contains("Nokia RM-696 board"))
-      return "N9";
-  }
+    boardMappings->beginGroup("cpuinfo.contains");
+    keys = boardMappings->allKeys();
 
-  return "UNKNOWN";
+    foreach (const QString &key, keys){
+      QString value = boardMappings->value(key).toString();
+      if (cpuinfo.contains(value)){
+        cachedModel = key;
+        break;
+      }
+    }
+    boardMappings->endGroup();
+  }
+  if (!cachedModel.isEmpty()) return cachedModel;
+
+
+  // check if there's a match on arch ofr generic fallback. This probably
+  // only makes sense for x86
+  boardMappings->beginGroup("arch.equals");
+  keys = boardMappings->allKeys();
+  foreach (const QString &key, keys){
+    QString value = boardMappings->value(key).toString();
+    if (settings->value("arch").toString() == value){
+      cachedModel = key;
+      break;
+    }
+  }
+  boardMappings->endGroup();
+  if (cachedModel.isEmpty()) cachedModel = "UNKNOWN";
+
+  return cachedModel;
 }
 
 QString Ssu::deviceUid(){
@@ -294,6 +351,7 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
 
   repoParameters.insert("adaptation", settings->value("adaptation").toString());
   repoParameters.insert("deviceFamily", deviceFamily());
+  repoParameters.insert("deviceModel", deviceModel());
 
   if (settings->contains("repository-urls/" + repoName))
     r = settings->value("repository-urls/" + repoName).toString();
