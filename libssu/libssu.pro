@@ -9,8 +9,11 @@ QT -= gui
 QT += network xml
 MOBILITY += systeminfo
 
+headers.files = ssu.h
+headers.path  = /usr/include
+
 unix:target.path = $${PREFIX}/usr/lib
-INSTALLS += target
+INSTALLS += target headers
 
 ssuconfhack {
     DEFINES += SSUCONFHACK
