@@ -10,7 +10,7 @@ ssuconfhack {
     SUBDIRS += ssuconfperm
 }
 
-SUBDIRS += tests
+SUBDIRS += tests tools
 
 rndssucli.depends = libssu
 rndregisterui.depends = libssu
