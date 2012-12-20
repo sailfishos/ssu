@@ -333,6 +333,8 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
   // add/overwrite some of the variables with sane ones
   if (rndRepo){
     repoParameters.insert("flavour", repoSettings->value(flavour()+"-flavour/flavour-pattern").toString());
+    repoParameters.insert("flavourPattern", repoSettings->value(flavour()+"-flavour/flavour-pattern").toString());
+    repoParameters.insert("flavourName", flavour());
     repoParameters.insert("release", settings->value("rndRelease").toString());
     configSections << flavour()+"-flavour" << "rnd" << "all";
   } else {
