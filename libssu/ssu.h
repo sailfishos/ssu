@@ -65,6 +65,11 @@ class Ssu: public QObject {
      */
     Q_INVOKABLE QString flavour();
     /**
+     * Get the current domain used in registration
+     * @return domain, or "" if not set
+     */
+    Q_INVOKABLE QString domain();
+    /**
      * Return devices RND registration status
      * @retval true device is registered
      * @retval false device is not registered
@@ -98,6 +103,10 @@ class Ssu: public QObject {
      * Set the release version string for either a release, or a RnD snapshot
      */
     Q_INVOKABLE void setRelease(QString release, bool rnd=false);
+    /**
+     * Set the domain string (usually something like nemo, jolla, ..)
+     */
+    Q_INVOKABLE void setDomain(QString domain);
     /**
      * Unregister a device. This will clean all registration data from a device,
      * though will not touch the information on SSU server; the information there

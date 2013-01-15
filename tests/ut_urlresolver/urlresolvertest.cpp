@@ -60,6 +60,28 @@ void UrlResolverTest::checkRelease(){
   ssu.setRelease("latest", true);
 }
 
+void UrlResolverTest::checkDomain(){
+  QString credentialsUrl;
+  QString registerUrl;
+
+  // domain not defined -> default
+  ssu.setDomain("");
+  credentialsUrl = ssu.repoUrl("credentials-url");
+  QCOMPARE(credentialsUrl, QString("https://ssu.testing.com/ssu/device/%1/credentials.xml"));
+
+  // domain defined but not matching block -> default
+  ssu.setDomain("nevermind");
+  credentialsUrl = ssu.repoUrl("credentials-url");
+  QCOMPARE(credentialsUrl, QString("https://ssu.testing.com/ssu/device/%1/credentials.xml"));
+
+  ssu.setDomain("example");
+  QCOMPARE(ssu.domain(), QString("example"));
+  credentialsUrl = ssu.repoUrl("credentials-url");
+  QCOMPARE(credentialsUrl, QString("https://ssu.example.com/ssu/device/%1/credentials.xml"));
+  registerUrl = ssu.repoUrl("register-url");
+  QCOMPARE(registerUrl, QString("https://ssu.example.com/ssu/device/%1/register.xml"));
+
+}
 void UrlResolverTest::checkCleanUrl(){
   QHashIterator<QString, QString> i(rndRepos);
   while (i.hasNext()){
@@ -101,3 +123,5 @@ void UrlResolverTest::checkReleaseRepoUrls(){
     QCOMPARE(url, i.value());
   }
 }
+
+

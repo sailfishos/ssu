@@ -22,6 +22,7 @@ class UrlResolverTest: public QObject {
     void cleanupTestCase();
     void checkFlavour();
     void checkRelease();
+    void checkDomain();
     void checkCleanUrl();
     void simpleRepoUrlLookup();
     void checkReleaseRepoUrls();

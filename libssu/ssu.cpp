@@ -256,6 +256,13 @@ QString Ssu::flavour(){
     return "release";
 }
 
+QString Ssu::domain(){
+  if (settings->contains("domain"))
+    return settings->value("domain").toString();
+  else
+    return "";
+}
+
 bool Ssu::isRegistered(){
   if (!settings->contains("privateKey"))
     return false;
@@ -351,6 +358,19 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
   repoParameters.insert("adaptation", settings->value("adaptation").toString());
   repoParameters.insert("deviceFamily", deviceFamily());
   repoParameters.insert("deviceModel", deviceModel());
+
+  // Domain variables
+  QString domainSection = domain() + "-domain";
+  QStringList sections = repoSettings->childGroups();
+  if (sections.contains(domainSection))
+    repoSettings->beginGroup(domainSection);
+  else
+    repoSettings->beginGroup("default-domain");
+  QStringList domainKeys = repoSettings->allKeys();
+  foreach (const QString &key, domainKeys){
+      repoParameters.insert(key, repoSettings->value(key).toString());
+  }
+  repoSettings->endGroup();
 
   if (settings->contains("repository-urls/" + repoName))
     r = settings->value("repository-urls/" + repoName).toString();
@@ -451,8 +471,11 @@ void Ssu::sendRegistration(QString username, QString password){
     ssuCaCertificate = settings->value("ca-certificate").toString();
 
   if (!settings->contains("register-url")){
-    setError("URL for SSU registration not set (config key 'register-url')");
-    return;
+    ssuRegisterUrl = repoUrl("register-url");
+    if (ssuRegisterUrl.isEmpty()){
+      setError("URL for SSU registration not set (config key 'register-url')");
+      return;
+    }
   } else
     ssuRegisterUrl = settings->value("register-url").toString();
 
@@ -565,6 +588,11 @@ void Ssu::setRelease(QString release, bool rnd){
     settings->setValue("release", release);
 }
 
+void Ssu::setDomain(QString domain){
+  settings->setValue("domain", domain);
+  settings->sync();
+}
+
 void Ssu::storeAuthorizedKeys(QByteArray data){
   QDir dir;
 
@@ -605,8 +633,11 @@ void Ssu::updateCredentials(bool force){
     ssuCaCertificate = settings->value("ca-certificate").toString();
 
   if (!settings->contains("credentials-url")){
-    setError("URL for credentials update not set (config key 'credentials-url')");
-    return;
+    ssuCredentialsUrl = repoUrl("credentials-url");
+    if (ssuCredentialsUrl.isEmpty()){
+      setError("URL for credentials update not set (config key 'credentials-url')");
+      return;
+    }
   } else
     ssuCredentialsUrl = settings->value("credentials-url").toString();
 
