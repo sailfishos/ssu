@@ -474,15 +474,14 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
   errorFlag = false;
 
   QString ssuCaCertificate, ssuRegisterUrl;
-  QString username, domain;
+  QString username, domainName;
 
   // Username can include also domain, (user@domain), separate those
   if (usernameDomain.contains('@')) {
       // separate domain/username and set domain
       username = usernameDomain.section('@', 0, 0);
-      domain = usernameDomain.section('@', 1, 1);
-      setDomain(domain);
-      qDebug() << "got username:" << username << "at domain:" << domain;
+      domainName = usernameDomain.section('@', 1, 1);
+      setDomain(domainName);
   } else {
       // No domain defined
       username = usernameDomain;
@@ -529,8 +528,13 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
   QUrl form;
   form.addQueryItem("protocolVersion", SSU_PROTOCOL_VERSION);
   form.addQueryItem("deviceModel", deviceModel());
+  if (!domain().isEmpty()){
+    form.addQueryItem("domain", domain());
+  }
 
   qDebug() << "Sending request to " << request.url();
+  qDebug() << form.encodedQueryItems();
+
   QNetworkReply *reply;
 
   pendingRequests++;
@@ -541,8 +545,8 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
   if (!homeUrl.isEmpty()){
     // clear header, the other request bits are reusable
     request.setHeader(QNetworkRequest::ContentTypeHeader, 0);
-    qDebug() << "sending request to " << homeUrl;
     request.setUrl(homeUrl + "/authorized_keys");
+    qDebug() << "sending request to " << request.url();
     pendingRequests++;
     manager->get(request);
   }
@@ -703,9 +707,6 @@ void Ssu::updateCredentials(bool force){
 
   qDebug() << request.url();
   request.setSslConfiguration(sslConfiguration);
-
-  QUrl form;
-  form.addQueryItem("protocolVersion", SSU_PROTOCOL_VERSION);
 
   pendingRequests++;
   manager->get(request);
