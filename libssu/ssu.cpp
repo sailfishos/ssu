@@ -470,10 +470,24 @@ void Ssu::requestFinished(QNetworkReply *reply){
     emit done();
 }
 
-void Ssu::sendRegistration(QString username, QString password){
+void Ssu::sendRegistration(QString usernameDomain, QString password){
   errorFlag = false;
 
   QString ssuCaCertificate, ssuRegisterUrl;
+  QString username, domain;
+
+  // Username can include also domain, (user@domain), separate those
+  if (usernameDomain.contains('@')) {
+      // separate domain/username and set domain
+      username = usernameDomain.section('@', 0, 0);
+      domain = usernameDomain.section('@', 1, 1);
+      setDomain(domain);
+      qDebug() << "got username:" << username << "at domain:" << domain;
+  } else {
+      // No domain defined
+      username = usernameDomain;
+  }
+
   if (!settings->contains("ca-certificate")){
     setError("CA certificate for SSU not set (config key 'ca-certificate')");
     return;
