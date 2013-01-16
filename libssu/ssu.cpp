@@ -54,7 +54,17 @@ Ssu::Ssu(): QObject(){
       defaultKeys = defaultSettings.allKeys();
       defaultSettings.endGroup();
       foreach (const QString &key, defaultKeys){
-        if (!settings->contains(key)){
+        // Default keys support both commands and new keys
+        if (key.compare("cmd-remove", Qt::CaseSensitive) == 0){
+          // Remove keys listed in value as string list
+          QStringList oldKeys = defaultSettings.value(currentSection + key).toStringList();
+          foreach (const QString &oldKey, oldKeys){
+            if (settings->contains(oldKey)){
+              settings->remove(oldKey);
+              qDebug() << "Removing old key:" << oldKey;
+            }
+          }
+        } else if (!settings->contains(key)){
           // Add new keys..
           settings->setValue(key, defaultSettings.value(currentSection + key));
           qDebug() << "Adding new key: " << key;
