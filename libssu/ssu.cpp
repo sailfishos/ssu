@@ -370,17 +370,24 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
   repoParameters.insert("deviceModel", deviceModel());
 
   // Domain variables
-  QString domainSection = domain() + "-domain";
-  QStringList sections = repoSettings->childGroups();
-  if (sections.contains(domainSection))
-    repoSettings->beginGroup(domainSection);
-  else
-    repoSettings->beginGroup("default-domain");
-  QStringList domainKeys = repoSettings->allKeys();
-  foreach (const QString &key, domainKeys){
+  // first read all variables from default-domain
+  repoSettings->beginGroup("default-domain");
+  QStringList defKeys = repoSettings->allKeys();
+  foreach (const QString &key, defKeys){
       repoParameters.insert(key, repoSettings->value(key).toString());
   }
   repoSettings->endGroup();
+  // then overwrite with domain specific things if that block is available
+  QString domainSection = domain() + "-domain";
+  QStringList sections = repoSettings->childGroups();
+  if (sections.contains(domainSection)){
+    repoSettings->beginGroup(domainSection);
+    QStringList domainKeys = repoSettings->allKeys();
+    foreach (const QString &key, domainKeys){
+      repoParameters.insert(key, repoSettings->value(key).toString());
+    }
+    repoSettings->endGroup();
+  }
 
   if (settings->contains("repository-urls/" + repoName))
     r = settings->value("repository-urls/" + repoName).toString();
