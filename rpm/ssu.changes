@@ -1,3 +1,6 @@
+* Tue Jan 29 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.20
+- Move ssu resolver log to systemd journal, with fallback in /tmp/ssu.log
+
 * Tue Jan 29 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.19
 - Use default domain values if no domain-specific values exist
 

@@ -8,7 +8,7 @@ CONFIG -= app_bundle
 CONFIG += console link_pkgconfig
 QT -= gui
 QT += network
-PKGCONFIG += libzypp
+PKGCONFIG += libzypp libsystemd-journal
 
 unix:target.path = $${PREFIX}/usr/lib/zypp/plugins/urlresolver
 INSTALLS += target

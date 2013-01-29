@@ -1,5 +1,5 @@
 Name: ssu
-Version: 0.19
+Version: 0.20
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
@@ -10,6 +10,7 @@ BuildRequires: pkgconfig(QtCore)
 BuildRequires: pkgconfig(libzypp)
 BuildRequires: pkgconfig(QtSystemInfo)
 BuildRequires: pkgconfig(qt-boostable)
+BuildRequires: pkgconfig(libsystemd-journal)
 Requires(pre): shadow-utils
 Requires(postun): shadow-utils
 Requires: ssu-vendor-data

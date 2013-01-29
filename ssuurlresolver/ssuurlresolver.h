@@ -52,8 +52,7 @@ class SsuUrlResolver: public QObject {
 
   private:
     Ssu ssu;
-    QFile logfile;
-    QTextStream logstream;
+    void printJournal(int priority, QString message);
 
   public slots:
     void run();

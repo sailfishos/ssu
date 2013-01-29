@@ -6,15 +6,29 @@
  */
 
 #include <QCoreApplication>
+#include <systemd/sd-journal.h>
+
 #include "ssuurlresolver.h"
 
 SsuUrlResolver::SsuUrlResolver(): QObject(){
-  logfile.setFileName("/var/log/ssu.log");
-  logfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-  logstream.setDevice(&logfile);
   QObject::connect(this,SIGNAL(done()),
                    QCoreApplication::instance(),SLOT(quit()),
                    Qt::QueuedConnection);
+}
+
+void SsuUrlResolver::printJournal(int priority, QString message){
+  QByteArray ba = message.toUtf8();
+  const char *ca = ba.constData();
+
+  if (sd_journal_print(LOG_INFO, "ssu: %s", ca) < 0){
+    QFile logfile;
+    QTextStream logstream;
+    logfile.setFileName("/tmp/ssu.log");
+    logfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+    logstream.setDevice(&logfile);
+    logstream << message << "\n";
+    logstream.flush();
+  }
 }
 
 void SsuUrlResolver::run(){
@@ -26,7 +40,7 @@ void SsuUrlResolver::run(){
 
   if (in.headerEmpty()){
     // FIXME, do something; we need at least repo header
-    logstream << "D'oh, received empty header list\n";
+    printJournal(LOG_WARNING, "Received empty header list. Most likely your ssu setup is broken");
   }
 
   PluginFrame::HeaderListIterator it;
@@ -72,7 +86,7 @@ void SsuUrlResolver::run(){
 
   // TODO: check for credentials scope required for repository; check if the file exists;
   //       compare with configuration, and dump credentials to file if necessary
-  logstream << QString("Requesting credentials for '%1' with RND status %2...").arg(repo).arg(isRnd);
+  printJournal(LOG_DEBUG, QString("Requesting credentials for '%1' with RND status %2...").arg(repo).arg(isRnd));
   QString credentialsScope = ssu.credentialsScope(repo, isRnd);
   if (!credentialsScope.isEmpty()){
     headerList.append(QString("credentials=%1").arg(credentialsScope));
@@ -100,7 +114,8 @@ void SsuUrlResolver::run(){
       .arg(headerList.join("&"));
   }
 
-  logstream << QString("resolved to %1\n").arg(resolvedUrl);
+  printJournal(LOG_INFO, QString("%1 resolved to %2").arg(repo).arg(resolvedUrl));
+
   PluginFrame out("RESOLVEDURL");
   out.setBody(resolvedUrl.toStdString());
   out.writeTo(std::cout);
