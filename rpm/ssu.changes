@@ -1,0 +1,34 @@
+* Tue Jan 29 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.19
+- Use default domain values if no domain-specific values exist
+
+* Wed Jan 16 2013 Pekka Lundstrom <pekka.lundstrom@jollamobile.com> - 0.18
+- Added domain support for registration
+- Added support to remove old values from config by using ssu-defaults.ini
+
+* Thu Dec 20 2012 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.17
+- Change flavour variable to flavourPattern, and export flavourName as well
+
+* Tue Nov 27 2012 Marko Saukko <marko.saukko@jollamobile.com> - 0.16
+- Added -tools subpackage
+- Removed old obsoletes/provides for libssu
+
+* Mon Nov 19 2012 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.15
+- install ssu.h to allow out of tree development using libssu
+
+* Sun Nov 04 2012 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.14
+- Move device detection bits into configuration files
+- Allow downloading authorized_keys file during rnd registration
+
+* Thu Oct 25 2012 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.13
+- Fall back to imei environement variable for N9/N950/N900
+
+* Wed Oct 24 2012 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.12
+- Add configurable URLs for credentials scope
+
+* Sun Oct 21 2012 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.11
+- Allow user URLs in ssu.ini
+- Don't allow phones without IMEI to register
+- Add update mechanism for ssu.ini
+
+* Mon Oct 08 2012 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.10
+- Initial open source version
