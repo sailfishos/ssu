@@ -17,6 +17,7 @@ QTM_USE_NAMESPACE
 Ssu::Ssu(QString fallbackLog): QObject(){
   errorFlag = false;
   fallbackLogPath = fallbackLog;
+  pendingRequests = 0;
 
 #ifdef SSUCONFHACK
   // dirty hack to make sure we can write to the configuration
