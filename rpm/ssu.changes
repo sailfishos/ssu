@@ -1,3 +1,6 @@
+* Mon Mar 11 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.23
+- Add force option to rndssu update
+
 * Mon Mar 11 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.22
 - Add systemd logging to core library
 - Move zypper plugin logging to core library

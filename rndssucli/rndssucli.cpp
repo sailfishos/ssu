@@ -33,12 +33,7 @@ void RndSsuCli::run(){
 
   QStringList arguments = QCoreApplication::arguments();
 
-  if (arguments.count() >= 2){
-    usage();
-    return;
-  }
-
-  if (arguments.at(1) == "register"){
+  if (arguments.at(1) == "register" && arguments.count() == 2){
     QString username, password;
     QTextStream qin(stdin);
 
@@ -48,12 +43,16 @@ void RndSsuCli::run(){
     password = qin.readLine();
 
     ssu.sendRegistration(username, password);
-  } else if (arguments.at(1) == "update"){
+  } else if (arguments.at(1) == "update" &&
+             (arguments.count() == 2 || arguments.count() == 3)){
     if (!ssu.isRegistered()){
       qout << "Device is not registered, can't update credentials" << endl;
       QCoreApplication::exit(1);
     } else {
-      ssu.updateCredentials();
+      bool force = false;
+      if (arguments.count() == 3 && arguments.at(2) == "-f")
+        force = true;
+      ssu.updateCredentials(force);
     }
   } else if (arguments.at(1) == "resolve"){
     QString repo;
@@ -67,12 +66,11 @@ void RndSsuCli::run(){
     if (arguments.count() >= 3){
       //qout << (arguments.at(3).compare("false")||arguments.at(3).compare("0"));
       qout << (arguments.at(3).compare("false"));
-
     }
 
     qout << ssu.repoUrl(arguments.at(2));
     QCoreApplication::exit(1);
-  } else if (arguments.at(1) == "status"){
+  } else if (arguments.at(1) == "status" && arguments.count() == 2){
     qout << "Device registration status: "
          << (ssu.isRegistered() ? "registered" : "not registered") << endl;
     qout << "Device family: " << ssu.deviceFamily() << endl;
@@ -86,6 +84,6 @@ void RndSsuCli::run(){
 
 void RndSsuCli::usage(){
   QTextStream qout(stdout);
-  qout << "Usage: rndssu register|update|status" << endl;
+  qout << "Usage: rndssu register|update [-f]|status" << endl;
   QCoreApplication::exit(1);
 }
