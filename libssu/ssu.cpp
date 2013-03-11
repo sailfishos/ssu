@@ -682,12 +682,12 @@ void Ssu::updateCredentials(bool force){
   }
 
   if (!force){
-    // skip updating if the last update was less than a day ago
+    // skip updating if the last update was less than 30 minutes ago
     QDateTime now = QDateTime::currentDateTime();
 
     if (settings->contains("lastCredentialsUpdate")){
       QDateTime last = settings->value("lastCredentialsUpdate").toDateTime();
-      if (last >= now.addDays(-1)){
+      if (last >= now.addSecs(-1800)){
         emit done();
         return;
       }
