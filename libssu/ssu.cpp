@@ -44,14 +44,15 @@ Ssu::Ssu(QString fallbackLog): QObject(){
     defaultConfigVersion = defaultSettings.value("configVersion").toInt();
 
   if (configVersion < defaultConfigVersion){
-    qDebug() << "Configuration is outdated, updating from " << configVersion
-             << " to " << defaultConfigVersion;
+    printJournal(LOG_DEBUG, QString("Configuration is outdated, updating from %1 to %2")
+                 .arg(configVersion)
+                 .arg(defaultConfigVersion));
 
     for (int i=configVersion+1;i<=defaultConfigVersion;i++){
       QStringList defaultKeys;
       QString currentSection = QString("%1/").arg(i);
 
-      qDebug() << "Processing configuration version " << i;
+      printJournal(LOG_DEBUG, QString("Processing configuration version %1").arg(i));
       defaultSettings.beginGroup(currentSection);
       defaultKeys = defaultSettings.allKeys();
       defaultSettings.endGroup();
@@ -63,13 +64,13 @@ Ssu::Ssu(QString fallbackLog): QObject(){
           foreach (const QString &oldKey, oldKeys){
             if (settings->contains(oldKey)){
               settings->remove(oldKey);
-              qDebug() << "Removing old key:" << oldKey;
+              printJournal(LOG_DEBUG, QString("Removing old key: %1").arg(oldKey));
             }
           }
         } else if (!settings->contains(key)){
           // Add new keys..
           settings->setValue(key, defaultSettings.value(currentSection + key));
-          qDebug() << "Adding new key: " << key;
+          printJournal(LOG_DEBUG, QString("Adding key: %1").arg(key));
         } else {
           // ... or update the ones where default values has changed.
           QVariant oldValue;
@@ -100,7 +101,10 @@ Ssu::Ssu(QString fallbackLog): QObject(){
             if (currentValue == oldValue){
               // ...and update the key if it does
               settings->setValue(key, newValue);
-              qDebug() << "Updating " << key << " from " << currentValue << " to " << newValue;
+              printJournal(LOG_DEBUG, QString("Updating %1 from %2 to %3")
+                           .arg(key)
+                           .arg(currentValue.toString())
+                           .arg(newValue.toString()));
             }
           }
         }
@@ -254,6 +258,7 @@ QString Ssu::deviceUid(){
     } else
       IMEI = devInfo.uniqueDeviceID();
   }
+
   return IMEI;
 }
 
@@ -331,7 +336,7 @@ bool Ssu::registerDevice(QDomDocument *response){
   // oldUser is just for reference purposes, in case we want to notify
   // about owner changes for the device
   QString oldUser = response->elementsByTagName("user").at(0).toElement().text();
-  qDebug() << "Old user:" << oldUser;
+  printJournal(LOG_DEBUG, QString("Old user for your device was: %1").arg(oldUser));
 
   // if we came that far everything required for device registration is done
   settings->setValue("registered", true);
@@ -434,11 +439,12 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
 void Ssu::requestFinished(QNetworkReply *reply){
   QSslConfiguration sslConfiguration = reply->sslConfiguration();
 
-  qDebug() << sslConfiguration.peerCertificate().issuerInfo(QSslCertificate::CommonName);
-  qDebug() << sslConfiguration.peerCertificate().subjectInfo(QSslCertificate::CommonName);
+  printJournal(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
+               .arg(sslConfiguration.peerCertificate().subjectInfo(QSslCertificate::CommonName))
+               .arg(sslConfiguration.peerCertificate().issuerInfo(QSslCertificate::CommonName)));
 
   foreach (const QSslCertificate cert, sslConfiguration.peerCertificateChain()){
-    qDebug() << "Cert from chain" << cert.subjectInfo(QSslCertificate::CommonName);
+    printJournal(LOG_DEBUG, QString("-> %1").arg(cert.subjectInfo(QSslCertificate::CommonName)));
   }
 
   // what sucks more, this or goto?
@@ -490,6 +496,8 @@ void Ssu::requestFinished(QNetworkReply *reply){
   } while (false);
 
   pendingRequests--;
+
+  printJournal(LOG_DEBUG, QString("Request finished, pending requests: %1").arg(pendingRequests));
   if (pendingRequests == 0)
     emit done();
 }
@@ -570,7 +578,7 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
     // clear header, the other request bits are reusable
     request.setHeader(QNetworkRequest::ContentTypeHeader, 0);
     request.setUrl(homeUrl + "/authorized_keys");
-    qDebug() << "sending request to " << request.url();
+    printJournal(LOG_DEBUG, QString("Trying to get SSH keys from %1").arg(request.url().toString()));
     pendingRequests++;
     manager->get(request);
   }
@@ -623,8 +631,11 @@ void Ssu::setError(QString errorMessage){
   errorFlag = true;
   errorString = errorMessage;
 
+  // dump error message to systemd journal for easier debugging
+  printJournal(LOG_WARNING, errorMessage);
+
   // assume that we don't even need to wait for other pending requests,
-  // and just die. This is only relevant for CLI, which well exit after done()
+  // and just die. This is only relevant for CLI, which will exit after done()
   emit done();
 }
 
@@ -705,6 +716,8 @@ void Ssu::updateCredentials(bool force){
     if (settings->contains("lastCredentialsUpdate")){
       QDateTime last = settings->value("lastCredentialsUpdate").toDateTime();
       if (last >= now.addSecs(-1800)){
+        printJournal(LOG_DEBUG, QString("Skipping credentials update, last update was at %1")
+                     .arg(last.toString()));
         emit done();
         return;
       }
@@ -729,7 +742,8 @@ void Ssu::updateCredentials(bool force){
   QNetworkRequest request;
   request.setUrl(QUrl(ssuCredentialsUrl.arg(deviceUid())));
 
-  qDebug() << request.url();
+  printJournal(LOG_DEBUG, QString("Sending credential update request to %1")
+               .arg(request.url().toString()));
   request.setSslConfiguration(sslConfiguration);
 
   pendingRequests++;

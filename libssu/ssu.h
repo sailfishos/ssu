@@ -22,7 +22,7 @@ class Ssu: public QObject {
     Q_OBJECT
 
   public:
-    Ssu(QString fallbackLog="");
+    Ssu(QString fallbackLog="/tmp/ssu.log");
     /**
      * Find a username/password pair for the given scope
      * @return a QPair with username and password, or an empty QPair if scope is invalid
