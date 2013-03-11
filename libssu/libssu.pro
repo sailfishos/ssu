@@ -4,10 +4,11 @@ HEADERS = ssu.h \
 SOURCES = ssu.cpp
 TEMPLATE = lib
 TARGET = ssu
-CONFIG += dll mobility
+CONFIG += dll mobility link_pkgconfig
 QT -= gui
 QT += network xml
 MOBILITY += systeminfo
+PKGCONFIG += libsystemd-journal
 
 headers.files = ssu.h
 headers.path  = /usr/include

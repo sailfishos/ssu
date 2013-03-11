@@ -16,11 +16,13 @@
 
 #include <QtXml/QDomDocument>
 
+#include <systemd/sd-journal.h>
+
 class Ssu: public QObject {
     Q_OBJECT
 
   public:
-    Ssu();
+    Ssu(QString fallbackLog="");
     /**
      * Find a username/password pair for the given scope
      * @return a QPair with username and password, or an empty QPair if scope is invalid
@@ -87,6 +89,10 @@ class Ssu: public QObject {
      */
     Q_INVOKABLE QString lastError();
     /**
+     * Print a message to systemds journal, or to a text log file, if a fallback is defined
+     */
+    void printJournal(int priority, QString message);
+    /**
      * Return the release version string for either a release, or a RnD snapshot
      */
     Q_INVOKABLE QString release(bool rnd=false);
@@ -122,7 +128,7 @@ class Ssu: public QObject {
     Q_INVOKABLE bool useSslVerify();
 
   private:
-    QString errorString;
+    QString errorString, fallbackLogPath;
     QString cachedModel, cachedFamily;
     bool errorFlag;
     QNetworkAccessManager *manager;

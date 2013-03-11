@@ -8,13 +8,15 @@
 #include <QSystemDeviceInfo>
 
 #include <QtXml/QDomDocument>
+
 #include "ssu.h"
 #include "../constants.h"
 
 QTM_USE_NAMESPACE
 
-Ssu::Ssu(): QObject(){
+Ssu::Ssu(QString fallbackLog): QObject(){
   errorFlag = false;
+  fallbackLogPath = fallbackLog;
 
 #ifdef SSUCONFHACK
   // dirty hack to make sure we can write to the configuration
@@ -287,6 +289,21 @@ QDateTime Ssu::lastCredentialsUpdate(){
 
 QString Ssu::lastError(){
   return errorString;
+}
+
+void Ssu::printJournal(int priority, QString message){
+  QByteArray ba = message.toUtf8();
+  const char *ca = ba.constData();
+
+  if (sd_journal_print(LOG_INFO, "ssu: %s", ca) < 0 && fallbackLogPath != ""){
+    QFile logfile;
+    QTextStream logstream;
+    logfile.setFileName(fallbackLogPath);
+    logfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+    logstream.setDevice(&logfile);
+    logstream << message << "\n";
+    logstream.flush();
+  }
 }
 
 bool Ssu::registerDevice(QDomDocument *response){
