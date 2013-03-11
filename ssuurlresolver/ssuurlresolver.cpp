@@ -31,6 +31,29 @@ void SsuUrlResolver::printJournal(int priority, QString message){
   }
 }
 
+bool SsuUrlResolver::writeCredentials(QString filePath, QString credentialsScope){
+  QFile credentialsFile(filePath);
+  QPair<QString, QString> credentials = ssu.credentials(credentialsScope);
+
+  if (credentials.first == "" || credentials.second == ""){
+    printJournal(LOG_WARNING, "Returned credentials are empty, skip writing");
+    return false;
+  }
+
+  if (!credentialsFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)){
+    printJournal(LOG_WARNING, "Unable to open credentials file for writing");
+    return false;
+  }
+
+  QTextStream out(&credentialsFile);
+  out << "[" << ssu.credentialsUrl(credentialsScope) << "]\n";
+  out << "username=" << credentials.first << "\n";
+  out << "password=" << credentials.second << "\n";
+  out.flush();
+  credentialsFile.close();
+  return true;
+}
+
 void SsuUrlResolver::run(){
   QHash<QString, QString> repoParameters;
   QString resolvedUrl, repo;
@@ -77,12 +100,13 @@ void SsuUrlResolver::run(){
   if (!ssu.useSslVerify())
     headerList.append("ssl_verify=no");
 
-  if (isRnd){
+  if (isRnd || ssu.isRegistered()){
     SignalWait w;
     connect(&ssu, SIGNAL(done()), &w, SLOT(finished()));
     ssu.updateCredentials();
     w.sleep();
-  }
+  } else
+    printJournal(LOG_DEBUG, "No RnD repository, and device not registered -- skipping credential update");
 
   // TODO: check for credentials scope required for repository; check if the file exists;
   //       compare with configuration, and dump credentials to file if necessary
@@ -94,17 +118,11 @@ void SsuUrlResolver::run(){
     QFileInfo credentialsFileInfo("/etc/zypp/credentials.d/" + credentialsScope);
     if (!credentialsFileInfo.exists() ||
         credentialsFileInfo.lastModified() <= ssu.lastCredentialsUpdate()){
-      QFile credentialsFile(credentialsFileInfo.filePath());
-      credentialsFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
-      QTextStream out(&credentialsFile);
-      QPair<QString, QString> credentials = ssu.credentials(credentialsScope);
-      out << "[" << ssu.credentialsUrl(credentialsScope) << "]\n";
-      out << "username=" << credentials.first << "\n";
-      out << "password=" << credentials.second << "\n";
-      out.flush();
-      credentialsFile.close();
-    }
-  }
+      writeCredentials(credentialsFileInfo.filePath(), credentialsScope);
+    } else
+      printJournal(LOG_DEBUG, "Skipping credential update -- file exists and was modified after last update");
+  } else
+    printJournal(LOG_DEBUG, "Skipping credential update due to missing credentials scope");
 
   if (headerList.isEmpty()){
     resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
