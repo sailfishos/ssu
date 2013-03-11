@@ -101,6 +101,7 @@ void SsuUrlResolver::run(){
     headerList.append("ssl_verify=no");
 
   if (isRnd || ssu.isRegistered()){
+    printJournal(LOG_DEBUG, "Attempting credential update");
     SignalWait w;
     connect(&ssu, SIGNAL(done()), &w, SLOT(finished()));
     ssu.updateCredentials();

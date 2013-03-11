@@ -1,3 +1,7 @@
+* Mon Mar 11 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.21
+- Reduce time before credentials get refreshed
+- Add logging for url resolver
+
 * Tue Jan 29 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.20
 - Move ssu resolver log to systemd journal, with fallback in /tmp/ssu.log
 
