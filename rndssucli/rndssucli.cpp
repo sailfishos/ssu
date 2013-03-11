@@ -33,8 +33,7 @@ void RndSsuCli::run(){
 
   QStringList arguments = QCoreApplication::arguments();
 
-
-  if (arguments.count() != 2){
+  if (arguments.count() >= 2){
     usage();
     return;
   }
@@ -56,6 +55,23 @@ void RndSsuCli::run(){
     } else {
       ssu.updateCredentials();
     }
+  } else if (arguments.at(1) == "resolve"){
+    QString repo;
+    bool rndRepo=false;
+    if (arguments.count() <= 2){
+      usage();
+      return;
+    }
+    repo = arguments.at(2);
+
+    if (arguments.count() >= 3){
+      //qout << (arguments.at(3).compare("false")||arguments.at(3).compare("0"));
+      qout << (arguments.at(3).compare("false"));
+
+    }
+
+    qout << ssu.repoUrl(arguments.at(2));
+    QCoreApplication::exit(1);
   } else if (arguments.at(1) == "status"){
     qout << "Device registration status: "
          << (ssu.isRegistered() ? "registered" : "not registered") << endl;

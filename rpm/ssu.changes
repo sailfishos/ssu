@@ -1,3 +1,8 @@
+* Mon Mar 11 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.22
+- Add systemd logging to core library
+- Move zypper plugin logging to core library
+- Fix bug where resolverplugin does not return on credentials update
+
 * Mon Mar 11 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.21
 - Reduce time before credentials get refreshed
 - Add logging for url resolver

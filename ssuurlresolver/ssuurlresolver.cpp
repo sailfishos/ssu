@@ -16,32 +16,17 @@ SsuUrlResolver::SsuUrlResolver(): QObject(){
                    Qt::QueuedConnection);
 }
 
-void SsuUrlResolver::printJournal(int priority, QString message){
-  QByteArray ba = message.toUtf8();
-  const char *ca = ba.constData();
-
-  if (sd_journal_print(LOG_INFO, "ssu: %s", ca) < 0){
-    QFile logfile;
-    QTextStream logstream;
-    logfile.setFileName("/tmp/ssu.log");
-    logfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-    logstream.setDevice(&logfile);
-    logstream << message << "\n";
-    logstream.flush();
-  }
-}
-
 bool SsuUrlResolver::writeCredentials(QString filePath, QString credentialsScope){
   QFile credentialsFile(filePath);
   QPair<QString, QString> credentials = ssu.credentials(credentialsScope);
 
   if (credentials.first == "" || credentials.second == ""){
-    printJournal(LOG_WARNING, "Returned credentials are empty, skip writing");
+    ssu.printJournal(LOG_WARNING, "Returned credentials are empty, skip writing");
     return false;
   }
 
   if (!credentialsFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)){
-    printJournal(LOG_WARNING, "Unable to open credentials file for writing");
+    ssu.printJournal(LOG_WARNING, "Unable to open credentials file for writing");
     return false;
   }
 
@@ -63,7 +48,7 @@ void SsuUrlResolver::run(){
 
   if (in.headerEmpty()){
     // FIXME, do something; we need at least repo header
-    printJournal(LOG_WARNING, "Received empty header list. Most likely your ssu setup is broken");
+    ssu.printJournal(LOG_WARNING, "Received empty header list. Most likely your ssu setup is broken");
   }
 
   PluginFrame::HeaderListIterator it;
@@ -101,17 +86,16 @@ void SsuUrlResolver::run(){
     headerList.append("ssl_verify=no");
 
   if (isRnd || ssu.isRegistered()){
-    printJournal(LOG_DEBUG, "Attempting credential update");
     SignalWait w;
     connect(&ssu, SIGNAL(done()), &w, SLOT(finished()));
     ssu.updateCredentials();
     w.sleep();
   } else
-    printJournal(LOG_DEBUG, "No RnD repository, and device not registered -- skipping credential update");
+    ssu.printJournal(LOG_DEBUG, "No RnD repository, and device not registered -- skipping credential update");
 
   // TODO: check for credentials scope required for repository; check if the file exists;
   //       compare with configuration, and dump credentials to file if necessary
-  printJournal(LOG_DEBUG, QString("Requesting credentials for '%1' with RND status %2...").arg(repo).arg(isRnd));
+  ssu.printJournal(LOG_DEBUG, QString("Requesting credentials for '%1' with RND status %2...").arg(repo).arg(isRnd));
   QString credentialsScope = ssu.credentialsScope(repo, isRnd);
   if (!credentialsScope.isEmpty()){
     headerList.append(QString("credentials=%1").arg(credentialsScope));
@@ -120,10 +104,9 @@ void SsuUrlResolver::run(){
     if (!credentialsFileInfo.exists() ||
         credentialsFileInfo.lastModified() <= ssu.lastCredentialsUpdate()){
       writeCredentials(credentialsFileInfo.filePath(), credentialsScope);
-    } else
-      printJournal(LOG_DEBUG, "Skipping credential update -- file exists and was modified after last update");
+    }
   } else
-    printJournal(LOG_DEBUG, "Skipping credential update due to missing credentials scope");
+    ssu.printJournal(LOG_DEBUG, "Skipping credential update due to missing credentials scope");
 
   if (headerList.isEmpty()){
     resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
@@ -133,7 +116,7 @@ void SsuUrlResolver::run(){
       .arg(headerList.join("&"));
   }
 
-  printJournal(LOG_INFO, QString("%1 resolved to %2").arg(repo).arg(resolvedUrl));
+  ssu.printJournal(LOG_INFO, QString("%1 resolved to %2").arg(repo).arg(resolvedUrl));
 
   PluginFrame out("RESOLVEDURL");
   out.setBody(resolvedUrl.toStdString());
