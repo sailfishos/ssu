@@ -3,7 +3,7 @@ Version: 0.20
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
-License: Proprietary
+License: GPLv2
 Source0: %{name}-%{version}.tar.gz
 URL: https://github.com/nemomobile/ssu
 BuildRequires: pkgconfig(QtCore)
