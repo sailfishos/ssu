@@ -93,7 +93,7 @@ Requires: rpm
 
 
 %prep
-%setup -q
+%setup -q -n %{name}-%{version}
 
 
 %build
