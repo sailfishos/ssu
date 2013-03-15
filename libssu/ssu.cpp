@@ -377,6 +377,16 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
     repoParameters.insert("flavourName", flavour());
     repoParameters.insert("release", settings->value("rndRelease").toString());
     configSections << flavour()+"-flavour" << "rnd" << "all";
+
+    // Make it possible to give any values with the flavour as well.
+    // These values can be overridden later with domain if needed.
+    repoSettings->beginGroup(flavour()+"-flavour");
+    QStringList defKeys = repoSettings->allKeys();
+    foreach (const QString &key, defKeys){
+      repoParameters.insert(key, repoSettings->value(key).toString());
+    }
+    repoSettings->endGroup();
+
   } else {
     repoParameters.insert("release", settings->value("release").toString());
     configSections << "release" << "all";
