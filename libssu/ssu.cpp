@@ -9,6 +9,7 @@
 
 #include "ssu.h"
 #include "../constants.h"
+#include "ssuvariables.h"
 
 Ssu::Ssu(QString fallbackLog): QObject(){
   errorFlag = false;
@@ -241,17 +242,12 @@ QString Ssu::release(bool rnd){
 QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> repoParameters){
   QString r;
   QStringList configSections;
-  QStringList repoVariables;
+  SsuVariables var;
 
   errorFlag = false;
 
   // fill in all arbitrary variables from ssu.ini
-  settings->beginGroup("repository-url-variables");
-  repoVariables = settings->allKeys();
-  foreach (const QString &key, repoVariables){
-    repoParameters.insert(key, settings->value(key).toString());
-  }
-  settings->endGroup();
+  var.resolveSection(settings, "repository-url-variables", &repoParameters);
 
   // add/overwrite some of the variables with sane ones
   if (rndRepo){
@@ -263,13 +259,7 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
 
     // Make it possible to give any values with the flavour as well.
     // These values can be overridden later with domain if needed.
-    repoSettings->beginGroup(flavour()+"-flavour");
-    QStringList defKeys = repoSettings->allKeys();
-    foreach (const QString &key, defKeys){
-      repoParameters.insert(key, repoSettings->value(key).toString());
-    }
-    repoSettings->endGroup();
-
+    var.resolveSection(repoSettings, flavour()+"-flavour", &repoParameters);
   } else {
     repoParameters.insert("release", settings->value("release").toString());
     configSections << "release" << "all";
@@ -287,23 +277,10 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
 
   // Domain variables
   // first read all variables from default-domain
-  repoSettings->beginGroup("default-domain");
-  QStringList defKeys = repoSettings->allKeys();
-  foreach (const QString &key, defKeys){
-      repoParameters.insert(key, repoSettings->value(key).toString());
-  }
-  repoSettings->endGroup();
+  var.resolveSection(repoSettings, "default-domain", &repoParameters);
+
   // then overwrite with domain specific things if that block is available
-  QString domainSection = domain() + "-domain";
-  QStringList sections = repoSettings->childGroups();
-  if (sections.contains(domainSection)){
-    repoSettings->beginGroup(domainSection);
-    QStringList domainKeys = repoSettings->allKeys();
-    foreach (const QString &key, domainKeys){
-      repoParameters.insert(key, repoSettings->value(key).toString());
-    }
-    repoSettings->endGroup();
-  }
+  var.resolveSection(repoSettings, domain()+"-domain", &repoParameters);
 
   if (settings->contains("repository-urls/" + repoName))
     r = settings->value("repository-urls/" + repoName).toString();

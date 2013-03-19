@@ -1,9 +1,11 @@
 BUILD = ../build/libssu
 HEADERS = ssu.h \
         ssudeviceinfo.h \
+        ssuvariables.h \
         ../constants.h
 SOURCES = ssu.cpp \
-        ssudeviceinfo.cpp
+        ssudeviceinfo.cpp \
+        ssuvariables.cpp
 TEMPLATE = lib
 TARGET = ssu
 CONFIG += dll mobility link_pkgconfig
