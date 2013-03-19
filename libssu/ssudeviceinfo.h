@@ -11,6 +11,8 @@
 #include <QObject>
 #include <QSettings>
 
+#include <ssusettings.h>
+
 class SsuDeviceInfo: public QObject {
     Q_OBJECT
 
@@ -37,7 +39,7 @@ class SsuDeviceInfo: public QObject {
     bool getValue(const QString& key, QString& value);
 
   private:
-    QSettings *boardMappings;
+    SsuSettings *boardMappings;
     QString cachedFamily, cachedModel, cachedVariant;
 };
 #endif

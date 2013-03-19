@@ -10,13 +10,14 @@
 #include <QDir>
 
 #include "ssudeviceinfo.h"
+
 #include "../constants.h"
 
 QTM_USE_NAMESPACE
 
 SsuDeviceInfo::SsuDeviceInfo(): QObject(){
 
-    boardMappings = new QSettings(SSU_BOARD_MAPPING_CONFIGURATION, QSettings::IniFormat);
+    boardMappings = new SsuSettings(SSU_BOARD_MAPPING_CONFIGURATION, SSU_BOARD_MAPPING_CONFIGURATION_DIR);
 }
 
 QString SsuDeviceInfo::deviceFamily(){

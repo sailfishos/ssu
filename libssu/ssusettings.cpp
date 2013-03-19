@@ -7,6 +7,8 @@
 
 #include <QStringList>
 #include <QDirIterator>
+#include <QFileInfo>
+#include <QDateTime>
 
 #include "ssusettings.h"
 #include "ssulog.h"
@@ -25,16 +27,52 @@ SsuSettings::SsuSettings(const QString &fileName, Format format, const QString &
   upgrade();
 }
 
+SsuSettings::SsuSettings(const QString &fileName, const QString &settingsDirectory, QObject *parent):
+  QSettings(fileName, QSettings::IniFormat, parent){
+  settingsd = settingsDirectory;
+  merge();
+}
+
 void SsuSettings::merge(){
   if (settingsd == "")
     return;
 
+  bool skipMerge = true;
+
+  SsuLog *ssuLog = SsuLog::instance();
+
   QDirIterator it(settingsd, QDirIterator::FollowSymlinks);
-  // TODO: only rewrite the settings file if something has changed
+  QStringList settingsFiles;
+
+  QFileInfo oldSettingsInfo(fileName());
+
   while (it.hasNext()){
     QString f = it.next();
-    QSettings settings(f, QSettings::IniFormat);
+
+    if (it.fileName() == "." || it.fileName() == "..") continue;
+
+    settingsFiles.append(it.filePath());
+
+    QFileInfo info(it.filePath());
+    if (info.lastModified() >= oldSettingsInfo.lastModified())
+      skipMerge = false;
+  }
+
+  if (skipMerge){
+    ssuLog->print(LOG_DEBUG, QString("Configuration file is newer than all config.d files, skipping merge"));
+    return;
+  }
+
+  settingsFiles.sort();
+
+  foreach (const QString &settingsFile, settingsFiles){
+    QSettings settings(settingsFile, QSettings::IniFormat);
     QStringList groups = settings.childGroups();
+
+    ssuLog->print(LOG_DEBUG, QString("Merging %1 into %2")
+                  .arg(settingsFile)
+                  .arg(fileName()));
+
     foreach (const QString &group, groups){
       beginGroup(group);
       settings.beginGroup(group);
