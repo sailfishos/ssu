@@ -90,6 +90,14 @@ void SsuUrlResolver::run(){
     connect(&ssu, SIGNAL(done()), &w, SLOT(finished()));
     ssu.updateCredentials();
     w.sleep();
+
+    // error can be found in ssu.log, so just exit
+    // TODO: figure out if there's better eror handling for
+    //       zypper plugins than 'blow up'
+    if (ssu.error()){
+      emit done();
+      return;
+    }
   } else
     ssu.printJournal(LOG_DEBUG, "No RnD repository, and device not registered -- skipping credential update");
 
