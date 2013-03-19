@@ -18,6 +18,8 @@
 
 #include <systemd/sd-journal.h>
 
+#include <ssudeviceinfo.h>
+
 class Ssu: public QObject {
     Q_OBJECT
 
@@ -42,19 +44,6 @@ class Ssu: public QObject {
      * Return the URL for which credentials scope is valid
      */
     QString credentialsUrl(QString scope);
-    /**
-     * Try to find the device family for the system this is running on
-     */
-    Q_INVOKABLE QString deviceFamily();
-    /**
-     * Try to find out ond what kind of system this is running
-     */
-    Q_INVOKABLE QString deviceModel();
-    /**
-     * Calculate the device ID used in SSU requests
-     * @return QSystemDeviceInfo::imei(), if available, or QSystemDeviceInfo::uniqueDeviceID()
-     */
-    Q_INVOKABLE QString deviceUid();
     /**
      * Returns if the last operation was successful
      * @retval true last operation was successful
@@ -127,13 +116,19 @@ class Ssu: public QObject {
      */
     Q_INVOKABLE bool useSslVerify();
 
+
+    // compat stuff, might go away when refactoring is finished
+    Q_INVOKABLE QString deviceFamily(){ return deviceInfo.deviceFamily(); };
+    Q_INVOKABLE QString deviceModel(){ return deviceInfo.deviceModel(); };
+    Q_INVOKABLE QString deviceUid(){ return deviceInfo.deviceUid(); };
+
   private:
     QString errorString, fallbackLogPath;
-    QString cachedModel, cachedFamily;
     bool errorFlag;
     QNetworkAccessManager *manager;
     int pendingRequests;
-    QSettings *settings, *repoSettings, *boardMappings;
+    QSettings *settings, *repoSettings;
+    SsuDeviceInfo deviceInfo;
     bool registerDevice(QDomDocument *response);
     bool setCredentials(QDomDocument *response);
     bool verifyResponse(QDomDocument *response);

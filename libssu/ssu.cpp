@@ -5,14 +5,10 @@
  * @date 2012
  */
 
-#include <QSystemDeviceInfo>
-
 #include <QtXml/QDomDocument>
 
 #include "ssu.h"
 #include "../constants.h"
-
-QTM_USE_NAMESPACE
 
 Ssu::Ssu(QString fallbackLog): QObject(){
   errorFlag = false;
@@ -34,7 +30,6 @@ Ssu::Ssu(QString fallbackLog): QObject(){
 
   settings = new QSettings(SSU_CONFIGURATION, QSettings::IniFormat);
   repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
-  boardMappings = new QSettings(SSU_BOARD_MAPPING_CONFIGURATION, QSettings::IniFormat);
   QSettings defaultSettings(SSU_DEFAULT_CONFIGURATION, QSettings::IniFormat);
 
   int configVersion=0;
@@ -149,112 +144,6 @@ QString Ssu::credentialsUrl(QString scope){
     return settings->value("credentials-url-" + scope).toString();
   else
     return "your-configuration-is-broken-and-does-not-contain-credentials-url-for-" + scope;
-}
-
-QString Ssu::deviceFamily(){
-  QString model = deviceModel();
-
-  if (!cachedFamily.isEmpty())
-    return cachedFamily;
-
-  cachedFamily = "UNKNOWN";
-
-  if (boardMappings->contains("variants/" + model))
-    model = boardMappings->value("variants/" + model).toString();
-
-  if (boardMappings->contains(model + "/family"))
-    cachedFamily = boardMappings->value(model + "/family").toString();
-
-  return cachedFamily;
-}
-
-QString Ssu::deviceModel(){
-  QDir dir;
-  QFile procCpuinfo;
-  QStringList keys;
-
-  if (!cachedModel.isEmpty())
-    return cachedModel;
-
-  boardMappings->beginGroup("file.exists");
-  keys = boardMappings->allKeys();
-
-  // check if the device can be identified by testing for a file
-  foreach (const QString &key, keys){
-    QString value = boardMappings->value(key).toString();
-    if (dir.exists(value)){
-      cachedModel = key;
-      break;
-    }
-  }
-  boardMappings->endGroup();
-  if (!cachedModel.isEmpty()) return cachedModel;
-
-  // check if the QSystemInfo model is useful
-  QSystemDeviceInfo devInfo;
-  QString model = devInfo.model();
-  boardMappings->beginGroup("systeminfo.equals");
-  keys = boardMappings->allKeys();
-  foreach (const QString &key, keys){
-    QString value = boardMappings->value(key).toString();
-    if (model == value){
-      cachedModel = key;
-      break;
-    }
-  }
-  boardMappings->endGroup();
-  if (!cachedModel.isEmpty()) return cachedModel;
-
-  // check if the device can be identified by a string in /proc/cpuinfo
-  procCpuinfo.setFileName("/proc/cpuinfo");
-  procCpuinfo.open(QIODevice::ReadOnly | QIODevice::Text);
-  if (procCpuinfo.isOpen()){
-    QTextStream in(&procCpuinfo);
-    QString cpuinfo = in.readAll();
-    boardMappings->beginGroup("cpuinfo.contains");
-    keys = boardMappings->allKeys();
-
-    foreach (const QString &key, keys){
-      QString value = boardMappings->value(key).toString();
-      if (cpuinfo.contains(value)){
-        cachedModel = key;
-        break;
-      }
-    }
-    boardMappings->endGroup();
-  }
-  if (!cachedModel.isEmpty()) return cachedModel;
-
-
-  // check if there's a match on arch ofr generic fallback. This probably
-  // only makes sense for x86
-  boardMappings->beginGroup("arch.equals");
-  keys = boardMappings->allKeys();
-  foreach (const QString &key, keys){
-    QString value = boardMappings->value(key).toString();
-    if (settings->value("arch").toString() == value){
-      cachedModel = key;
-      break;
-    }
-  }
-  boardMappings->endGroup();
-  if (cachedModel.isEmpty()) cachedModel = "UNKNOWN";
-
-  return cachedModel;
-}
-
-QString Ssu::deviceUid(){
-  QString IMEI;
-  QSystemDeviceInfo devInfo;
-
-  IMEI = devInfo.imei();
-
-  // this might not be completely unique (or might change on reflash), but works for now
-  if (IMEI == ""){
-      IMEI = devInfo.uniqueDeviceID();
-  }
-
-  return IMEI;
 }
 
 bool Ssu::error(){
@@ -393,8 +282,8 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
     repoParameters.insert("arch", settings->value("arch").toString());
 
   repoParameters.insert("adaptation", settings->value("adaptation").toString());
-  repoParameters.insert("deviceFamily", deviceFamily());
-  repoParameters.insert("deviceModel", deviceModel());
+  repoParameters.insert("deviceFamily", deviceInfo.deviceFamily());
+  repoParameters.insert("deviceModel", deviceInfo.deviceModel());
 
   // Domain variables
   // first read all variables from default-domain
@@ -539,7 +428,7 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
   } else
     ssuRegisterUrl = settings->value("register-url").toString();
 
-  QString IMEI = deviceUid();
+  QString IMEI = deviceInfo.deviceUid();
   if (IMEI == ""){
     setError("No valid UID available for your device. For phones: is your modem online?");
     return;
@@ -564,7 +453,7 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
 
   QUrl form;
   form.addQueryItem("protocolVersion", SSU_PROTOCOL_VERSION);
-  form.addQueryItem("deviceModel", deviceModel());
+  form.addQueryItem("deviceModel", deviceInfo.deviceModel());
   if (!domain().isEmpty()){
     form.addQueryItem("domain", domain());
   }
@@ -688,7 +577,7 @@ void Ssu::storeAuthorizedKeys(QByteArray data){
 void Ssu::updateCredentials(bool force){
   errorFlag = false;
 
-  if (deviceUid() == ""){
+  if (deviceInfo.deviceUid() == ""){
     setError("No valid UID available for your device. For phones: is your modem online?");
     return;
   }
@@ -745,7 +634,7 @@ void Ssu::updateCredentials(bool force){
   sslConfiguration.setLocalCertificate(certificate);
 
   QNetworkRequest request;
-  request.setUrl(QUrl(ssuCredentialsUrl.arg(deviceUid())));
+  request.setUrl(QUrl(ssuCredentialsUrl.arg(deviceInfo.deviceUid())));
 
   printJournal(LOG_DEBUG, QString("Sending credential update request to %1")
                .arg(request.url().toString()));
