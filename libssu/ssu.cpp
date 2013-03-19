@@ -8,8 +8,10 @@
 #include <QtXml/QDomDocument>
 
 #include "ssu.h"
-#include "../constants.h"
+#include "ssulog.h"
 #include "ssuvariables.h"
+
+#include "../constants.h"
 
 Ssu::Ssu(QString fallbackLog): QObject(){
   errorFlag = false;
@@ -29,86 +31,8 @@ Ssu::Ssu(QString fallbackLog): QObject(){
   }
 #endif
 
-  settings = new QSettings(SSU_CONFIGURATION, QSettings::IniFormat);
+  settings = new SsuSettings(SSU_CONFIGURATION, QSettings::IniFormat, SSU_DEFAULT_CONFIGURATION);
   repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
-  QSettings defaultSettings(SSU_DEFAULT_CONFIGURATION, QSettings::IniFormat);
-
-  int configVersion=0;
-  int defaultConfigVersion=0;
-  if (settings->contains("configVersion"))
-    configVersion = settings->value("configVersion").toInt();
-  if (defaultSettings.contains("configVersion"))
-    defaultConfigVersion = defaultSettings.value("configVersion").toInt();
-
-  if (configVersion < defaultConfigVersion){
-    printJournal(LOG_DEBUG, QString("Configuration is outdated, updating from %1 to %2")
-                 .arg(configVersion)
-                 .arg(defaultConfigVersion));
-
-    for (int i=configVersion+1;i<=defaultConfigVersion;i++){
-      QStringList defaultKeys;
-      QString currentSection = QString("%1/").arg(i);
-
-      printJournal(LOG_DEBUG, QString("Processing configuration version %1").arg(i));
-      defaultSettings.beginGroup(currentSection);
-      defaultKeys = defaultSettings.allKeys();
-      defaultSettings.endGroup();
-      foreach (const QString &key, defaultKeys){
-        // Default keys support both commands and new keys
-        if (key.compare("cmd-remove", Qt::CaseSensitive) == 0){
-          // Remove keys listed in value as string list
-          QStringList oldKeys = defaultSettings.value(currentSection + key).toStringList();
-          foreach (const QString &oldKey, oldKeys){
-            if (settings->contains(oldKey)){
-              settings->remove(oldKey);
-              printJournal(LOG_DEBUG, QString("Removing old key: %1").arg(oldKey));
-            }
-          }
-        } else if (!settings->contains(key)){
-          // Add new keys..
-          settings->setValue(key, defaultSettings.value(currentSection + key));
-          printJournal(LOG_DEBUG, QString("Adding key: %1").arg(key));
-        } else {
-          // ... or update the ones where default values has changed.
-          QVariant oldValue;
-
-          // check if an old value exists in an older configuration version
-          for (int j=i-1;j>0;j--){
-            if (defaultSettings.contains(QString("%1/").arg(j)+key)){
-              oldValue = defaultSettings.value(QString("%1/").arg(j)+key);
-              break;
-            }
-          }
-
-          // skip updating if there is no old value, since we can't check if the
-          // default value has changed
-          if (oldValue.isNull())
-            continue;
-
-          QVariant newValue = defaultSettings.value(currentSection + key);
-          if (oldValue == newValue){
-            // old and new value match, no need to do anything, apart from beating the
-            // person who added a useless key
-            continue;
-          } else {
-            // default value has changed, so check if the configuration is still
-            // using the old default value...
-            QVariant currentValue = settings->value(key);
-            // testcase: handles properly default update of thing with changed value in ssu.ini?
-            if (currentValue == oldValue){
-              // ...and update the key if it does
-              settings->setValue(key, newValue);
-              printJournal(LOG_DEBUG, QString("Updating %1 from %2 to %3")
-                           .arg(key)
-                           .arg(currentValue.toString())
-                           .arg(newValue.toString()));
-            }
-          }
-        }
-      }
-      settings->setValue("configVersion", i);
-    }
-  }
 
 #ifdef TARGET_ARCH
   if (!settings->contains("arch"))
@@ -181,24 +105,10 @@ QString Ssu::lastError(){
   return errorString;
 }
 
-void Ssu::printJournal(int priority, QString message){
-  QByteArray ba = message.toUtf8();
-  const char *ca = ba.constData();
-
-  if (sd_journal_print(LOG_INFO, "ssu: %s", ca) < 0 && fallbackLogPath != ""){
-    QFile logfile;
-    QTextStream logstream;
-    logfile.setFileName(fallbackLogPath);
-    logfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-    logstream.setDevice(&logfile);
-    logstream << message << "\n";
-    logstream.flush();
-  }
-}
-
 bool Ssu::registerDevice(QDomDocument *response){
   QString certificateString = response->elementsByTagName("certificate").at(0).toElement().text();
   QSslCertificate certificate(certificateString.toAscii());
+  SsuLog *ssuLog = SsuLog::instance();
 
   if (certificate.isNull()){
     // make sure device is in unregistered state on failed registration
@@ -221,7 +131,7 @@ bool Ssu::registerDevice(QDomDocument *response){
   // oldUser is just for reference purposes, in case we want to notify
   // about owner changes for the device
   QString oldUser = response->elementsByTagName("user").at(0).toElement().text();
-  printJournal(LOG_DEBUG, QString("Old user for your device was: %1").arg(oldUser));
+  ssuLog->print(LOG_DEBUG, QString("Old user for your device was: %1").arg(oldUser));
 
   // if we came that far everything required for device registration is done
   settings->setValue("registered", true);
@@ -309,13 +219,14 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
 
 void Ssu::requestFinished(QNetworkReply *reply){
   QSslConfiguration sslConfiguration = reply->sslConfiguration();
+  SsuLog *ssuLog = SsuLog::instance();
 
-  printJournal(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
+  ssuLog->print(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
                .arg(sslConfiguration.peerCertificate().subjectInfo(QSslCertificate::CommonName))
                .arg(sslConfiguration.peerCertificate().issuerInfo(QSslCertificate::CommonName)));
 
   foreach (const QSslCertificate cert, sslConfiguration.peerCertificateChain()){
-    printJournal(LOG_DEBUG, QString("-> %1").arg(cert.subjectInfo(QSslCertificate::CommonName)));
+    ssuLog->print(LOG_DEBUG, QString("-> %1").arg(cert.subjectInfo(QSslCertificate::CommonName)));
   }
 
   // what sucks more, this or goto?
@@ -368,7 +279,7 @@ void Ssu::requestFinished(QNetworkReply *reply){
 
   pendingRequests--;
 
-  printJournal(LOG_DEBUG, QString("Request finished, pending requests: %1").arg(pendingRequests));
+  ssuLog->print(LOG_DEBUG, QString("Request finished, pending requests: %1").arg(pendingRequests));
   if (pendingRequests == 0)
     emit done();
 }
@@ -378,6 +289,8 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
 
   QString ssuCaCertificate, ssuRegisterUrl;
   QString username, domainName;
+
+  SsuLog *ssuLog = SsuLog::instance();
 
   // Username can include also domain, (user@domain), separate those
   if (usernameDomain.contains('@')) {
@@ -449,7 +362,7 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
     // clear header, the other request bits are reusable
     request.setHeader(QNetworkRequest::ContentTypeHeader, 0);
     request.setUrl(homeUrl + "/authorized_keys");
-    printJournal(LOG_DEBUG, QString("Trying to get SSH keys from %1").arg(request.url().toString()));
+    ssuLog->print(LOG_DEBUG, QString("Trying to get SSH keys from %1").arg(request.url().toString()));
     pendingRequests++;
     manager->get(request);
   }
@@ -502,8 +415,10 @@ void Ssu::setError(QString errorMessage){
   errorFlag = true;
   errorString = errorMessage;
 
+  SsuLog *ssuLog = SsuLog::instance();
+
   // dump error message to systemd journal for easier debugging
-  printJournal(LOG_WARNING, errorMessage);
+  ssuLog->print(LOG_WARNING, errorMessage);
 
   // assume that we don't even need to wait for other pending requests,
   // and just die. This is only relevant for CLI, which will exit after done()
@@ -554,6 +469,8 @@ void Ssu::storeAuthorizedKeys(QByteArray data){
 void Ssu::updateCredentials(bool force){
   errorFlag = false;
 
+  SsuLog *ssuLog = SsuLog::instance();
+
   if (deviceInfo.deviceUid() == ""){
     setError("No valid UID available for your device. For phones: is your modem online?");
     return;
@@ -587,7 +504,7 @@ void Ssu::updateCredentials(bool force){
     if (settings->contains("lastCredentialsUpdate")){
       QDateTime last = settings->value("lastCredentialsUpdate").toDateTime();
       if (last >= now.addSecs(-1800)){
-        printJournal(LOG_DEBUG, QString("Skipping credentials update, last update was at %1")
+        ssuLog->print(LOG_DEBUG, QString("Skipping credentials update, last update was at %1")
                      .arg(last.toString()));
         emit done();
         return;
@@ -613,7 +530,7 @@ void Ssu::updateCredentials(bool force){
   QNetworkRequest request;
   request.setUrl(QUrl(ssuCredentialsUrl.arg(deviceInfo.deviceUid())));
 
-  printJournal(LOG_DEBUG, QString("Sending credential update request to %1")
+  ssuLog->print(LOG_DEBUG, QString("Sending credential update request to %1")
                .arg(request.url().toString()));
   request.setSslConfiguration(sslConfiguration);
 

@@ -16,9 +16,8 @@
 
 #include <QtXml/QDomDocument>
 
-#include <systemd/sd-journal.h>
-
 #include <ssudeviceinfo.h>
+#include <ssusettings.h>
 
 class Ssu: public QObject {
     Q_OBJECT
@@ -78,10 +77,6 @@ class Ssu: public QObject {
      */
     Q_INVOKABLE QString lastError();
     /**
-     * Print a message to systemds journal, or to a text log file, if a fallback is defined
-     */
-    void printJournal(int priority, QString message);
-    /**
      * Return the release version string for either a release, or a RnD snapshot
      */
     Q_INVOKABLE QString release(bool rnd=false);
@@ -127,7 +122,8 @@ class Ssu: public QObject {
     bool errorFlag;
     QNetworkAccessManager *manager;
     int pendingRequests;
-    QSettings *settings, *repoSettings;
+    QSettings *repoSettings;
+    SsuSettings *settings;
     SsuDeviceInfo deviceInfo;
     bool registerDevice(QDomDocument *response);
     bool setCredentials(QDomDocument *response);
