@@ -27,13 +27,28 @@ QString SsuDeviceInfo::deviceFamily(){
 
   cachedFamily = "UNKNOWN";
 
-  if (boardMappings->contains("variants/" + model))
+  if (boardMappings->contains("variants/" + model)) {
     model = boardMappings->value("variants/" + model).toString();
+    cachedVariant = model;
+  }
 
   if (boardMappings->contains(model + "/family"))
     cachedFamily = boardMappings->value(model + "/family").toString();
 
   return cachedFamily;
+}
+
+QString SsuDeviceInfo::deviceVariant(){
+  if (!cachedVariant.isEmpty())
+    return cachedVariant;
+
+  cachedVariant = "";
+
+  if (boardMappings->contains("variants/" + deviceModel())) {
+    cachedVariant = boardMappings->value("variants/" + deviceModel()).toString();
+  }
+
+  return cachedVariant;
 }
 
 QString SsuDeviceInfo::deviceModel(){
@@ -125,4 +140,16 @@ QString SsuDeviceInfo::deviceUid(){
   }
 
   return IMEI;
+}
+
+bool SsuDeviceInfo::getValue(const QString& key, QString& value){
+  if (boardMappings->contains(deviceVariant()+"/"+key)){
+    value = boardMappings->value(deviceVariant()+"/"+key).toString();
+    return true;
+  }
+  else if (boardMappings->contains(deviceModel()+"/"+key)){
+    value = boardMappings->value(deviceModel()+"/"+key).toString();
+    return true;
+  }
+  return false;
 }
