@@ -88,7 +88,7 @@ void SsuUrlResolver::run(){
   if (!ssu.useSslVerify())
     headerList.append("ssl_verify=no");
 
-  if (isRnd || ssu.isRegistered()){
+  if (ssu.isRegistered()){
     SignalWait w;
     connect(&ssu, SIGNAL(done()), &w, SLOT(finished()));
     ssu.updateCredentials();
@@ -102,7 +102,7 @@ void SsuUrlResolver::run(){
       return;
     }
   } else
-    ssuLog->print(LOG_DEBUG, "No RnD repository, and device not registered -- skipping credential update");
+    ssuLog->print(LOG_DEBUG, "Device not registered -- skipping credential update");
 
   // TODO: check for credentials scope required for repository; check if the file exists;
   //       compare with configuration, and dump credentials to file if necessary
@@ -127,6 +127,8 @@ void SsuUrlResolver::run(){
       .arg(headerList.join("&"));
   }
 
+  // TODO, we should bail out here if the configuration specifies that the repo
+  //       is protected, but device is not registered and/or we don't have credentials
   ssuLog->print(LOG_INFO, QString("%1 resolved to %2").arg(repo).arg(resolvedUrl));
 
   PluginFrame out("RESOLVEDURL");
