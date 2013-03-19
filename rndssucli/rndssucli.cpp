@@ -28,62 +28,121 @@ void RndSsuCli::handleResponse(){
 }
 
 
+void RndSsuCli::optFlavour(QString newFlavour){
+  QTextStream qout(stdout);
+
+  if (newFlavour != ""){
+    qout << "Changing flavour from " << ssu.flavour()
+         << " to " << newFlavour;
+    ssu.setFlavour(newFlavour);
+  } else
+    qout << "Device flavour is currently: " << ssu.flavour();
+
+  QCoreApplication::exit(0);
+}
+
+void RndSsuCli::optRegister(){
+  /*
+   * register a new device
+   */
+
+  QString username, password;
+  QTextStream qin(stdin);
+  QTextStream qout(stdout);
+
+  qout << "Username: " << flush;
+  username = qin.readLine();
+  qout << "Password: " << flush;
+  password = qin.readLine();
+
+  ssu.sendRegistration(username, password);
+}
+
+void RndSsuCli::optResolve(){
+  /*
+   * resolve URL and print
+   * TODO: arguments
+   */
+
+  QString repo;
+  bool rndRepo=false;
+/*
+  repo = arguments.at(2);
+
+  if (arguments.count() >= 3){
+    //qout << (arguments.at(3).compare("false")||arguments.at(3).compare("0"));
+    qout << (arguments.at(3).compare("false"));
+  }
+
+  qout << ssu.repoUrl(arguments.at(2));
+  QCoreApplication::exit(1);
+*/
+
+  QCoreApplication::exit(1);
+}
+
+void RndSsuCli::optStatus(){
+  QTextStream qout(stdout);
+
+  /*
+   * print device information and registration status
+   */
+  qout << "Device registration status: "
+       << (ssu.isRegistered() ? "registered" : "not registered") << endl;
+  qout << "Device family: " << ssu.deviceFamily() << endl;
+  qout << "Device model: " << ssu.deviceModel() << endl;
+  qout << "Device UID: " << ssu.deviceUid() << endl;
+
+  QCoreApplication::exit(0);
+}
+
+void RndSsuCli::optUpdate(bool force){
+  QTextStream qout(stdout);
+  /*
+   * update the credentials
+   * optional argument: -f
+   */
+  if (!ssu.isRegistered()){
+      qout << "Device is not registered, can't update credentials" << endl;
+      QCoreApplication::exit(1);
+  } else
+    ssu.updateCredentials(force);
+
+  QCoreApplication::exit(0);
+}
+
 void RndSsuCli::run(){
   QTextStream qout(stdout);
 
   QStringList arguments = QCoreApplication::arguments();
 
+  // make sure there's a first argument to parse
+  if (arguments.count() < 2){
+    usage();
+    return;
+  }
+
   if (arguments.at(1) == "register" && arguments.count() == 2){
-    QString username, password;
-    QTextStream qin(stdin);
-
-    qout << "Username: " << flush;
-    username = qin.readLine();
-    qout << "Password: " << flush;
-    password = qin.readLine();
-
-    ssu.sendRegistration(username, password);
+    optRegister();
+  } else if (arguments.at(1) == "flavour" &&
+             (arguments.count() == 2 || arguments.count() == 3)){
+    if (arguments.count() == 2) optFlavour();
+    else optFlavour(arguments.at(2));
   } else if (arguments.at(1) == "update" &&
              (arguments.count() == 2 || arguments.count() == 3)){
-    if (!ssu.isRegistered()){
-      qout << "Device is not registered, can't update credentials" << endl;
-      QCoreApplication::exit(1);
-    } else {
-      bool force = false;
-      if (arguments.count() == 3 && arguments.at(2) == "-f")
-        force = true;
-      ssu.updateCredentials(force);
-    }
+    if (arguments.count() == 3 && arguments.at(2) == "-f")
+      optUpdate(true);
+    else optUpdate(false);
   } else if (arguments.at(1) == "resolve"){
-    QString repo;
-    bool rndRepo=false;
-    if (arguments.count() <= 2){
-      usage();
-      return;
-    }
-    repo = arguments.at(2);
-
-    if (arguments.count() >= 3){
-      //qout << (arguments.at(3).compare("false")||arguments.at(3).compare("0"));
-      qout << (arguments.at(3).compare("false"));
-    }
-
-    qout << ssu.repoUrl(arguments.at(2));
-    QCoreApplication::exit(1);
+    optResolve();
   } else if (arguments.at(1) == "status" && arguments.count() == 2){
-    qout << "Device registration status: "
-         << (ssu.isRegistered() ? "registered" : "not registered") << endl;
-    qout << "Device family: " << ssu.deviceFamily() << endl;
-    qout << "Device model: " << ssu.deviceModel() << endl;
-    qout << "Device UID: " << ssu.deviceUid() << endl;
-    QCoreApplication::exit(1);
+    optStatus();
   } else
     usage();
-
 }
 
 void RndSsuCli::usage(){
   QTextStream qout(stdout);
-  qout << "Usage: rndssu register|update [-f]|status" << endl;
+  qout << "Usage: rndssu flavour [flavour]|register|update [-f]|status" << endl;
   QCoreApplication::exit(1);
 }

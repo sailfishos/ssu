@@ -27,6 +27,12 @@ class RndSsuCli: public QObject {
     Ssu ssu;
     QSettings settings;
     void usage();
+    void optFlavour(QString newFlavour="");
+    void optRegister();
+    void optResolve();
+    void optStatus();
+    void optUpdate(bool force=false);
+
 
   private slots:
     void handleResponse();
