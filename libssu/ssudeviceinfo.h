@@ -21,6 +21,10 @@ class SsuDeviceInfo: public QObject {
      */
     Q_INVOKABLE QString deviceFamily();
     /**
+     * Try to find the device variant for the system this is running on.
+     */
+    Q_INVOKABLE QString deviceVariant();
+    /**
      * Try to find out ond what kind of system this is running
      */
     Q_INVOKABLE QString deviceModel();
@@ -30,8 +34,10 @@ class SsuDeviceInfo: public QObject {
      */
     Q_INVOKABLE QString deviceUid();
 
+    bool getValue(const QString& key, QString& value);
+
   private:
     QSettings *boardMappings;
-    QString cachedFamily, cachedModel;
+    QString cachedFamily, cachedModel, cachedVariant;
 };
 #endif

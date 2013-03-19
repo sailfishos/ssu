@@ -180,10 +180,19 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
 
   if (!repoParameters.contains("arch"))
     repoParameters.insert("arch", settings->value("arch").toString());
-
+  
   repoParameters.insert("adaptation", settings->value("adaptation").toString());
   repoParameters.insert("deviceFamily", deviceInfo.deviceFamily());
   repoParameters.insert("deviceModel", deviceInfo.deviceModel());
+
+  QStringList keys;
+  keys << "chip" << "adaptation" << "vendor";
+
+  foreach(QString key, keys){
+    QString value;
+    if (deviceInfo.getValue(key,value))
+      repoParameters.insert(key, value);
+  }
 
   // Domain variables
   // first read all variables from default-domain
