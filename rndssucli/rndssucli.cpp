@@ -6,6 +6,9 @@
  */
 
 #include <QCoreApplication>
+
+#include <termios.h>
+
 #include "rndssucli.h"
 
 RndSsuCli::RndSsuCli(): QObject(){
@@ -50,10 +53,21 @@ void RndSsuCli::optRegister(){
   QTextStream qin(stdin);
   QTextStream qout(stdout);
 
+  struct termios termNew, termOld;
+
   qout << "Username: " << flush;
   username = qin.readLine();
+
+  tcgetattr(STDIN_FILENO, &termNew);
+  termOld = termNew;
+  termNew.c_lflag &= ~ECHO;
+  if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &termNew) == -1)
+    qout << "WARNING: Unable to disable echo on your terminal, password will echo!";
+
   qout << "Password: " << flush;
   password = qin.readLine();
+
+  tcsetattr(STDIN_FILENO, TCSANOW, &termOld);
 
   ssu.sendRegistration(username, password);
 }
