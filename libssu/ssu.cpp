@@ -164,16 +164,16 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
     repoParameters.insert("flavour", repoSettings->value(flavour()+"-flavour/flavour-pattern").toString());
     repoParameters.insert("flavourPattern", repoSettings->value(flavour()+"-flavour/flavour-pattern").toString());
     repoParameters.insert("flavourName", flavour());
-    repoParameters.insert("release", settings->value("rndRelease").toString());
     configSections << flavour()+"-flavour" << "rnd" << "all";
 
     // Make it possible to give any values with the flavour as well.
     // These values can be overridden later with domain if needed.
     var.resolveSection(repoSettings, flavour()+"-flavour", &repoParameters);
   } else {
-    repoParameters.insert("release", settings->value("release").toString());
     configSections << "release" << "all";
   }
+
+  repoParameters.insert("release", release(rndRepo));
 
   if (!repoParameters.contains("debugSplit"))
     repoParameters.insert("debugSplit", "packages");
