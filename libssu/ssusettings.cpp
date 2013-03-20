@@ -41,15 +41,13 @@ void SsuSettings::merge(){
 
   SsuLog *ssuLog = SsuLog::instance();
 
-  QDirIterator it(settingsd, QDirIterator::FollowSymlinks);
+  QDirIterator it(settingsd, QDir::AllEntries|QDir::NoDotAndDotDot, QDirIterator::FollowSymlinks);
   QStringList settingsFiles;
 
   QFileInfo oldSettingsInfo(fileName());
 
   while (it.hasNext()){
     QString f = it.next();
-
-    if (it.fileName() == "." || it.fileName() == "..") continue;
 
     settingsFiles.append(it.filePath());
 
@@ -84,8 +82,8 @@ void SsuSettings::merge(){
 
       settings.endGroup();
       endGroup();
-      sync();
     }
+    sync();
   }
 }
 
