@@ -1,3 +1,6 @@
+* Fri Mar 22 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.25
+- Add variable substitution
+
 * Thu Mar 21 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.24
 - Add support for arbitrary variables in flavour groups
 - Split off device info and settings functionality
