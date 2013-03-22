@@ -23,6 +23,14 @@ class SsuVariables: public QObject {
      * QHash
      */
     void resolveSection(QSettings *settings, QString section, QHash<QString, QString> *storageHash);
+    /**
+     * Resolve a whole string, containing several variables. Variables inside variables are allowed
+     */
+    QString resolveString(QString pattern, QHash<QString, QString> *variables);
+    /**
+     * Resolve variables; variable can be passed as %(var) or var
+     */
+    QString resolveVariable(QString variable, QHash<QString, QString> *variables);
 };
 
 #endif

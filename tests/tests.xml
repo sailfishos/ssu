@@ -8,5 +8,10 @@
         <step expected_result="0">/opt/tests/ssu/ut_urlresolver</step>
       </case>
     </set>
+    <set name="variables" description="Test to determine if variable resolving works properly" feature="variables">
+      <case name="ut_variables" type="Functional" description="Variable resolver tests" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/ut_variables</step>
+      </case>
+    </set>
   </suite>
 </testdefinition>
