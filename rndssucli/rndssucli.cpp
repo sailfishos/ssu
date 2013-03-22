@@ -36,10 +36,10 @@ void RndSsuCli::optFlavour(QString newFlavour){
 
   if (newFlavour != ""){
     qout << "Changing flavour from " << ssu.flavour()
-         << " to " << newFlavour;
+         << " to " << newFlavour << endl;
     ssu.setFlavour(newFlavour);
   } else
-    qout << "Device flavour is currently: " << ssu.flavour();
+    qout << "Device flavour is currently: " << ssu.flavour() << endl;
 
   QCoreApplication::exit(0);
 }
@@ -62,7 +62,7 @@ void RndSsuCli::optRegister(){
   termOld = termNew;
   termNew.c_lflag &= ~ECHO;
   if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &termNew) == -1)
-    qout << "WARNING: Unable to disable echo on your terminal, password will echo!";
+    qout << "WARNING: Unable to disable echo on your terminal, password will echo!" << endl;
 
   qout << "Password: " << flush;
   password = qin.readLine();
