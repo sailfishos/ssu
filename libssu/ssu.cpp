@@ -180,7 +180,7 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
 
   if (!repoParameters.contains("arch"))
     repoParameters.insert("arch", settings->value("arch").toString());
-  
+
   repoParameters.insert("adaptation", settings->value("adaptation").toString());
   repoParameters.insert("deviceFamily", deviceInfo.deviceFamily());
   repoParameters.insert("deviceModel", deviceInfo.deviceModel());
@@ -215,15 +215,7 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
     }
   }
 
-  QHashIterator<QString, QString> i(repoParameters);
-  while (i.hasNext()){
-    i.next();
-    r.replace(
-      QString("%(%1)").arg(i.key()),
-      i.value());
-  }
-
-  return r;
+  return var.resolveString(r, &repoParameters);
 }
 
 void Ssu::requestFinished(QNetworkReply *reply){
@@ -436,6 +428,7 @@ void Ssu::setError(QString errorMessage){
 
 void Ssu::setFlavour(QString flavour){
   settings->setValue("flavour", flavour);
+  settings->sync();
   emit flavourChanged();
 }
 
@@ -444,6 +437,7 @@ void Ssu::setRelease(QString release, bool rnd){
     settings->setValue("rndRelease", release);
   else
     settings->setValue("release", release);
+  settings->sync();
 }
 
 void Ssu::setDomain(QString domain){
@@ -558,6 +552,7 @@ void Ssu::unregister(){
   settings->setValue("privateKey", "");
   settings->setValue("certificate", "");
   settings->setValue("registered", false);
+  settings->sync();
   emit registrationStatusChanged();
 }
 
