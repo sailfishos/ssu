@@ -19,6 +19,10 @@ class SsuDeviceInfo: public QObject {
   public:
     SsuDeviceInfo();
     /**
+     * Return the list of adaptations used for the set model
+     */
+    QStringList adaptationRepos();
+    /**
      * Try to find the device family for the system this is running on
      */
     Q_INVOKABLE QString deviceFamily();
@@ -35,7 +39,19 @@ class SsuDeviceInfo: public QObject {
      * @return QSystemDeviceInfo::imei(), if available, or QSystemDeviceInfo::uniqueDeviceID()
      */
     Q_INVOKABLE QString deviceUid();
+    /**
+     * Override device model autodetection
+     */
+    Q_INVOKABLE void setDeviceModel(QString model="");
+    /**
+     * Return the requested variable section. 'var-' is automatically
+     * prepended to the section name if not specified already.
+     */
+    QHash<QString, QString> variableSection(QString section);
 
+    /**
+     * Get a key from an adaptation section. Deprecated, don't use.
+     */
     bool getValue(const QString& key, QString& value);
 
   private:

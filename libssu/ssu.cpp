@@ -153,6 +153,7 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
   QString r;
   QStringList configSections;
   SsuVariables var;
+  SsuLog *ssuLog = SsuLog::instance();
 
   errorFlag = false;
 
@@ -181,17 +182,55 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
   if (!repoParameters.contains("arch"))
     repoParameters.insert("arch", settings->value("arch").toString());
 
-  repoParameters.insert("adaptation", settings->value("adaptation").toString());
+  // todo: allow override of deviceModel for cli url resolving
+  QStringList adaptationRepos = deviceInfo.adaptationRepos();
+
+  // read adaptation from settings, in case it can't be determined from
+  // board mappings. this is obsolete, and will be dropped soon
+  if (settings->contains("adaptation"))
+    repoParameters.insert("adaptation", settings->value("adaptation").toString());
+
   repoParameters.insert("deviceFamily", deviceInfo.deviceFamily());
   repoParameters.insert("deviceModel", deviceInfo.deviceModel());
 
+  // Those keys have now been obsoleted by generic variables, support for
+  // it will be removed soon
   QStringList keys;
   keys << "chip" << "adaptation" << "vendor";
-
   foreach(QString key, keys){
     QString value;
     if (deviceInfo.getValue(key,value))
       repoParameters.insert(key, value);
+  }
+
+  // special handling for adaptation-repositories
+  // - check if repo is in right format (adaptation\d*)
+  // - check if the configuration has that many adaptation repos
+  // - export the entry in the adaptation list as %(adaptation)
+  // - look up variables for that adaptation, and export matching
+  //   adaptation variable
+  QRegExp regex("adaptation\\\d*", Qt::CaseSensitive, QRegExp::RegExp2);
+  if (regex.exactMatch(repoName)){
+    regex.setPattern("\\\d*");
+    regex.lastIndexIn(repoName);
+    int n = regex.cap().toInt();
+
+    if (adaptationRepos.size() > n) {
+      QString adaptationRepo = adaptationRepos.at(n);
+      repoParameters.insert("adaptation", adaptationRepo);
+      ssuLog->print(LOG_DEBUG, "Found first adaptation " + repoName);
+
+      QHash<QString, QString> h = deviceInfo.variableSection(adaptationRepo);
+
+      QHash<QString, QString>::const_iterator i = h.constBegin();
+      while (i != h.constEnd()){
+        repoParameters.insert(i.key(), i.value());
+        i++;
+      }
+    } else
+      ssuLog->print(LOG_INFO, "Note: adaptation repo for invalid repo requested " + repoName);
+
+    repoName = "adaptation";
   }
 
   // Domain variables

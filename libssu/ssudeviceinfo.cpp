@@ -20,18 +20,28 @@ SsuDeviceInfo::SsuDeviceInfo(): QObject(){
     boardMappings = new SsuSettings(SSU_BOARD_MAPPING_CONFIGURATION, SSU_BOARD_MAPPING_CONFIGURATION_DIR);
 }
 
-QString SsuDeviceInfo::deviceFamily(){
-  QString model = deviceModel();
+QStringList SsuDeviceInfo::adaptationRepos(){
+  QStringList result;
 
+  QString model = deviceVariant();
+  if (model == "")
+    model = deviceModel();
+
+  if (boardMappings->contains(model + "/adaptation-repos"))
+    result = boardMappings->value(model + "/adaptation-repos").toStringList();
+
+  return result;
+}
+
+QString SsuDeviceInfo::deviceFamily(){
   if (!cachedFamily.isEmpty())
     return cachedFamily;
 
-  cachedFamily = "UNKNOWN";
+  QString model = deviceVariant();
+  if (model == "")
+    model = deviceModel();
 
-  if (boardMappings->contains("variants/" + model)) {
-    model = boardMappings->value("variants/" + model).toString();
-    cachedVariant = model;
-  }
+  cachedFamily = "UNKNOWN";
 
   if (boardMappings->contains(model + "/family"))
     cachedFamily = boardMappings->value(model + "/family").toString();
@@ -143,6 +153,28 @@ QString SsuDeviceInfo::deviceUid(){
   return IMEI;
 }
 
+QHash<QString, QString> SsuDeviceInfo::variableSection(QString section){
+  QHash<QString, QString> result;
+
+  if (!section.startsWith("var-"))
+    section = "var-" + section;
+
+  if (boardMappings->contains(section + "/variables")){
+    return variableSection(boardMappings->value(section + "/variables").toString());
+  }
+
+  boardMappings->beginGroup(section);
+  if (boardMappings->group() != section)
+    return result;
+
+  QStringList keys = boardMappings->allKeys();
+  foreach (const QString &key, keys){
+    result.insert(key, boardMappings->value(key).toString());
+  }
+
+  return result;
+}
+
 bool SsuDeviceInfo::getValue(const QString& key, QString& value){
   if (boardMappings->contains(deviceVariant()+"/"+key)){
     value = boardMappings->value(deviceVariant()+"/"+key).toString();
@@ -153,4 +185,14 @@ bool SsuDeviceInfo::getValue(const QString& key, QString& value){
     return true;
   }
   return false;
+}
+
+void SsuDeviceInfo::setDeviceModel(QString model){
+  if (model == "")
+    cachedModel = "";
+  else
+    cachedModel = model;
+
+  cachedFamily = "";
+  cachedVariant = "";
 }
