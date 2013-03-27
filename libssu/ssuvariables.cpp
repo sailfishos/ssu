@@ -103,6 +103,19 @@ QString SsuVariables::resolveVariable(QString variable, QHash<QString, QString> 
       if (variableValue != "")
         return variableSub.toString();
       break;
+    case '=': {
+      // %(%(foo):=bar?foobar|baz)
+      // if foo == bar then return foobar, else baz
+      QString sub = variableSub.toString();
+      QString a = sub.left(sub.indexOf("?"));
+      QString b = sub.right(sub.length() - sub.indexOf("?") - 1);
+      if (b.indexOf("|") == -1)
+        return b;
+      if (variableName == a)
+        return b.left(b.indexOf("|"));
+      else
+        return b.right(b.length() - b.indexOf("|") - 1);
+    }
   }
 
   // no proper substitution found -> return default value

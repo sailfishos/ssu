@@ -1,3 +1,6 @@
+* Wed Mar 27 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.27
+- Add support for := in variable substitution
+
 * Wed Mar 27 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.26
 - Take all adaptations from adaptation-repos list, allow freeform variables for adaptations
 

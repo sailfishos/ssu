@@ -44,6 +44,11 @@ void VariablesTest::initTestCase(){
   // substitution of variable with empty variable + /set -- should substitute to ""
   urls.insert("%(rndProtocol)://%(unsetDomain:+%(unsetDomain)/set)/nemo/%(release)-%(flavourName)/platform/%(arch)/",
               "https:///nemo/devel-flavour/platform/armv8/");
+  // test :=
+  urls.insert("%(%(rndProtocol):=https?https://%(releaseDomain)/%(release)-%(flavourName)|http://%(releaseDomain)/%(release)-%(flavourName))",
+              "https://releases.example.com/devel-flavour");
+  urls.insert("%(%(rndProtocol):=http?https://%(releaseDomain)/%(release)-%(flavourName)|http://%(releaseDomain)/%(release)-%(flavourName))",
+              "http://releases.example.com/devel-flavour");
 
 }
 
