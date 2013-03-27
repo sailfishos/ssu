@@ -22,4 +22,6 @@
 #define SSU_BOARD_MAPPING_CONFIGURATION_DIR "/usr/share/ssu/board-mappings.d"
 /// The SSU protocol version used by the ssu client libraries
 #define SSU_PROTOCOL_VERSION "1"
+/// Maximum recursion level for resolving variables
+#define SSU_MAX_RECURSION 1024
 #endif

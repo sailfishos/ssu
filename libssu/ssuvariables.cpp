@@ -11,6 +11,8 @@
 
 #include "ssuvariables.h"
 
+#include "../constants.h"
+
 SsuVariables::SsuVariables(): QObject() {
 
 }
@@ -26,7 +28,11 @@ void SsuVariables::resolveSection(QSettings *settings, QString section, QHash<QS
   settings->endGroup();
 }
 
-QString SsuVariables::resolveString(QString pattern, QHash<QString, QString> *variables){
+QString SsuVariables::resolveString(QString pattern, QHash<QString, QString> *variables, int recursionDepth){
+  if (recursionDepth >= SSU_MAX_RECURSION){
+    return "maximum-recursion-level-reached";
+  }
+
   QRegExp regex("%\\\([^%]*\\\)", Qt::CaseSensitive, QRegExp::RegExp2);
   regex.setMinimal(true);
 
@@ -55,7 +61,7 @@ QString SsuVariables::resolveString(QString pattern, QHash<QString, QString> *va
 
   // check if string still contains variables, and recurse
   if (regex.indexIn(pattern, 0) != -1)
-    pattern = resolveString(pattern, variables);
+    pattern = resolveString(pattern, variables, recursionDepth + 1);
 
   return pattern;
 }
