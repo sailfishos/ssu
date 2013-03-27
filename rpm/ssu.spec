@@ -22,6 +22,7 @@ Requires: ssu-vendor-data
 %defattr(-,root,root,-)
 %{_libdir}/zypp/plugins/urlresolver/*
 %{_bindir}/rndssu
+%{_bindir}/ssu
 %{_libdir}/*.so.*
 %dir %{_sysconfdir}/zypp/credentials.d
 
@@ -104,6 +105,7 @@ make %{?_smp_mflags}
 %install
 make INSTALL_ROOT=%{buildroot} install
 mkdir -p %{buildroot}/%{_sysconfdir}/zypp/credentials.d
+ln -s %{_bindir}/ssu %{buildroot}/%{_bindir}/rndssu
 
 %pre
 groupadd -rf ssu

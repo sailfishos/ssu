@@ -1,5 +1,9 @@
 isEmpty(BUILD){
-        BUILD = $$PWD/build/$$TARGET
+        isEmpty(TARGETDIR){
+                BUILD = $$PWD/build/$$TARGET
+        } else {
+                BUILD = $$PWD/build/$$TARGETDIR
+        }
 }
 isEmpty(DESTDIR){
         DESTDIR = $$BUILD

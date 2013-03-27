@@ -130,6 +130,9 @@ void RndSsuCli::run(){
 
   QStringList arguments = QCoreApplication::arguments();
 
+  if (arguments.at(0).endsWith("rndssu"))
+    qout << "NOTE: this binary is now called ssu. The rndssu symlink will go away after some time" << endl;
+
   // make sure there's a first argument to parse
   if (arguments.count() < 2){
     usage();

@@ -3,7 +3,8 @@ SOURCES = main.cpp \
         rndssucli.cpp
 #RESOURCES = rndregister.qrc
 TEMPLATE = app
-TARGET = rndssu
+TARGET = ssu
+TARGETDIR = ssucli
 LIBS += -lssu
 CONFIG -= app_bundle
 CONFIG += console
