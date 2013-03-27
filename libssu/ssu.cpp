@@ -215,7 +215,12 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
     regex.lastIndexIn(repoName);
     int n = regex.cap().toInt();
 
-    if (adaptationRepos.size() > n) {
+    if (!adaptationRepos.isEmpty()){
+      if (adaptationRepos.size() <= n) {
+        ssuLog->print(LOG_INFO, "Note: repo index out of bounds, substituting 0" + repoName);
+        n = 0;
+      }
+
       QString adaptationRepo = adaptationRepos.at(n);
       repoParameters.insert("adaptation", adaptationRepo);
       ssuLog->print(LOG_DEBUG, "Found first adaptation " + repoName);
