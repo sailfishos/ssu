@@ -9,6 +9,8 @@
 
 #include <termios.h>
 
+#include <ssudeviceinfo.h>
+
 #include "rndssucli.h"
 
 RndSsuCli::RndSsuCli(): QObject(){
@@ -97,15 +99,17 @@ void RndSsuCli::optResolve(){
 
 void RndSsuCli::optStatus(){
   QTextStream qout(stdout);
+  SsuDeviceInfo deviceInfo;
 
   /*
    * print device information and registration status
    */
   qout << "Device registration status: "
        << (ssu.isRegistered() ? "registered" : "not registered") << endl;
-  qout << "Device family: " << ssu.deviceFamily() << endl;
-  qout << "Device model: " << ssu.deviceModel() << endl;
-  qout << "Device UID: " << ssu.deviceUid() << endl;
+  qout << "Device family: " << deviceInfo.deviceFamily() << endl;
+  qout << "Device model: " << deviceInfo.deviceModel() << endl;
+  qout << "Device variant: " << deviceInfo.deviceVariant() << endl;
+  qout << "Device UID: " << deviceInfo.deviceUid() << endl;
 
   QCoreApplication::exit(0);
 }
