@@ -30,6 +30,7 @@ class SsuSettings: public QSettings {
   private:
     QString defaultSettingsFile, settingsd;
     void merge(bool keepOld=false);
+    static void merge(QSettings *masterSettings, const QStringList &settingsFiles);
     void upgrade();
 
 };

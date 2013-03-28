@@ -67,27 +67,33 @@ void SsuSettings::merge(bool keepOld){
   if (settingsFiles.count() > 0 && !keepOld)
     clear();
 
+  merge(this, settingsFiles);
+  sync();
+}
+
+void SsuSettings::merge(QSettings *masterSettings, const QStringList &settingsFiles){
+  SsuLog *ssuLog = SsuLog::instance();
+
   foreach (const QString &settingsFile, settingsFiles){
     QSettings settings(settingsFile, QSettings::IniFormat);
     QStringList groups = settings.childGroups();
 
     ssuLog->print(LOG_DEBUG, QString("Merging %1 into %2")
                   .arg(settingsFile)
-                  .arg(fileName()));
+                  .arg(masterSettings->fileName()));
 
     foreach (const QString &group, groups){
-      beginGroup(group);
+      masterSettings->beginGroup(group);
       settings.beginGroup(group);
 
       QStringList keys = settings.allKeys();
       foreach (const QString &key, keys){
-        setValue(key, settings.value(key));
+        masterSettings->setValue(key, settings.value(key));
       }
 
       settings.endGroup();
-      endGroup();
+      masterSettings->endGroup();
     }
-    sync();
   }
 }
 
@@ -175,5 +181,6 @@ void SsuSettings::upgrade(){
       }
       setValue("configVersion", i);
     }
+    sync();
   }
 }
