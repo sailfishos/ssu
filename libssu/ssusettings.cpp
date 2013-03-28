@@ -97,6 +97,12 @@ void SsuSettings::merge(QSettings *masterSettings, const QStringList &settingsFi
   }
 }
 
+/*
+ * If you change anything here, run `make update-upgrade-test-recipe` inside
+ * tests/ut_settings/ and check the impact of your changes with
+ * `git diff testdata/upgrade/recipe`. See ut_settings/upgradetesthelper.cpp for
+ * more details.
+ */
 void SsuSettings::upgrade(){
   int configVersion=0;
   int defaultConfigVersion=0;

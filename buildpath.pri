@@ -17,4 +17,5 @@ UI_SOURCES_DIR = $$BUILD
 RCC_DIR = $$BUILD
 
 LIBS += -L$$PWD/build/libssu
+LD_LIBRARY_PATH = $$PWD/build/libssu
 INCLUDEPATH += $$PWD/libssu

@@ -18,6 +18,8 @@ class SettingsTest: public QObject {
     void cleanupTestCase();
     void testMerge_data();
     void testMerge();
+    void testUpgrade_data();
+    void testUpgrade();
 
   private:
 };
