@@ -40,6 +40,14 @@ class SsuDeviceInfo: public QObject {
      */
     Q_INVOKABLE QString deviceUid();
     /**
+     * Return the list of repositories explicitely disabled for this device
+     */
+    QStringList disabledRepos();
+    /**
+     * Return the complete list of repositories configured for a device
+     */
+    QStringList repos(bool rnd=false);
+    /**
      * Override device model autodetection
      */
     Q_INVOKABLE void setDeviceModel(QString model="");

@@ -153,6 +153,57 @@ QString SsuDeviceInfo::deviceUid(){
   return IMEI;
 }
 
+QStringList SsuDeviceInfo::disabledRepos(){
+  QStringList result;
+
+  QString model = deviceVariant();
+  if (model == "")
+    model = deviceModel();
+
+  if (boardMappings->contains(model + "/disabled-repos"))
+    result = boardMappings->value(model + "/disabled-repos").toStringList();
+
+  return result;
+}
+
+QStringList SsuDeviceInfo::repos(bool rnd){
+  int adaptationCount = adaptationRepos().size();
+  QStringList result;
+
+  // for repo names we have adaptation0, adaptation1, ..., adaptationN
+  for (int i=0; i<adaptationCount; i++)
+    result.append(QString("adaptation%1").arg(i));
+
+  // now read the release/rnd repos
+  QSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+  QString repoKey = (rnd ? "default-repos/rnd" : "default-repos/release");
+  if (repoSettings.contains(repoKey))
+    result.append(repoSettings.value(repoKey).toStringList());
+
+  // TODO: add specific repos (developer, sdk, ..)
+
+  // read user-defined repositories from ssu.ini
+  // TODO: in strict mode, filter the repository list from there
+  QSettings ssuSettings(SSU_CONFIGURATION, QSettings::IniFormat);
+  ssuSettings.beginGroup("repository-urls");
+  result.append(ssuSettings.allKeys());
+  ssuSettings.endGroup();
+
+  result.removeDuplicates();
+
+  // read the disabled repositories for this device
+  foreach (const QString &key, disabledRepos())
+    result.removeAll(key);
+
+  // read the disabled repositories from user configuration
+  if (ssuSettings.contains("disabledRepos")){
+    foreach (const QString &key, ssuSettings.value("disabledRepos").toStringList())
+      result.removeAll(key);
+  }
+
+  return result;
+}
+
 QHash<QString, QString> SsuDeviceInfo::variableSection(QString section){
   QHash<QString, QString> result;
 
