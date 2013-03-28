@@ -55,6 +55,10 @@ class Ssu: public QObject {
      */
     Q_INVOKABLE QString flavour();
     /**
+     * Get the current mode bits for the device
+     */
+    Q_INVOKABLE int deviceMode();
+    /**
      * Get the current domain used in registration
      * @return domain, or "" if not set
      */
@@ -88,6 +92,10 @@ class Ssu: public QObject {
                     QHash<QString, QString> repoParameters=QHash<QString, QString>(),
                     QHash<QString, QString> parametersOverride=QHash<QString, QString>());
     /**
+     * Set mode bits for the device
+     */
+    Q_INVOKABLE void setDeviceMode(int mode, int editMode=Replace);
+    /**
      * Set the flavour used when resolving RND repositories
      */
     Q_INVOKABLE void setFlavour(QString flavour);
@@ -113,6 +121,18 @@ class Ssu: public QObject {
      */
     Q_INVOKABLE bool useSslVerify();
 
+    enum DeviceMode {
+      RepoManager   = 0x1,
+      RndMode       = 0x2,
+      ReleaseMode   = 0x4,
+      StrictMode    = 0x8
+    };
+
+    enum EditMode {
+      Replace = 0x1,
+      Add     = 0x2,
+      Remove  = 0x4
+    };
 
     // compat stuff, might go away when refactoring is finished
     Q_INVOKABLE QString deviceFamily(){ return deviceInfo.deviceFamily(); };

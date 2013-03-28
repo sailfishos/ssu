@@ -82,6 +82,14 @@ QString Ssu::flavour(){
     return "release";
 }
 
+int Ssu::deviceMode(){
+  if (!settings->contains("deviceMode")){
+    settings->setValue("deviceMode", ReleaseMode);
+    return ReleaseMode;
+  } else
+    return settings->value("deviceMode").toInt();
+}
+
 QString Ssu::domain(){
   if (settings->contains("domain"))
     return settings->value("domain").toString();
@@ -466,6 +474,19 @@ bool Ssu::setCredentials(QDomDocument *response){
   emit credentialsChanged();
 
   return true;
+}
+
+void Ssu::setDeviceMode(int mode, int editMode){
+  int oldMode = settings->value("deviceMode").toInt();
+
+  if ((editMode & Add) == Add){
+    oldMode |= mode;
+  } else if ((editMode & Remove) == Remove){
+    oldMode &= ~mode;
+  } else
+    oldMode = mode;
+
+  settings->setValue("deviceMode", oldMode);
 }
 
 void Ssu::setError(QString errorMessage){
