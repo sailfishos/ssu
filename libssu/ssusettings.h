@@ -13,6 +13,8 @@
 class SsuSettings: public QSettings {
     Q_OBJECT
 
+    friend class SettingsTest;
+
   public:
     SsuSettings();
     SsuSettings(const QString &fileName, Format format, QObject *parent=0);
