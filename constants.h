@@ -24,4 +24,6 @@
 #define SSU_PROTOCOL_VERSION "1"
 /// Maximum recursion level for resolving variables
 #define SSU_MAX_RECURSION 1024
+/// Path to zypper repo configuration
+#define ZYPP_REPO_PATH "/etc/zypp/repos.d"
 #endif

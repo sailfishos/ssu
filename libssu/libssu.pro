@@ -4,11 +4,13 @@ HEADERS = ssu.h \
         ssulog.h \
         ssuvariables.h \
         ssusettings.h \
+        ssurepomanager.h \
         ../constants.h
 SOURCES = ssu.cpp \
         ssudeviceinfo.cpp \
         ssulog.cpp \
         ssuvariables.cpp \
+        ssurepomanager.cpp \
         ssusettings.cpp
 TEMPLATE = lib
 TARGET = ssu
