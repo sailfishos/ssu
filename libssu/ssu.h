@@ -84,7 +84,9 @@ class Ssu: public QObject {
      * Resolve a repository url
      * @return the repository URL on success, an empty string on error
      */
-    QString repoUrl(QString repoName, bool rndRepo=false, QHash<QString, QString> repoParameters=QHash<QString, QString>());
+    QString repoUrl(QString repoName, bool rndRepo=false,
+                    QHash<QString, QString> repoParameters=QHash<QString, QString>(),
+                    QHash<QString, QString> parametersOverride=QHash<QString, QString>());
     /**
      * Set the flavour used when resolving RND repositories
      */

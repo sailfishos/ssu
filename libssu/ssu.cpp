@@ -149,7 +149,9 @@ QString Ssu::release(bool rnd){
 
 // RND repos have flavour (devel, testing, release), and release (latest, next)
 // Release repos only have release (latest, next, version number)
-QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> repoParameters){
+QString Ssu::repoUrl(QString repoName, bool rndRepo,
+                     QHash<QString, QString> repoParameters,
+                     QHash<QString, QString> parametersOverride){
   QString r;
   QStringList configSections;
   SsuVariables var;
@@ -182,7 +184,10 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
   if (!repoParameters.contains("arch"))
     repoParameters.insert("arch", settings->value("arch").toString());
 
-  // todo: allow override of deviceModel for cli url resolving
+  // Override device model (and therefore all the family, ... stuff)
+  if (parametersOverride.contains("model"))
+    deviceInfo.setDeviceModel(parametersOverride.value("model"));
+
   QStringList adaptationRepos = deviceInfo.adaptationRepos();
 
   // read adaptation from settings, in case it can't be determined from
@@ -244,6 +249,13 @@ QString Ssu::repoUrl(QString repoName, bool rndRepo, QHash<QString, QString> rep
 
   // then overwrite with domain specific things if that block is available
   var.resolveSection(repoSettings, domain()+"-domain", &repoParameters);
+
+  // override arbitrary variables, mostly useful for generating mic URLs
+  QHash<QString, QString>::const_iterator i = parametersOverride.constBegin();
+  while (i != parametersOverride.constEnd()){
+    repoParameters.insert(i.key(), i.value());
+    i++;
+  }
 
   if (settings->contains("repository-urls/" + repoName))
     r = settings->value("repository-urls/" + repoName).toString();
