@@ -29,7 +29,7 @@ class SsuSettings: public QSettings {
 
   private:
     QString defaultSettingsFile, settingsd;
-    void merge();
+    void merge(bool keepOld=false);
     void upgrade();
 
 };

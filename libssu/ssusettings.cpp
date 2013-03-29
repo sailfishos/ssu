@@ -33,7 +33,7 @@ SsuSettings::SsuSettings(const QString &fileName, const QString &settingsDirecto
   merge();
 }
 
-void SsuSettings::merge(){
+void SsuSettings::merge(bool keepOld){
   if (settingsd == "")
     return;
 
@@ -62,6 +62,10 @@ void SsuSettings::merge(){
   }
 
   settingsFiles.sort();
+
+  // delete all keys in the cached settings
+  if (settingsFiles.count() > 0 && !keepOld)
+    clear();
 
   foreach (const QString &settingsFile, settingsFiles){
     QSettings settings(settingsFile, QSettings::IniFormat);
