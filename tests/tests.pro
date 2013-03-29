@@ -3,6 +3,7 @@ CONFIG         += qt ordered coverage debug
 SUBDIRS         = \
         sandbox \
         ut_settings \
+        ut_ssuurlresolver \
         ut_urlresolver \
         ut_variables \
 
