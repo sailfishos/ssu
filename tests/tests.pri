@@ -1,3 +1,5 @@
+DEPENDPATH *= $${PWD}/sandbox
+
 TESTS_PATH = /opt/tests/ssu
 DEFINES += TESTS_PATH="'\"$${TESTS_PATH}\"'"
 

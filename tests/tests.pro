@@ -1,6 +1,7 @@
 TEMPLATE        = subdirs
 CONFIG         += qt ordered coverage debug
 SUBDIRS         = \
+        sandbox \
         ut_settings \
         ut_urlresolver \
         ut_variables \
