@@ -487,6 +487,7 @@ void Ssu::setDeviceMode(int mode, int editMode){
     oldMode = mode;
 
   settings->setValue("deviceMode", oldMode);
+  settings->sync();
 }
 
 void Ssu::setError(QString errorMessage){
@@ -505,15 +506,21 @@ void Ssu::setError(QString errorMessage){
 
 void Ssu::setFlavour(QString flavour){
   settings->setValue("flavour", flavour);
+  // flavour is RnD only, so enable RnD mode
+  setDeviceMode(RndMode, Add);
   settings->sync();
   emit flavourChanged();
 }
 
 void Ssu::setRelease(QString release, bool rnd){
-  if (rnd)
+  if (rnd) {
     settings->setValue("rndRelease", release);
-  else
+    // switch rndMode on/off when setting releases
+    setDeviceMode(RndMode, Add);
+  } else {
     settings->setValue("release", release);
+    setDeviceMode(RndMode, Remove);
+  }
   settings->sync();
 }
 

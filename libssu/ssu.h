@@ -121,17 +121,27 @@ class Ssu: public QObject {
      */
     Q_INVOKABLE bool useSslVerify();
 
+    /**
+     * List of possible device modes
+     *
+     * ReleaseMode is defined to make a switch to allowing RnD and Release
+     * repositories on a device at the same time easy, if ever needed. Right
+     * now any mode where RndMode is not set is treated as ReleaseMode.
+     */
     enum DeviceMode {
-      RepoManager   = 0x1,
-      RndMode       = 0x2,
-      ReleaseMode   = 0x4,
-      StrictMode    = 0x8
+      DisableRepoManager = 0x1,  ///< Disable automagic repository management
+      RndMode            = 0x2,  ///< Enable RnD mode for device
+      ReleaseMode        = 0x4,  ///< Enable Release mode
+      StrictMode         = 0x8   ///< Enable strict mode (i.e., delete unmanaged repositories)
     };
 
+    /**
+     * Edit modes for variables containing bitmasks
+     */
     enum EditMode {
-      Replace = 0x1,
-      Add     = 0x2,
-      Remove  = 0x4
+      Replace = 0x1, ///< Replace the old value with the new one
+      Add     = 0x2, ///< Make sure the given value is set in the bitmask
+      Remove  = 0x4  ///< Make sure the given value is not set in the bitmask
     };
 
     // compat stuff, might go away when refactoring is finished
