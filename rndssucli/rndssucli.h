@@ -26,13 +26,31 @@ class RndSsuCli: public QObject {
   private:
     Ssu ssu;
     QSettings settings;
+    int state;
     void usage();
-    void optFlavour(QString newFlavour="");
+    void optFlavour(QStringList opt);
+    void optMode(QStringList opt);
+    void optModifyRepo(int action, QStringList opt);
     void optRegister();
-    void optResolve();
+    void optRelease(QStringList opt);
+    void optRepos(QStringList opt);
+    void optResolve(QStringList opt);
     void optStatus();
-    void optUpdate(bool force=false);
+    void optUpdateCredentials(QStringList opt);
+    void optUpdateRepos();
 
+    enum Actions {
+      Remove,
+      Add,
+      Disable,
+      Enable
+    };
+
+    enum State {
+      Idle,
+      Busy,
+      UserError
+    };
 
   private slots:
     void handleResponse();

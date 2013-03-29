@@ -23,6 +23,13 @@ class SsuRepoManager: public QObject {
      * QHash
      */
     void update();
+    /**
+     * Resolve a repository url
+     * @return the repository URL on success, an empty string on error
+     */
+    QString url(QString repoName, bool rndRepo=false,
+                QHash<QString, QString> repoParameters=QHash<QString, QString>(),
+                QHash<QString, QString> parametersOverride=QHash<QString, QString>());
 };
 
 #endif

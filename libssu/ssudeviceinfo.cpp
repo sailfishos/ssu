@@ -10,6 +10,7 @@
 #include <QDir>
 
 #include "ssudeviceinfo.h"
+#include "ssucoreconfig.h"
 
 #include "../constants.h"
 
@@ -124,10 +125,10 @@ QString SsuDeviceInfo::deviceModel(){
   boardMappings->beginGroup("arch.equals");
   keys = boardMappings->allKeys();
 
-  QSettings settings(SSU_CONFIGURATION, QSettings::IniFormat);
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
   foreach (const QString &key, keys){
     QString value = boardMappings->value(key).toString();
-    if (settings.value("arch").toString() == value){
+    if (settings->value("arch").toString() == value){
       cachedModel = key;
       break;
     }
@@ -185,10 +186,10 @@ QStringList SsuDeviceInfo::repos(bool rnd){
 
   // read user-defined repositories from ssu.ini
   // TODO: in strict mode, filter the repository list from there
-  QSettings ssuSettings(SSU_CONFIGURATION, QSettings::IniFormat);
-  ssuSettings.beginGroup("repository-urls");
-  result.append(ssuSettings.allKeys());
-  ssuSettings.endGroup();
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+  ssuSettings->beginGroup("repository-urls");
+  result.append(ssuSettings->allKeys());
+  ssuSettings->endGroup();
 
   result.removeDuplicates();
 
@@ -197,8 +198,8 @@ QStringList SsuDeviceInfo::repos(bool rnd){
     result.removeAll(key);
 
   // read the disabled repositories from user configuration
-  if (ssuSettings.contains("disabled-repos")){
-    foreach (const QString &key, ssuSettings.value("disabled-repos").toStringList())
+  if (ssuSettings->contains("disabled-repos")){
+    foreach (const QString &key, ssuSettings->value("disabled-repos").toStringList())
       result.removeAll(key);
   }
 

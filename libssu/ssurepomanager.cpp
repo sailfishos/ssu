@@ -11,7 +11,9 @@
 
 #include "ssudeviceinfo.h"
 #include "ssurepomanager.h"
+#include "ssucoreconfig.h"
 #include "ssulog.h"
+#include "ssuvariables.h"
 #include "ssu.h"
 
 #include "../constants.h"
@@ -28,8 +30,8 @@ void SsuRepoManager::update(){
   SsuDeviceInfo deviceInfo;
   QStringList ssuFilters;
 
-  QSettings ssuSettings(SSU_CONFIGURATION, QSettings::IniFormat);
-  int deviceMode = ssuSettings.value("deviceMode").toInt();
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+  int deviceMode = ssuSettings->value("deviceMode").toInt();
 
   SsuLog *ssuLog = SsuLog::instance();
 
@@ -44,8 +46,13 @@ void SsuRepoManager::update(){
   if ((deviceMode & Ssu::RndMode) == Ssu::RndMode)
     rndMode = true;
 
-  // strict mode enabled -> delete all repositories not prefixed by ssu_
-  if ((deviceMode & Ssu::StrictMode) == Ssu::StrictMode){
+  // get list of device-specific repositories...
+  QStringList repos = deviceInfo.repos(rndMode);
+
+  // strict mode enabled -> delete all repositories not prefixed by ssu
+  // assume configuration error if there are no device repos, and don't delete
+  // anything, even in strict mode
+  if ((deviceMode & Ssu::StrictMode) == Ssu::StrictMode && !repos.isEmpty()){
     QDirIterator it(ZYPP_REPO_PATH, QDir::AllEntries|QDir::NoDot|QDir::NoDotDot);
     while (it.hasNext()){
       it.next();
@@ -55,9 +62,6 @@ void SsuRepoManager::update(){
       }
     }
   }
-
-  // get list of device-specific repositories...
-  QStringList repos = deviceInfo.repos(rndMode);
 
   // ... delete all ssu-managed repositories not valid for this device ...
   ssuFilters.append("ssu_*");
@@ -101,4 +105,140 @@ void SsuRepoManager::update(){
       out.flush();
     }
   }
+}
+
+// RND repos have flavour (devel, testing, release), and release (latest, next)
+// Release repos only have release (latest, next, version number)
+QString SsuRepoManager::url(QString repoName, bool rndRepo,
+                            QHash<QString, QString> repoParameters,
+                            QHash<QString, QString> parametersOverride){
+  QString r;
+  QStringList configSections;
+  SsuVariables var;
+  SsuLog *ssuLog = SsuLog::instance();
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  QSettings *repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+  SsuDeviceInfo deviceInfo;
+
+  //errorFlag = false;
+
+  settings->sync();
+
+  // fill in all arbitrary variables from ssu.inie
+  var.resolveSection(settings, "repository-url-variables", &repoParameters);
+
+  // add/overwrite some of the variables with sane ones
+  if (rndRepo){
+    repoParameters.insert("flavour",
+                          repoSettings->value(
+                            settings->flavour()+"-flavour/flavour-pattern").toString());
+    repoParameters.insert("flavourPattern",
+                          repoSettings->value(
+                            settings->flavour()+"-flavour/flavour-pattern").toString());
+    repoParameters.insert("flavourName", settings->flavour());
+    configSections << settings->flavour()+"-flavour" << "rnd" << "all";
+
+    // Make it possible to give any values with the flavour as well.
+    // These values can be overridden later with domain if needed.
+    var.resolveSection(repoSettings, settings->flavour()+"-flavour", &repoParameters);
+  } else {
+    configSections << "release" << "all";
+  }
+
+  repoParameters.insert("release", settings->release(rndRepo));
+
+  if (!repoParameters.contains("debugSplit"))
+    repoParameters.insert("debugSplit", "packages");
+
+  if (!repoParameters.contains("arch"))
+    repoParameters.insert("arch", settings->value("arch").toString());
+
+  // Override device model (and therefore all the family, ... stuff)
+  if (parametersOverride.contains("model"))
+    deviceInfo.setDeviceModel(parametersOverride.value("model"));
+
+  QStringList adaptationRepos = deviceInfo.adaptationRepos();
+
+  // read adaptation from settings, in case it can't be determined from
+  // board mappings. this is obsolete, and will be dropped soon
+  if (settings->contains("adaptation"))
+    repoParameters.insert("adaptation", settings->value("adaptation").toString());
+
+  repoParameters.insert("deviceFamily", deviceInfo.deviceFamily());
+  repoParameters.insert("deviceModel", deviceInfo.deviceModel());
+
+  // Those keys have now been obsoleted by generic variables, support for
+  // it will be removed soon
+  QStringList keys;
+  keys << "chip" << "adaptation" << "vendor";
+  foreach(QString key, keys){
+    QString value;
+    if (deviceInfo.getValue(key,value))
+      repoParameters.insert(key, value);
+  }
+
+  // special handling for adaptation-repositories
+  // - check if repo is in right format (adaptation\d*)
+  // - check if the configuration has that many adaptation repos
+  // - export the entry in the adaptation list as %(adaptation)
+  // - look up variables for that adaptation, and export matching
+  //   adaptation variable
+  QRegExp regex("adaptation\\\d*", Qt::CaseSensitive, QRegExp::RegExp2);
+  if (regex.exactMatch(repoName)){
+    regex.setPattern("\\\d*");
+    regex.lastIndexIn(repoName);
+    int n = regex.cap().toInt();
+
+    if (!adaptationRepos.isEmpty()){
+      if (adaptationRepos.size() <= n) {
+        ssuLog->print(LOG_INFO, "Note: repo index out of bounds, substituting 0" + repoName);
+        n = 0;
+      }
+
+      QString adaptationRepo = adaptationRepos.at(n);
+      repoParameters.insert("adaptation", adaptationRepo);
+      ssuLog->print(LOG_DEBUG, "Found first adaptation " + repoName);
+
+      QHash<QString, QString> h = deviceInfo.variableSection(adaptationRepo);
+
+      QHash<QString, QString>::const_iterator i = h.constBegin();
+      while (i != h.constEnd()){
+        repoParameters.insert(i.key(), i.value());
+        i++;
+      }
+    } else
+      ssuLog->print(LOG_INFO, "Note: adaptation repo for invalid repo requested " + repoName);
+
+    repoName = "adaptation";
+  }
+
+  // Domain variables
+  // first read all variables from default-domain
+  var.resolveSection(repoSettings, "default-domain", &repoParameters);
+
+  // then overwrite with domain specific things if that block is available
+  var.resolveSection(repoSettings, settings->domain()+"-domain", &repoParameters);
+
+  // override arbitrary variables, mostly useful for generating mic URLs
+  QHash<QString, QString>::const_iterator i = parametersOverride.constBegin();
+  while (i != parametersOverride.constEnd()){
+    repoParameters.insert(i.key(), i.value());
+    i++;
+  }
+
+  if (settings->contains("repository-urls/" + repoName))
+    r = settings->value("repository-urls/" + repoName).toString();
+  else {
+    foreach (const QString &section, configSections){
+      repoSettings->beginGroup(section);
+      if (repoSettings->contains(repoName)){
+        r = repoSettings->value(repoName).toString();
+        repoSettings->endGroup();
+        break;
+      }
+      repoSettings->endGroup();
+    }
+  }
+
+  return var.resolveString(r, &repoParameters);
 }

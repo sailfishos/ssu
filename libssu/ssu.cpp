@@ -10,12 +10,13 @@
 #include "ssu.h"
 #include "ssulog.h"
 #include "ssuvariables.h"
+#include "ssucoreconfig.h"
+#include "ssurepomanager.h"
 
 #include "../constants.h"
 
-Ssu::Ssu(QString fallbackLog): QObject(){
+Ssu::Ssu(): QObject(){
   errorFlag = false;
-  fallbackLogPath = fallbackLog;
   pendingRequests = 0;
 
 #ifdef SSUCONFHACK
@@ -31,8 +32,7 @@ Ssu::Ssu(QString fallbackLog): QObject(){
   }
 #endif
 
-  settings = new SsuSettings(SSU_CONFIGURATION, QSettings::IniFormat, SSU_DEFAULT_CONFIGURATION);
-  repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
 
 #ifdef TARGET_ARCH
   if (!settings->contains("arch"))
@@ -43,71 +43,93 @@ Ssu::Ssu(QString fallbackLog): QObject(){
 #endif
   settings->sync();
 
+
+
   manager = new QNetworkAccessManager(this);
   connect(manager, SIGNAL(finished(QNetworkReply *)),
           SLOT(requestFinished(QNetworkReply *)));
 }
 
+// FIXME, the whole credentials stuff needs reworking
+// should probably be part of repo handling instead of core configuration
 QPair<QString, QString> Ssu::credentials(QString scope){
-  QPair<QString, QString> ret;
-  settings->beginGroup("credentials-" + scope);
-  ret.first = settings->value("username").toString();
-  ret.second = settings->value("password").toString();
-  settings->endGroup();
-  return ret;
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->credentials(scope);
 }
 
 QString Ssu::credentialsScope(QString repoName, bool rndRepo){
-  if (settings->contains("credentials-scope"))
-    return settings->value("credentials-scope").toString();
-  else
-    return "your-configuration-is-broken-and-does-not-contain-credentials-scope";
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->credentialsScope(repoName, rndRepo);
 }
 
 QString Ssu::credentialsUrl(QString scope){
-  if (settings->contains("credentials-url-" + scope))
-    return settings->value("credentials-url-" + scope).toString();
-  else
-    return "your-configuration-is-broken-and-does-not-contain-credentials-url-for-" + scope;
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->credentialsUrl(scope);
 }
 
 bool Ssu::error(){
   return errorFlag;
 }
 
+// Wrappers around SsuCoreConfig
 QString Ssu::flavour(){
-  if (settings->contains("flavour"))
-    return settings->value("flavour").toString();
-  else
-    return "release";
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->flavour();
 }
 
 int Ssu::deviceMode(){
-  if (!settings->contains("deviceMode")){
-    settings->setValue("deviceMode", ReleaseMode);
-    return ReleaseMode;
-  } else
-    return settings->value("deviceMode").toInt();
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->deviceMode();
 }
 
 QString Ssu::domain(){
-  if (settings->contains("domain"))
-    return settings->value("domain").toString();
-  else
-    return "";
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->domain();
 }
 
 bool Ssu::isRegistered(){
-  if (!settings->contains("privateKey"))
-    return false;
-  if (!settings->contains("certificate"))
-    return false;
-  return settings->value("registered").toBool();
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->isRegistered();
 }
 
 QDateTime Ssu::lastCredentialsUpdate(){
-  return settings->value("lastCredentialsUpdate").toDateTime();
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->lastCredentialsUpdate();
 }
+
+QString Ssu::release(bool rnd){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->release(rnd);
+}
+
+void Ssu::setDeviceMode(int mode, int editMode){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  settings->setDeviceMode(mode, editMode);
+}
+
+void Ssu::setFlavour(QString flavour){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  settings->setFlavour(flavour);
+}
+
+void Ssu::setRelease(QString release, bool rnd){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  settings->setRelease(release, rnd);
+}
+
+void Ssu::setDomain(QString domain){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  setDomain(domain);
+}
+
+bool Ssu::useSslVerify(){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->useSslVerify();
+}
+
+//...
+
+
 
 QString Ssu::lastError(){
   return errorString;
@@ -117,6 +139,7 @@ bool Ssu::registerDevice(QDomDocument *response){
   QString certificateString = response->elementsByTagName("certificate").at(0).toElement().text();
   QSslCertificate certificate(certificateString.toAscii());
   SsuLog *ssuLog = SsuLog::instance();
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
 
   if (certificate.isNull()){
     // make sure device is in unregistered state on failed registration
@@ -148,143 +171,19 @@ bool Ssu::registerDevice(QDomDocument *response){
   return true;
 }
 
-QString Ssu::release(bool rnd){
-  if (rnd)
-    return settings->value("rndRelease").toString();
-  else
-    return settings->value("release").toString();
-}
-
 // RND repos have flavour (devel, testing, release), and release (latest, next)
 // Release repos only have release (latest, next, version number)
 QString Ssu::repoUrl(QString repoName, bool rndRepo,
                      QHash<QString, QString> repoParameters,
                      QHash<QString, QString> parametersOverride){
-  QString r;
-  QStringList configSections;
-  SsuVariables var;
-  SsuLog *ssuLog = SsuLog::instance();
-
-  errorFlag = false;
-
-  // fill in all arbitrary variables from ssu.ini
-  var.resolveSection(settings, "repository-url-variables", &repoParameters);
-
-  // add/overwrite some of the variables with sane ones
-  if (rndRepo){
-    repoParameters.insert("flavour", repoSettings->value(flavour()+"-flavour/flavour-pattern").toString());
-    repoParameters.insert("flavourPattern", repoSettings->value(flavour()+"-flavour/flavour-pattern").toString());
-    repoParameters.insert("flavourName", flavour());
-    configSections << flavour()+"-flavour" << "rnd" << "all";
-
-    // Make it possible to give any values with the flavour as well.
-    // These values can be overridden later with domain if needed.
-    var.resolveSection(repoSettings, flavour()+"-flavour", &repoParameters);
-  } else {
-    configSections << "release" << "all";
-  }
-
-  repoParameters.insert("release", release(rndRepo));
-
-  if (!repoParameters.contains("debugSplit"))
-    repoParameters.insert("debugSplit", "packages");
-
-  if (!repoParameters.contains("arch"))
-    repoParameters.insert("arch", settings->value("arch").toString());
-
-  // Override device model (and therefore all the family, ... stuff)
-  if (parametersOverride.contains("model"))
-    deviceInfo.setDeviceModel(parametersOverride.value("model"));
-
-  QStringList adaptationRepos = deviceInfo.adaptationRepos();
-
-  // read adaptation from settings, in case it can't be determined from
-  // board mappings. this is obsolete, and will be dropped soon
-  if (settings->contains("adaptation"))
-    repoParameters.insert("adaptation", settings->value("adaptation").toString());
-
-  repoParameters.insert("deviceFamily", deviceInfo.deviceFamily());
-  repoParameters.insert("deviceModel", deviceInfo.deviceModel());
-
-  // Those keys have now been obsoleted by generic variables, support for
-  // it will be removed soon
-  QStringList keys;
-  keys << "chip" << "adaptation" << "vendor";
-  foreach(QString key, keys){
-    QString value;
-    if (deviceInfo.getValue(key,value))
-      repoParameters.insert(key, value);
-  }
-
-  // special handling for adaptation-repositories
-  // - check if repo is in right format (adaptation\d*)
-  // - check if the configuration has that many adaptation repos
-  // - export the entry in the adaptation list as %(adaptation)
-  // - look up variables for that adaptation, and export matching
-  //   adaptation variable
-  QRegExp regex("adaptation\\\d*", Qt::CaseSensitive, QRegExp::RegExp2);
-  if (regex.exactMatch(repoName)){
-    regex.setPattern("\\\d*");
-    regex.lastIndexIn(repoName);
-    int n = regex.cap().toInt();
-
-    if (!adaptationRepos.isEmpty()){
-      if (adaptationRepos.size() <= n) {
-        ssuLog->print(LOG_INFO, "Note: repo index out of bounds, substituting 0" + repoName);
-        n = 0;
-      }
-
-      QString adaptationRepo = adaptationRepos.at(n);
-      repoParameters.insert("adaptation", adaptationRepo);
-      ssuLog->print(LOG_DEBUG, "Found first adaptation " + repoName);
-
-      QHash<QString, QString> h = deviceInfo.variableSection(adaptationRepo);
-
-      QHash<QString, QString>::const_iterator i = h.constBegin();
-      while (i != h.constEnd()){
-        repoParameters.insert(i.key(), i.value());
-        i++;
-      }
-    } else
-      ssuLog->print(LOG_INFO, "Note: adaptation repo for invalid repo requested " + repoName);
-
-    repoName = "adaptation";
-  }
-
-  // Domain variables
-  // first read all variables from default-domain
-  var.resolveSection(repoSettings, "default-domain", &repoParameters);
-
-  // then overwrite with domain specific things if that block is available
-  var.resolveSection(repoSettings, domain()+"-domain", &repoParameters);
-
-  // override arbitrary variables, mostly useful for generating mic URLs
-  QHash<QString, QString>::const_iterator i = parametersOverride.constBegin();
-  while (i != parametersOverride.constEnd()){
-    repoParameters.insert(i.key(), i.value());
-    i++;
-  }
-
-  if (settings->contains("repository-urls/" + repoName))
-    r = settings->value("repository-urls/" + repoName).toString();
-  else {
-    foreach (const QString &section, configSections){
-      repoSettings->beginGroup(section);
-      if (repoSettings->contains(repoName)){
-        r = repoSettings->value(repoName).toString();
-        repoSettings->endGroup();
-        break;
-      }
-      repoSettings->endGroup();
-    }
-  }
-
-  return var.resolveString(r, &repoParameters);
+  SsuRepoManager manager;
+  return manager.url(repoName, rndRepo, repoParameters, parametersOverride);
 }
 
 void Ssu::requestFinished(QNetworkReply *reply){
   QSslConfiguration sslConfiguration = reply->sslConfiguration();
   SsuLog *ssuLog = SsuLog::instance();
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
 
   ssuLog->print(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
                .arg(sslConfiguration.peerCertificate().subjectInfo(QSslCertificate::CommonName))
@@ -356,6 +255,7 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
   QString username, domainName;
 
   SsuLog *ssuLog = SsuLog::instance();
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
 
   // Username can include also domain, (user@domain), separate those
   if (usernameDomain.contains('@')) {
@@ -434,6 +334,7 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
 }
 
 bool Ssu::setCredentials(QDomDocument *response){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
   // generate list with all scopes for generic section, add sections
   QDomNodeList credentialsList = response->elementsByTagName("credentials");
   QStringList credentialScopes;
@@ -476,20 +377,6 @@ bool Ssu::setCredentials(QDomDocument *response){
   return true;
 }
 
-void Ssu::setDeviceMode(int mode, int editMode){
-  int oldMode = settings->value("deviceMode").toInt();
-
-  if ((editMode & Add) == Add){
-    oldMode |= mode;
-  } else if ((editMode & Remove) == Remove){
-    oldMode &= ~mode;
-  } else
-    oldMode = mode;
-
-  settings->setValue("deviceMode", oldMode);
-  settings->sync();
-}
-
 void Ssu::setError(QString errorMessage){
   errorFlag = true;
   errorString = errorMessage;
@@ -502,31 +389,6 @@ void Ssu::setError(QString errorMessage){
   // assume that we don't even need to wait for other pending requests,
   // and just die. This is only relevant for CLI, which will exit after done()
   emit done();
-}
-
-void Ssu::setFlavour(QString flavour){
-  settings->setValue("flavour", flavour);
-  // flavour is RnD only, so enable RnD mode
-  setDeviceMode(RndMode, Add);
-  settings->sync();
-  emit flavourChanged();
-}
-
-void Ssu::setRelease(QString release, bool rnd){
-  if (rnd) {
-    settings->setValue("rndRelease", release);
-    // switch rndMode on/off when setting releases
-    setDeviceMode(RndMode, Add);
-  } else {
-    settings->setValue("release", release);
-    setDeviceMode(RndMode, Remove);
-  }
-  settings->sync();
-}
-
-void Ssu::setDomain(QString domain){
-  settings->setValue("domain", domain);
-  settings->sync();
 }
 
 void Ssu::storeAuthorizedKeys(QByteArray data){
@@ -554,6 +416,7 @@ void Ssu::storeAuthorizedKeys(QByteArray data){
 }
 
 void Ssu::updateCredentials(bool force){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
   errorFlag = false;
 
   SsuLog *ssuLog = SsuLog::instance();
@@ -625,14 +488,9 @@ void Ssu::updateCredentials(bool force){
   manager->get(request);
 }
 
-bool Ssu::useSslVerify(){
-  if (settings->contains("ssl-verify"))
-    return settings->value("ssl-verify").toBool();
-  else
-    return true;
-}
 
 void Ssu::unregister(){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
   settings->setValue("privateKey", "");
   settings->setValue("certificate", "");
   settings->setValue("registered", false);

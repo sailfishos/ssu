@@ -23,7 +23,7 @@ class Ssu: public QObject {
     Q_OBJECT
 
   public:
-    Ssu(QString fallbackLog="/tmp/ssu.log");
+    Ssu();
     /**
      * Find a username/password pair for the given scope
      * @return a QPair with username and password, or an empty QPair if scope is invalid
@@ -50,40 +50,11 @@ class Ssu: public QObject {
      */
     Q_INVOKABLE bool error();
     /**
-     * Get the current flavour when RnD repositories are used
-     * @return current flavour (usually something like testing, release, ..)
-     */
-    Q_INVOKABLE QString flavour();
-    /**
-     * Get the current mode bits for the device
-     */
-    Q_INVOKABLE int deviceMode();
-    /**
-     * Get the current domain used in registration
-     * @return domain, or "" if not set
-     */
-    Q_INVOKABLE QString domain();
-    /**
-     * Return devices RND registration status
-     * @retval true device is registered
-     * @retval false device is not registered
-     */
-    Q_INVOKABLE bool isRegistered();
-    /**
-     * Return the date/time when the credentials to access internal
-     * SSU servers were updated the last time
-     */
-    Q_INVOKABLE QDateTime lastCredentialsUpdate();
-    /**
      * Return an error message for the last error encountered. The message
      * will not be cleared, check error() to see if the last operation was
      * successful.
      */
     Q_INVOKABLE QString lastError();
-    /**
-     * Return the release version string for either a release, or a RnD snapshot
-     */
-    Q_INVOKABLE QString release(bool rnd=false);
     /**
      * Resolve a repository url
      * @return the repository URL on success, an empty string on error
@@ -92,34 +63,40 @@ class Ssu: public QObject {
                     QHash<QString, QString> repoParameters=QHash<QString, QString>(),
                     QHash<QString, QString> parametersOverride=QHash<QString, QString>());
     /**
-     * Set mode bits for the device
-     */
-    Q_INVOKABLE void setDeviceMode(int mode, int editMode=Replace);
-    /**
-     * Set the flavour used when resolving RND repositories
-     */
-    Q_INVOKABLE void setFlavour(QString flavour);
-    /**
-     * Set the release version string for either a release, or a RnD snapshot
-     */
-    Q_INVOKABLE void setRelease(QString release, bool rnd=false);
-    /**
-     * Set the domain string (usually something like nemo, jolla, ..)
-     */
-    Q_INVOKABLE void setDomain(QString domain);
-    /**
      * Unregister a device. This will clean all registration data from a device,
      * though will not touch the information on SSU server; the information there
      * has to be manually cleaned for a device we don't own anymore, but will be
      * overwritten next time the device gets registered
      */
     Q_INVOKABLE void unregister();
-    /**
-     * Return configuration settings regarding ssl verification
-     * @retval true SSL verification must be used; that's the default if not configured
-     * @retval false SSL verification should be disabled
-     */
+
+    // wrappers around SsuCoreConfig
+    // not all of those belong into SsuCoreConfig, but will go there
+    // in the first phase of refactoring
+
+    /// See SsuCoreConfig::flavour
+    Q_INVOKABLE QString flavour();
+    /// See SsuCoreConfig::deviceMode
+    Q_INVOKABLE int deviceMode();
+    /// See SsuCoreConfig::domain
+    Q_INVOKABLE QString domain();
+    /// See SsuCoreConfig::isRegistered
+    Q_INVOKABLE bool isRegistered();
+    /// See SsuCoreConfig::lastCredentialsUpdate
+    Q_INVOKABLE QDateTime lastCredentialsUpdate();
+    /// See SsuCoreConfig::release
+    Q_INVOKABLE QString release(bool rnd=false);
+    /// See SsuCoreConfig::setDeviceMode
+    Q_INVOKABLE void setDeviceMode(int mode, int editMode=Replace);
+    /// See SsuCoreConfig::setFlavour
+    Q_INVOKABLE void setFlavour(QString flavour);
+    /// See SsuCoreConfig::setRelease
+    Q_INVOKABLE void setRelease(QString release, bool rnd=false);
+    /// See SsuCoreConfig::setDomain
+    Q_INVOKABLE void setDomain(QString domain);
+    /// See SsuCoreConfig::useSslVerify
     Q_INVOKABLE bool useSslVerify();
+
 
     /**
      * List of possible device modes
@@ -144,18 +121,20 @@ class Ssu: public QObject {
       Remove  = 0x4  ///< Make sure the given value is not set in the bitmask
     };
 
+
     // compat stuff, might go away when refactoring is finished
+    /// See SsuDeviceInfo::deviceFamily
     Q_INVOKABLE QString deviceFamily(){ return deviceInfo.deviceFamily(); };
+    /// See SsuDeviceInfo::deviceModel
     Q_INVOKABLE QString deviceModel(){ return deviceInfo.deviceModel(); };
+    /// See SsuDeviceInfo::deviceUid
     Q_INVOKABLE QString deviceUid(){ return deviceInfo.deviceUid(); };
 
   private:
-    QString errorString, fallbackLogPath;
+    QString errorString;
     bool errorFlag;
     QNetworkAccessManager *manager;
     int pendingRequests;
-    QSettings *repoSettings;
-    SsuSettings *settings;
     SsuDeviceInfo deviceInfo;
     bool registerDevice(QDomDocument *response);
     bool setCredentials(QDomDocument *response);
@@ -199,12 +178,11 @@ class Ssu: public QObject {
      * Emitted after an asynchronous operation finished
      */
     void done();
-    // we don't get notifications from settings -> this won't work over different instances (yet)
-    void flavourChanged();
-    void releaseChanged();
+    /**
+     * Emitted after the devices registration status has changed
+     */
     void registrationStatusChanged();
     void credentialsChanged();
-
 };
 
 #endif

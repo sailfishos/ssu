@@ -1,5 +1,6 @@
 BUILD = ../build/libssu
 HEADERS = ssu.h \
+        ssucoreconfig.h \
         ssudeviceinfo.h \
         ssulog.h \
         ssuvariables.h \
@@ -7,6 +8,7 @@ HEADERS = ssu.h \
         ssurepomanager.h \
         ../constants.h
 SOURCES = ssu.cpp \
+        ssucoreconfig.cpp \
         ssudeviceinfo.cpp \
         ssulog.cpp \
         ssuvariables.cpp \
