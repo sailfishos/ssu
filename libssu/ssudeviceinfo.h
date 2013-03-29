@@ -28,8 +28,10 @@ class SsuDeviceInfo: public QObject {
     Q_INVOKABLE QString deviceFamily();
     /**
      * Try to find the device variant for the system this is running on.
+     * If the device is not a variant it will return an empty string. If
+     * fallback is set to true it return the device model in this case.
      */
-    Q_INVOKABLE QString deviceVariant();
+    Q_INVOKABLE QString deviceVariant(bool fallback=false);
     /**
      * Try to find out ond what kind of system this is running
      */

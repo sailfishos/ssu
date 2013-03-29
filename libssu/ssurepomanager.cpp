@@ -36,7 +36,7 @@ void SsuRepoManager::update(){
   // if device is misconfigured, always assume release mode
   bool rndMode = false;
 
-  if ((deviceMode & Ssu::RepoManager) != Ssu::RepoManager){
+  if ((deviceMode & Ssu::DisableRepoManager) == Ssu::DisableRepoManager){
     ssuLog->print(LOG_INFO, "Repo management requested, but not enabled (option 'deviceMode')");
     return;
   }
@@ -57,7 +57,7 @@ void SsuRepoManager::update(){
   }
 
   // get list of device-specific repositories...
-  QStringList repos = deviceInfo.repos();
+  QStringList repos = deviceInfo.repos(rndMode);
 
   // ... delete all ssu-managed repositories not valid for this device ...
   ssuFilters.append("ssu_*");
@@ -68,7 +68,8 @@ void SsuRepoManager::update(){
     QStringList parts = it.fileName().split("_");
     // repo file structure is ssu_<reponame>_<rnd|release>.repo -> splits to 3 parts
     if (parts.count() == 3){
-      if (!repos.contains(parts.at(1)))
+      if (!repos.contains(parts.at(1)) ||
+          parts.at(2) != (rndMode ? "rnd.repo" : "release.repo" ))
         QFile(it.filePath()).remove();
     } else
       QFile(it.filePath()).remove();

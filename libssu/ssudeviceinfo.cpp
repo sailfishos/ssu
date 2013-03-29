@@ -23,9 +23,7 @@ SsuDeviceInfo::SsuDeviceInfo(): QObject(){
 QStringList SsuDeviceInfo::adaptationRepos(){
   QStringList result;
 
-  QString model = deviceVariant();
-  if (model == "")
-    model = deviceModel();
+  QString model = deviceVariant(true);
 
   if (boardMappings->contains(model + "/adaptation-repos"))
     result = boardMappings->value(model + "/adaptation-repos").toStringList();
@@ -37,9 +35,7 @@ QString SsuDeviceInfo::deviceFamily(){
   if (!cachedFamily.isEmpty())
     return cachedFamily;
 
-  QString model = deviceVariant();
-  if (model == "")
-    model = deviceModel();
+  QString model = deviceVariant(true);
 
   cachedFamily = "UNKNOWN";
 
@@ -49,7 +45,7 @@ QString SsuDeviceInfo::deviceFamily(){
   return cachedFamily;
 }
 
-QString SsuDeviceInfo::deviceVariant(){
+QString SsuDeviceInfo::deviceVariant(bool fallback){
   if (!cachedVariant.isEmpty())
     return cachedVariant;
 
@@ -58,6 +54,9 @@ QString SsuDeviceInfo::deviceVariant(){
   if (boardMappings->contains("variants/" + deviceModel())) {
     cachedVariant = boardMappings->value("variants/" + deviceModel()).toString();
   }
+
+  if (cachedVariant == "" && fallback)
+    return deviceModel();
 
   return cachedVariant;
 }
@@ -156,9 +155,7 @@ QString SsuDeviceInfo::deviceUid(){
 QStringList SsuDeviceInfo::disabledRepos(){
   QStringList result;
 
-  QString model = deviceVariant();
-  if (model == "")
-    model = deviceModel();
+  QString model = deviceVariant(true);
 
   if (boardMappings->contains(model + "/disabled-repos"))
     result = boardMappings->value(model + "/disabled-repos").toStringList();
@@ -182,6 +179,10 @@ QStringList SsuDeviceInfo::repos(bool rnd){
 
   // TODO: add specific repos (developer, sdk, ..)
 
+  // add device configured repos
+  if (boardMappings->contains(deviceVariant(true) + "/repos"))
+    result.append(boardMappings->value(deviceVariant(true) + "/repos").toStringList());
+
   // read user-defined repositories from ssu.ini
   // TODO: in strict mode, filter the repository list from there
   QSettings ssuSettings(SSU_CONFIGURATION, QSettings::IniFormat);
@@ -196,8 +197,8 @@ QStringList SsuDeviceInfo::repos(bool rnd){
     result.removeAll(key);
 
   // read the disabled repositories from user configuration
-  if (ssuSettings.contains("disabledRepos")){
-    foreach (const QString &key, ssuSettings.value("disabledRepos").toStringList())
+  if (ssuSettings.contains("disabled-repos")){
+    foreach (const QString &key, ssuSettings.value("disabled-repos").toStringList())
       result.removeAll(key);
   }
 
