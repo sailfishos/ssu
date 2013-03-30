@@ -104,26 +104,31 @@ void SsuUrlResolver::run(){
   } else
     ssuLog->print(LOG_DEBUG, "Device not registered -- skipping credential update");
 
-  // TODO: check for credentials scope required for repository; check if the file exists;
-  //       compare with configuration, and dump credentials to file if necessary
-  ssuLog->print(LOG_DEBUG, QString("Requesting credentials for '%1' with RND status %2...").arg(repo).arg(isRnd));
-  QString credentialsScope = ssu.credentialsScope(repo, isRnd);
-  if (!credentialsScope.isEmpty()){
-    headerList.append(QString("credentials=%1").arg(credentialsScope));
+  // resolve base url
+  resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
 
-    QFileInfo credentialsFileInfo("/etc/zypp/credentials.d/" + credentialsScope);
-    if (!credentialsFileInfo.exists() ||
-        credentialsFileInfo.lastModified() <= ssu.lastCredentialsUpdate()){
-      writeCredentials(credentialsFileInfo.filePath(), credentialsScope);
-    }
-  } else
-    ssuLog->print(LOG_DEBUG, "Skipping credential update due to missing credentials scope");
+  // only do credentials magic on secure connections
+  if (resolvedUrl.startsWith("https://")){
+    // TODO: check for credentials scope required for repository; check if the file exists;
+    //       compare with configuration, and dump credentials to file if necessary
+    ssuLog->print(LOG_DEBUG, QString("Requesting credentials for '%1' with RND status %2...").arg(repo).arg(isRnd));
+    QString credentialsScope = ssu.credentialsScope(repo, isRnd);
+    if (!credentialsScope.isEmpty()){
+      headerList.append(QString("credentials=%1").arg(credentialsScope));
 
-  if (headerList.isEmpty()){
-    resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
-  } else {
+      QFileInfo credentialsFileInfo("/etc/zypp/credentials.d/" + credentialsScope);
+      if (!credentialsFileInfo.exists() ||
+          credentialsFileInfo.lastModified() <= ssu.lastCredentialsUpdate()){
+        writeCredentials(credentialsFileInfo.filePath(), credentialsScope);
+      }
+    } else
+      ssuLog->print(LOG_DEBUG, "Skipping credential update due to missing credentials scope");
+  }
+
+
+  if (!headerList.isEmpty()){
     resolvedUrl = QString("%1?%2")
-      .arg(ssu.repoUrl(repo, isRnd, repoParameters))
+      .arg(resolvedUrl)
       .arg(headerList.join("&"));
   }
 
