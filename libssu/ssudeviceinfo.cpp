@@ -191,6 +191,10 @@ QStringList SsuDeviceInfo::repos(bool rnd){
   result.append(ssuSettings->allKeys());
   ssuSettings->endGroup();
 
+  // read user-enabled repositories from ssu.ini
+  if (ssuSettings->contains("enabled-repos"))
+    result.append(ssuSettings->value("enabled-repos").toStringList());
+
   result.removeDuplicates();
 
   // read the disabled repositories for this device

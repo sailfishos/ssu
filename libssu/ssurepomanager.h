@@ -18,9 +18,23 @@ class SsuRepoManager: public QObject {
   public:
     SsuRepoManager();
     /**
-     * Look up all variables in the specified configuration file section,
-     * run them through the variable expander, and add them to the supplied
-     * QHash
+     * Add a repository
+     */
+    void add(QString repo, QString repoUrl="");
+    /**
+     * Disable a repository
+     */
+    void disable(QString repo);
+    /**
+     * Enable a repository, given it's not disabled by board configuration
+     */
+    void enable(QString repo);
+    /**
+     * Remove a repository
+     */
+    void remove(QString repo);
+    /**
+     * Update the repository files on disk
      */
     void update();
     /**
@@ -30,6 +44,7 @@ class SsuRepoManager: public QObject {
     QString url(QString repoName, bool rndRepo=false,
                 QHash<QString, QString> repoParameters=QHash<QString, QString>(),
                 QHash<QString, QString> parametersOverride=QHash<QString, QString>());
+
 };
 
 #endif

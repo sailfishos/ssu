@@ -1,5 +1,5 @@
 Name: ssu
-Version: 0.27
+Version: 0.28
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
@@ -11,6 +11,8 @@ BuildRequires: pkgconfig(libzypp)
 BuildRequires: pkgconfig(QtSystemInfo)
 BuildRequires: pkgconfig(qt-boostable)
 BuildRequires: pkgconfig(libsystemd-journal)
+BuildRequires: oneshot
+BuildRequires: doxygen
 Requires(pre): shadow-utils
 Requires(postun): shadow-utils
 Requires: ssu-vendor-data
@@ -25,6 +27,9 @@ Requires: ssu-vendor-data
 %{_bindir}/ssu
 %{_libdir}/*.so.*
 %dir %{_sysconfdir}/zypp/credentials.d
+# ssu itself does not use the package-update triggers, but provides
+# them for the vendor data packages to use
+%attr(0755, -, -) %{_oneshotdir}/*
 
 
 %package vendor-data-example
@@ -93,6 +98,18 @@ Requires: rpm
 %attr(0755, -, -) /usr/sbin/ssu-repos.sh
 
 
+%package doc
+Summary: Documentation for %{name}
+Group: Documentation
+
+%description doc
+%{summary}.
+
+%files doc
+%defattr(-,root,root,-)
+%{_docdir}/%{name}
+
+
 %prep
 %setup -q -n %{name}-%{version}
 
@@ -100,12 +117,16 @@ Requires: rpm
 %build
 qmake DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive
 make %{?_smp_mflags}
+doxygen doc/Doxyfile
 
 
 %install
 make INSTALL_ROOT=%{buildroot} install
 mkdir -p %{buildroot}/%{_sysconfdir}/zypp/credentials.d
 ln -s %{_bindir}/ssu %{buildroot}/%{_bindir}/rndssu
+mkdir -p %{buildroot}/%{_docdir}/%{name}
+cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
+
 
 %pre
 groupadd -rf ssu
@@ -124,4 +145,5 @@ if [ "$1" == 0 ]; then
   getent group ssu >/dev/null && groupdel ssu
 fi
 
-%post -p /sbin/ldconfig
+%post
+/sbin/ldconfig

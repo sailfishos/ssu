@@ -20,7 +20,10 @@ tests.depends = libssu
 config.files = ssu.ini
 config.path  = /etc/ssu
 
+oneshot.files = ssu-update-repos
+oneshot.path = /usr/lib/oneshot.d
+
 static_config.files = repos.ini ssu-defaults.ini board-mappings.ini
 static_config.path  = /usr/share/ssu
 
-INSTALLS += config static_config
+INSTALLS += config static_config oneshot

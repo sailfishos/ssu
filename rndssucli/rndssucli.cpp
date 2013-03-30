@@ -53,29 +53,47 @@ void RndSsuCli::optFlavour(QStringList opt){
 
 void RndSsuCli::optMode(QStringList opt){
   QTextStream qout(stdout);
-  qout << "Mode handling is currently not implemented" << endl;
-  state = Idle;
+
+  // TODO: allow setting meaningful names instead of numbers
+
+  if (opt.count() == 2){
+    qout << "Device mode is: " << ssu.deviceMode() << endl;
+    state = Idle;
+  } else if (opt.count() == 3){
+    qout << "Setting device mode from " << ssu.deviceMode()
+         << " to " << opt.at(2) << endl;
+    ssu.setDeviceMode(opt.at(2).toInt());
+    state = Idle;
+  }
 }
 
 void RndSsuCli::optModifyRepo(int action, QStringList opt){
   SsuRepoManager repoManager;
-
   QTextStream qout(stdout);
-  qout << "Repository management is currently not implemented" << endl;
 
   if (opt.count() == 3){
-
-  } else if (opt.count() == 4){
-
+    switch(action){
+      case Add:
+        repoManager.add(opt.at(2));
+        repoManager.update();
+        break;
+      case Remove:
+        repoManager.remove(opt.at(2));
+        repoManager.update();
+        break;
+      case Disable:
+        repoManager.disable(opt.at(2));
+        repoManager.update();
+        break;
+      case Enable:
+        repoManager.enable(opt.at(2));
+        repoManager.update();
+        break;
+    }
+  } else if (opt.count() == 4 && action == Add){
+    repoManager.add(opt.at(2), opt.at(3));
+    repoManager.update();
   }
-/*
-  switch(action){
-    case Add:
-    case Remove:
-    case Disable:
-    case Enable:
-  }
-*/
 }
 
 void RndSsuCli::optRegister(){

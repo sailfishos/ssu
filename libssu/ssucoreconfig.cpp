@@ -51,11 +51,9 @@ QString SsuCoreConfig::flavour(){
 }
 
 int SsuCoreConfig::deviceMode(){
-  if (!contains("deviceMode")){
-    setValue("deviceMode", Ssu::ReleaseMode);
-    sync();
+  if (!contains("deviceMode"))
     return Ssu::ReleaseMode;
-  } else
+  else
     return value("deviceMode").toInt();
 }
 

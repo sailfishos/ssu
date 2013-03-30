@@ -17,7 +17,6 @@
 #include <QtXml/QDomDocument>
 
 #include <ssudeviceinfo.h>
-#include <ssusettings.h>
 
 class Ssu: public QObject {
     Q_OBJECT
@@ -106,10 +105,10 @@ class Ssu: public QObject {
      * now any mode where RndMode is not set is treated as ReleaseMode.
      */
     enum DeviceMode {
-      DisableRepoManager = 0x1,  ///< Disable automagic repository management
-      RndMode            = 0x2,  ///< Enable RnD mode for device
-      ReleaseMode        = 0x4,  ///< Enable Release mode
-      StrictMode         = 0x8   ///< Enable strict mode (i.e., delete unmanaged repositories)
+      DisableRepoManager = 0x1,   ///< Disable automagic repository management
+      RndMode            = 0x2,   ///< Enable RnD mode for device
+      ReleaseMode        = 0x4,   ///< Enable Release mode
+      LenientMode         = 0x8   ///< Disable strict mode (i.e., keep unmanaged repositories)
     };
 
     /**

@@ -22,6 +22,69 @@ SsuRepoManager::SsuRepoManager(): QObject() {
 
 }
 
+void SsuRepoManager::add(QString repo, QString repoUrl){
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+
+  if (repoUrl == ""){
+    // just enable a repository which has URL in repos.ini
+    QStringList enabledRepos;
+    if (ssuSettings->contains("enabled-repos"))
+      enabledRepos = ssuSettings->value("enabled-repos").toStringList();
+
+    enabledRepos.append(repo);
+    enabledRepos.removeDuplicates();
+    ssuSettings->setValue("enabled-repos", enabledRepos);
+  } else
+    ssuSettings->setValue("repository-urls/" + repo, repoUrl);
+
+  ssuSettings->sync();
+}
+
+void SsuRepoManager::disable(QString repo){
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+  QStringList disabledRepos;
+
+  if (ssuSettings->contains("disabled-repos"))
+    disabledRepos = ssuSettings->value("disabled-repos").toStringList();
+
+  disabledRepos.append(repo);
+  disabledRepos.removeDuplicates();
+
+  ssuSettings->setValue("disabled-repos", disabledRepos);
+  ssuSettings->sync();
+}
+
+void SsuRepoManager::enable(QString repo){
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+  QStringList disabledRepos;
+
+  if (ssuSettings->contains("disabled-repos"))
+    disabledRepos = ssuSettings->value("disabled-repos").toStringList();
+
+  disabledRepos.removeAll(repo);
+  disabledRepos.removeDuplicates();
+
+  ssuSettings->setValue("disabled-repos", disabledRepos);
+  ssuSettings->sync();
+}
+
+void SsuRepoManager::remove(QString repo){
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+  if (ssuSettings->contains("repository-urls/" + repo))
+    ssuSettings->remove("repository-urls/" + repo);
+
+  if (ssuSettings->contains("enabled-repos")){
+    QStringList enabledRepos = ssuSettings->value("enabled-repos").toStringList();
+    if (enabledRepos.contains(repo)){
+      enabledRepos.removeAll(repo);
+      enabledRepos.removeDuplicates();
+      ssuSettings->setValue("enabled-repos", enabledRepos);
+    }
+  }
+
+  ssuSettings->sync();
+}
+
 void SsuRepoManager::update(){
   // - delete all non-ssu managed repositories (missing ssu_ prefix)
   // - create list of ssu-repositories for current adaptation
@@ -52,7 +115,7 @@ void SsuRepoManager::update(){
   // strict mode enabled -> delete all repositories not prefixed by ssu
   // assume configuration error if there are no device repos, and don't delete
   // anything, even in strict mode
-  if ((deviceMode & Ssu::StrictMode) == Ssu::StrictMode && !repos.isEmpty()){
+  if ((deviceMode & Ssu::LenientMode) != Ssu::LenientMode && !repos.isEmpty()){
     QDirIterator it(ZYPP_REPO_PATH, QDir::AllEntries|QDir::NoDot|QDir::NoDotDot);
     while (it.hasNext()){
       it.next();
