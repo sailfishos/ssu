@@ -164,7 +164,10 @@ QStringList SsuDeviceInfo::disabledRepos(){
   return result;
 }
 
-QStringList SsuDeviceInfo::repos(bool rnd){
+// this half belongs into repo-manager, as it not only handles board-specific
+// repositories. Right now this one looks like the better place due to the
+// connection to board specific stuff, though
+QStringList SsuDeviceInfo::repos(bool rnd, int filter){
   int adaptationCount = adaptationRepos().size();
   QStringList result;
 
@@ -172,41 +175,48 @@ QStringList SsuDeviceInfo::repos(bool rnd){
   for (int i=0; i<adaptationCount; i++)
     result.append(QString("adaptation%1").arg(i));
 
-  // now read the release/rnd repos
-  QSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
-  QString repoKey = (rnd ? "default-repos/rnd" : "default-repos/release");
-  if (repoSettings.contains(repoKey))
-    result.append(repoSettings.value(repoKey).toStringList());
+  if (filter == NoFilter || filter == BoardFilter || filter == BoardFilterUserBlacklist){
+    // now read the release/rnd repos
+    QSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+    QString repoKey = (rnd ? "default-repos/rnd" : "default-repos/release");
+    if (repoSettings.contains(repoKey))
+      result.append(repoSettings.value(repoKey).toStringList());
 
-  // TODO: add specific repos (developer, sdk, ..)
+    // TODO: add specific repos (developer, sdk, ..)
 
-  // add device configured repos
-  if (boardMappings->contains(deviceVariant(true) + "/repos"))
-    result.append(boardMappings->value(deviceVariant(true) + "/repos").toStringList());
+    // add device configured repos
+    if (boardMappings->contains(deviceVariant(true) + "/repos"))
+      result.append(boardMappings->value(deviceVariant(true) + "/repos").toStringList());
+
+    // read the disabled repositories for this device
+    // user can override repositories disabled here in the user configuration
+    foreach (const QString &key, disabledRepos())
+      result.removeAll(key);
+  }
 
   // read user-defined repositories from ssu.ini
   // TODO: in strict mode, filter the repository list from there
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
-  ssuSettings->beginGroup("repository-urls");
-  result.append(ssuSettings->allKeys());
-  ssuSettings->endGroup();
 
-  // read user-enabled repositories from ssu.ini
-  if (ssuSettings->contains("enabled-repos"))
-    result.append(ssuSettings->value("enabled-repos").toStringList());
+  if (filter == NoFilter || filter == UserFilter){
+    ssuSettings->beginGroup("repository-urls");
+    result.append(ssuSettings->allKeys());
+    ssuSettings->endGroup();
 
-  result.removeDuplicates();
-
-  // read the disabled repositories for this device
-  foreach (const QString &key, disabledRepos())
-    result.removeAll(key);
-
-  // read the disabled repositories from user configuration
-  if (ssuSettings->contains("disabled-repos")){
-    foreach (const QString &key, ssuSettings->value("disabled-repos").toStringList())
-      result.removeAll(key);
+    // read user-enabled repositories from ssu.ini
+    if (ssuSettings->contains("enabled-repos"))
+      result.append(ssuSettings->value("enabled-repos").toStringList());
   }
 
+  if (filter == NoFilter || filter == UserFilter || filter == BoardFilterUserBlacklist){
+    // read the disabled repositories from user configuration
+    if (ssuSettings->contains("disabled-repos")){
+      foreach (const QString &key, ssuSettings->value("disabled-repos").toStringList())
+        result.removeAll(key);
+    }
+  }
+
+  result.removeDuplicates();
   return result;
 }
 

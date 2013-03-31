@@ -126,7 +126,7 @@ void SsuUrlResolver::run(){
   }
 
 
-  if (!headerList.isEmpty()){
+  if (!headerList.isEmpty() && !resolvedUrl.isEmpty()){
     resolvedUrl = QString("%1?%2")
       .arg(resolvedUrl)
       .arg(headerList.join("&"));

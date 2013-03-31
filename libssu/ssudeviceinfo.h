@@ -17,6 +17,13 @@ class SsuDeviceInfo: public QObject {
     Q_OBJECT
 
   public:
+    enum RepoFilter {
+      NoFilter,
+      UserFilter,
+      BoardFilter,
+      BoardFilterUserBlacklist
+    };
+
     SsuDeviceInfo();
     /**
      * Return the list of adaptations used for the set model
@@ -43,12 +50,16 @@ class SsuDeviceInfo: public QObject {
     Q_INVOKABLE QString deviceUid();
     /**
      * Return the list of repositories explicitely disabled for this device
+     * This does not include repositories only disabled in the user configuration.
      */
     QStringList disabledRepos();
     /**
-     * Return the complete list of repositories configured for a device
+     * Return the complete list of repositories configured for a device.
+     * Depending on the filter options, all repostories (user and board),
+     * only board-specific, or only user-specific are returned.
+     * Disabled repositories are excluded depending on filter settings.
      */
-    QStringList repos(bool rnd=false);
+    QStringList repos(bool rnd=false, int filter=NoFilter);
     /**
      * Override device model autodetection
      */

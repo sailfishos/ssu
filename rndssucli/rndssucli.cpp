@@ -11,6 +11,7 @@
 
 #include <ssudeviceinfo.h>
 #include <ssurepomanager.h>
+#include <ssucoreconfig.h>
 
 #include <QDebug>
 
@@ -57,7 +58,25 @@ void RndSsuCli::optMode(QStringList opt){
   // TODO: allow setting meaningful names instead of numbers
 
   if (opt.count() == 2){
-    qout << "Device mode is: " << ssu.deviceMode() << endl;
+    QStringList modeList;
+    int deviceMode = ssu.deviceMode();
+
+    if ((deviceMode & Ssu::DisableRepoManager) == Ssu::DisableRepoManager)
+      modeList.append("DisableRepoManager");
+    if ((deviceMode & Ssu::RndMode) == Ssu::RndMode)
+      modeList.append("RndMode");
+    if ((deviceMode & Ssu::ReleaseMode) == Ssu::ReleaseMode)
+      modeList.append("ReleaseMode");
+    if ((deviceMode & Ssu::LenientMode) == Ssu::LenientMode)
+      modeList.append("LenientMode");
+
+    qout << "Device mode is: " << ssu.deviceMode()
+         << " (" << modeList.join(" | ") << ")" << endl;
+
+    if ((deviceMode & Ssu::RndMode) == Ssu::RndMode &&
+        (deviceMode & Ssu::ReleaseMode) == Ssu::ReleaseMode)
+      qout << "Both Release and RnD mode set, device is in RnD mode" << endl;
+
     state = Idle;
   } else if (opt.count() == 3){
     qout << "Setting device mode from " << ssu.deviceMode()
@@ -135,6 +154,7 @@ void RndSsuCli::optRelease(QStringList opt){
     } else {
       qout << "Changing release from " << ssu.release()
            << " to " << opt.at(2) << endl;
+      qout << "Your device is now in release mode!" << endl;
       ssu.setRelease(opt.at(2));
       state = Idle;
     }
@@ -144,30 +164,141 @@ void RndSsuCli::optRelease(QStringList opt){
   } else if (opt.count() == 4 && opt.at(2) == "-r"){
     qout << "Changing release (RnD) from " << ssu.release(true)
          << " to " << opt.at(3) << endl;
+    qout << "Your device is now in RnD mode!" << endl;
     ssu.setRelease(opt.at(3), true);
     state = Idle;
   }
 }
 
 void RndSsuCli::optRepos(QStringList opt){
+  QTextStream qout(stdout);
   SsuRepoManager repoManager;
   SsuDeviceInfo deviceInfo;
-  QHash<QString, QString> repoParameters;
+  QHash<QString, QString> repoParameters, repoOverride;
+  QString device="";
   bool rndRepo = false;
+  int micMode=0, flagStart = 0;
 
-  QHash<QString, QString> repoOverride;
-  repoOverride.insert("release", "@RELEASE@");
-  repoOverride.insert("rndRelease", "@RNDRELEASE@");
-  repoOverride.insert("flavour", "@FLAVOUR@");
-  repoOverride.insert("arch", "@ARCH@");
-  //repoOverride.insert("", "");
+  if ((ssu.deviceMode() & Ssu::RndMode) == Ssu::RndMode)
+    rndRepo = true;
 
-  QStringList repos = deviceInfo.repos(rndRepo);
+  if (opt.count() >= 3 && opt.at(2) == "-m"){
+    micMode = 1;
+    // TODO: read the default mic override variables from some config
+    /*
+    repoOverride.insert("release", "@RELEASE@");
+    repoOverride.insert("rndRelease", "@RNDRELEASE@");
+    repoOverride.insert("flavour", "@FLAVOUR@");
+    repoOverride.insert("arch", "@ARCH@");
+    */
+  }
 
-  // for each repository, print repo and resolve url
-  foreach (const QString &repo, repos){
-    QString repoUrl = ssu.repoUrl(repo, rndRepo, repoParameters, repoOverride);
-    qDebug() << "Resolved to " << repoUrl;
+  if (opt.count() >= 3 + micMode){
+    // first argument is flag
+    if (opt.at(2 + micMode).contains("=")){
+      flagStart = 2 + micMode;
+    } else if (!opt.at(2 + micMode).contains("=") &&
+               opt.count() == 3 + micMode) {
+      // first (and only) argument is device)
+      device = opt.at(2 + micMode);
+    } else if(!opt.at(2 + micMode).contains("=") &&
+              opt.count() > 3 + micMode &&
+              opt.at(3 + micMode).contains("=")){
+      // first argument is device, second flag
+      device = opt.at(2 + micMode);
+      flagStart = 3 + micMode;
+    } else {
+      state = UserError;
+      return;
+    }
+  }
+
+  if (flagStart != 0){
+    for (int i=flagStart; i<opt.count(); i++){
+      if (opt.at(i).count("=") != 1){
+        qout << "Invalid flag: " << opt.at(i) << endl;
+        state = Idle;
+        return;
+      }
+      QStringList split = opt.at(i).split("=");
+      repoOverride.insert(split.at(0), split.at(1));
+    }
+  }
+
+  if (repoOverride.contains("rnd")){
+    if (repoOverride.value("rnd") == "true")
+      rndRepo = true;
+    else if (repoOverride.value("rnd") == "false")
+      rndRepo = false;
+  }
+
+  if (device != ""){
+    deviceInfo.setDeviceModel(device);
+    repoOverride.insert("model", device);
+  }
+
+  // TODO: rnd mode override needs to be implemented
+  QStringList repos;
+
+  // micMode? handle it and return, as it's a lot simpler than full mode
+  if (micMode){
+    repos = deviceInfo.repos(rndRepo, SsuDeviceInfo::BoardFilter);
+    foreach (const QString &repo, repos){
+      QString repoUrl = ssu.repoUrl(repo, rndRepo, repoParameters, repoOverride);
+      qout << "repo --name=" << repo << "-"
+           << (rndRepo ? repoOverride.value("rndRelease")
+                       : repoOverride.value("release"))
+           << " --baseurl=" << repoUrl << endl;
+    }
+    state = Idle;
+    return;
+  }
+
+  if (device.isEmpty())
+    repos = deviceInfo.repos(rndRepo, SsuDeviceInfo::BoardFilterUserBlacklist);
+  else {
+    qout << "Printing repository configuration for '" << device << "'" << endl << endl;
+    repos = deviceInfo.repos(rndRepo, SsuDeviceInfo::BoardFilter);
+  }
+
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+
+  qout << "Enabled repositories (global): " << endl;
+  for (int i=0; i<=3; i++){
+    // for each repository, print repo and resolve url
+    int longestField = 0;
+    foreach (const QString &repo, repos)
+      if (repo.length() > longestField)
+        longestField = repo.length();
+
+    qout.setFieldAlignment(QTextStream::AlignLeft);
+
+    foreach (const QString &repo, repos){
+      QString repoUrl = ssu.repoUrl(repo, rndRepo, repoParameters, repoOverride);
+      qout << " - " << qSetFieldWidth(longestField) << repo << qSetFieldWidth(0) << " ... " << repoUrl << endl;
+    }
+
+    if (i==0){
+      if (device != ""){
+        repos.clear();
+        continue;
+      }
+      repos = deviceInfo.repos(rndRepo, SsuDeviceInfo::UserFilter);
+      qout << endl << "Enabled repositories (user): " << endl;
+    } else if (i==1){
+      repos = deviceInfo.disabledRepos();
+      if (device.isEmpty())
+        qout << endl << "Disabled repositories (global, might be overridden by user config): " << endl;
+      else
+        qout << endl << "Disabled repositories (global): " << endl;
+    } else if (i==2) {
+      repos.clear();
+      if (device != "")
+        continue;
+      if (ssuSettings->contains("disabled-repos"))
+        repos.append(ssuSettings->value("disabled-repos").toStringList());
+      qout << endl << "Disabled repositories (user): " << endl;
+    }
   }
 
   state = Idle;
@@ -307,6 +438,7 @@ void RndSsuCli::usage(){
        << "\t           [-m]        \tformat output suitable for kickstart" << endl
        << "\t           [device]    \tuse repos for 'device'" << endl
        << "\t           [flags]     \tadditional flags" << endl
+       << "\t           rnd=<true|false> \tset rnd or release mode (default: take from host)" << endl
        << "\taddrepo, ar <repo>     \tadd this repository" << endl
        << "\t           [url]       \tspecify URL, if not configured" << endl
        << "\tremoverepo, rr <repo>  \tremove this repository from configuration" << endl

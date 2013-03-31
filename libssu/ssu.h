@@ -108,7 +108,7 @@ class Ssu: public QObject {
       DisableRepoManager = 0x1,   ///< Disable automagic repository management
       RndMode            = 0x2,   ///< Enable RnD mode for device
       ReleaseMode        = 0x4,   ///< Enable Release mode
-      LenientMode         = 0x8   ///< Disable strict mode (i.e., keep unmanaged repositories)
+      LenientMode        = 0x8    ///< Disable strict mode (i.e., keep unmanaged repositories)
     };
 
     /**

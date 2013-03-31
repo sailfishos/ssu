@@ -1,3 +1,6 @@
+* Sun Mar 31 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.28.1
+- Enable repo listing for ssu CLI
+
 * Sat Mar 30 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.28
 - Add repository management
 - Add basic device mode handling
