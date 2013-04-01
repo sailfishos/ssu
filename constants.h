@@ -16,6 +16,8 @@
 #define SSU_BOARD_MAPPING_CONFIGURATION "/usr/share/ssu/board-mappings.ini"
 /// Path to config.d for board mappings
 #define SSU_BOARD_MAPPING_CONFIGURATION_DIR "/usr/share/ssu/board-mappings.d"
+/// Directory where all the non-user modifiable data sits
+#define SSU_DATA_DIR "/usr/share/ssu/"
 /// The SSU protocol version used by the ssu client libraries
 #define SSU_PROTOCOL_VERSION "1"
 /// Maximum recursion level for resolving variables

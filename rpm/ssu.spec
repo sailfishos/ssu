@@ -1,5 +1,5 @@
 Name: ssu
-Version: 0.28.1
+Version: 0.29
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
@@ -43,6 +43,18 @@ Group: System/Base
 %defattr(-,root,root,-)
 %attr(0664, root, ssu) %config(noreplace) %{_sysconfdir}/ssu/ssu.ini
 %{_datadir}/ssu/*.ini
+
+
+%package ks
+Summary: Kickstart generator using %{name} data
+Group: System/Base
+
+%description ks
+%{summary}. With ponies!
+
+%files ks
+%defattr(-,root,root,-)
+%{_bindir}/ssuks
 
 
 %package rnd-ui

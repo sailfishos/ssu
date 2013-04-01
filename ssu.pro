@@ -4,7 +4,7 @@ contains(QT_VERSION, ^4\\.[0-7]\\..*) {
 
 TEMPLATE = subdirs
 SUBDIRS = libssu
-SUBDIRS += rndssucli rndregisterui ssuurlresolver
+SUBDIRS += rndssucli rndregisterui ssuurlresolver ssuks
 
 ssuconfhack {
     SUBDIRS += ssuconfperm
@@ -16,6 +16,7 @@ rndssucli.depends = libssu
 rndregisterui.depends = libssu
 ssuurlresolver.depends = libssu
 tests.depends = libssu
+ssuks.depends = libssu
 
 config.files = ssu.ini
 config.path  = /etc/ssu
