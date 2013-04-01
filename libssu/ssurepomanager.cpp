@@ -183,11 +183,7 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
   QSettings *repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
   SsuDeviceInfo deviceInfo;
 
-  //errorFlag = false;
-
-  settings->sync();
-
-  // fill in all arbitrary variables from ssu.inie
+  // fill in all arbitrary variables from ssu.ini
   var.resolveSection(settings, "repository-url-variables", &repoParameters);
 
   // add/overwrite some of the variables with sane ones

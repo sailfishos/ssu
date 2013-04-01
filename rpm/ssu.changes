@@ -1,3 +1,7 @@
+* Mon Apr 01 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.29.1
+- Do proper handling of rnd/release modes
+- Lowercase model names before searching for partition configuration
+
 * Mon Apr 01 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.29
 - Add prototype kickstart generator
 

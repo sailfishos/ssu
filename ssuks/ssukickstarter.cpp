@@ -97,10 +97,10 @@ QStringList SsuKickstarter::partitions(){
 
   QDir dir(QString("%1/kickstart/part/").arg(SSU_DATA_DIR));
 
-  if (dir.exists(deviceInfo.deviceVariant(true)))
-    partitionFile = deviceInfo.deviceVariant(true);
-  else if (dir.exists(deviceModel))
-    partitionFile = deviceModel;
+  if (dir.exists(deviceModel.toLower()))
+    partitionFile = deviceModel.toLower();
+  else if (dir.exists(deviceInfo.deviceVariant(true).toLower()))
+    partitionFile = deviceInfo.deviceVariant(true).toLower();
   else if (dir.exists("default"))
     partitionFile = "default";
   else {
@@ -193,13 +193,25 @@ void SsuKickstarter::write(QString kickstart){
     it++;
   }
 
+  if (repoOverride.contains("rnd")){
+    if (repoOverride.value("rnd") == "true")
+      rndMode = true;
+    else if (repoOverride.value("rnd") == "false")
+      rndMode = false;
+  }
+
+  // in rnd mode both rndRelease an release should be the same,
+  // as the variable name used is %(release)
+  if (rndMode && repoOverride.contains("rndRelease"))
+    repoOverride.insert("release", repoOverride.value("rndRelease"));
+
   kout << commands().join("\n") << endl << endl;
   kout << partitions().join("\n") << endl << endl;
   kout << repos().join("\n") << endl << endl;
   kout << packages().join("\n") << endl << endl;
   kout << scriptletSection("pre", false).join("\n") << endl << endl;
-  kout << scriptletSection("post").join("\n") << endl << endl;
-  kout << scriptletSection("post").join("\n") << endl << endl;
+  kout << scriptletSection("post", true).join("\n") << endl << endl;
+  kout << scriptletSection("post", false).join("\n") << endl << endl;
   // add flags as bitmask?
   // POST, die-on-error
 }
