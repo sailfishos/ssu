@@ -220,23 +220,8 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
   if (parametersOverride.contains("model"))
     deviceInfo.setDeviceModel(parametersOverride.value("model"));
 
-  // read adaptation from settings, in case it can't be determined from
-  // board mappings. this is obsolete, and will be dropped soon
-  if (settings->contains("adaptation"))
-    repoParameters.insert("adaptation", settings->value("adaptation").toString());
-
   repoParameters.insert("deviceFamily", deviceInfo.deviceFamily());
   repoParameters.insert("deviceModel", deviceInfo.deviceModel());
-
-  // Those keys have now been obsoleted by generic variables, support for
-  // it will be removed soon
-  QStringList keys;
-  keys << "chip" << "adaptation" << "vendor";
-  foreach(QString key, keys){
-    QString value;
-    if (deviceInfo.getValue(key,value))
-      repoParameters.insert(key, value);
-  }
 
   repoName = deviceInfo.adaptationVariables(repoName, &repoParameters);
 

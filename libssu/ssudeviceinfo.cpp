@@ -285,18 +285,6 @@ QHash<QString, QString> SsuDeviceInfo::variableSection(QString section){
   return result;
 }
 
-bool SsuDeviceInfo::getValue(const QString& key, QString& value){
-  if (boardMappings->contains(deviceVariant()+"/"+key)){
-    value = boardMappings->value(deviceVariant()+"/"+key).toString();
-    return true;
-  }
-  else if (boardMappings->contains(deviceModel()+"/"+key)){
-    value = boardMappings->value(deviceModel()+"/"+key).toString();
-    return true;
-  }
-  return false;
-}
-
 void SsuDeviceInfo::setDeviceModel(QString model){
   if (model == "")
     cachedModel = "";

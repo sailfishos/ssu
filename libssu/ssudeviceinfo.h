@@ -83,10 +83,6 @@ class SsuDeviceInfo: public QObject {
      */
     QVariant value(const QString &key, const QVariant &value=QVariant());
 
-    /**
-     * Get a key from an adaptation section. Deprecated, don't use.
-     */
-    bool getValue(const QString& key, QString& value);
 
   private:
     SsuSettings *boardMappings;
