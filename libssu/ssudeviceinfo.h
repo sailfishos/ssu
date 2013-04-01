@@ -24,11 +24,19 @@ class SsuDeviceInfo: public QObject {
       BoardFilterUserBlacklist
     };
 
-    SsuDeviceInfo();
+    /**
+     * Initialize with device to override autodetection
+     */
+    SsuDeviceInfo(QString model="");
     /**
      * Return the list of adaptations used for the set model
      */
     QStringList adaptationRepos();
+    /**
+     * Resolve adaptation-specific variables for adaptationName, and store them in storageHash
+     * Returns "adaptation" if a valid adaptation was found, adaptationName otherwise
+     */
+    QString adaptationVariables(const QString &adaptationName, QHash<QString, QString> *storageHash);
     /**
      * Try to find the device family for the system this is running on
      */
@@ -69,6 +77,11 @@ class SsuDeviceInfo: public QObject {
      * prepended to the section name if not specified already.
      */
     QHash<QString, QString> variableSection(QString section);
+    /**
+     * Return a value from an adaptation section. Returns an empty string
+     * or a given default value if key does not exist.
+     */
+    QVariant value(const QString &key, const QVariant &value=QVariant());
 
     /**
      * Get a key from an adaptation section. Deprecated, don't use.

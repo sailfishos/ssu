@@ -220,8 +220,6 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
   if (parametersOverride.contains("model"))
     deviceInfo.setDeviceModel(parametersOverride.value("model"));
 
-  QStringList adaptationRepos = deviceInfo.adaptationRepos();
-
   // read adaptation from settings, in case it can't be determined from
   // board mappings. this is obsolete, and will be dropped soon
   if (settings->contains("adaptation"))
@@ -240,40 +238,7 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
       repoParameters.insert(key, value);
   }
 
-  // special handling for adaptation-repositories
-  // - check if repo is in right format (adaptation\d*)
-  // - check if the configuration has that many adaptation repos
-  // - export the entry in the adaptation list as %(adaptation)
-  // - look up variables for that adaptation, and export matching
-  //   adaptation variable
-  QRegExp regex("adaptation\\\d*", Qt::CaseSensitive, QRegExp::RegExp2);
-  if (regex.exactMatch(repoName)){
-    regex.setPattern("\\\d*");
-    regex.lastIndexIn(repoName);
-    int n = regex.cap().toInt();
-
-    if (!adaptationRepos.isEmpty()){
-      if (adaptationRepos.size() <= n) {
-        ssuLog->print(LOG_INFO, "Note: repo index out of bounds, substituting 0" + repoName);
-        n = 0;
-      }
-
-      QString adaptationRepo = adaptationRepos.at(n);
-      repoParameters.insert("adaptation", adaptationRepo);
-      ssuLog->print(LOG_DEBUG, "Found first adaptation " + repoName);
-
-      QHash<QString, QString> h = deviceInfo.variableSection(adaptationRepo);
-
-      QHash<QString, QString>::const_iterator i = h.constBegin();
-      while (i != h.constEnd()){
-        repoParameters.insert(i.key(), i.value());
-        i++;
-      }
-    } else
-      ssuLog->print(LOG_INFO, "Note: adaptation repo for invalid repo requested " + repoName);
-
-    repoName = "adaptation";
-  }
+  repoName = deviceInfo.adaptationVariables(repoName, &repoParameters);
 
   // Domain variables
   // first read all variables from default-domain

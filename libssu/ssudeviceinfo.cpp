@@ -11,14 +11,17 @@
 
 #include "ssudeviceinfo.h"
 #include "ssucoreconfig.h"
+#include "ssulog.h"
 
 #include "../constants.h"
 
 QTM_USE_NAMESPACE
 
-SsuDeviceInfo::SsuDeviceInfo(): QObject(){
+SsuDeviceInfo::SsuDeviceInfo(QString model): QObject(){
 
     boardMappings = new SsuSettings(SSU_BOARD_MAPPING_CONFIGURATION, SSU_BOARD_MAPPING_CONFIGURATION_DIR);
+    if (!model.isEmpty())
+      cachedModel = model;
 }
 
 QStringList SsuDeviceInfo::adaptationRepos(){
@@ -30,6 +33,46 @@ QStringList SsuDeviceInfo::adaptationRepos(){
     result = boardMappings->value(model + "/adaptation-repos").toStringList();
 
   return result;
+}
+
+QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<QString, QString> *storageHash){
+  SsuLog *ssuLog = SsuLog::instance();
+  QStringList adaptationRepoList = adaptationRepos();
+  // special handling for adaptation-repositories
+  // - check if repo is in right format (adaptation\d*)
+  // - check if the configuration has that many adaptation repos
+  // - export the entry in the adaptation list as %(adaptation)
+  // - look up variables for that adaptation, and export matching
+  //   adaptation variable
+  QRegExp regex("adaptation\\\d*", Qt::CaseSensitive, QRegExp::RegExp2);
+  if (regex.exactMatch(adaptationName)){
+    regex.setPattern("\\\d*");
+    regex.lastIndexIn(adaptationName);
+    int n = regex.cap().toInt();
+
+    if (!adaptationRepoList.isEmpty()){
+      if (adaptationRepoList.size() <= n) {
+        ssuLog->print(LOG_INFO, "Note: repo index out of bounds, substituting 0" + adaptationName);
+        n = 0;
+      }
+
+      QString adaptationRepo = adaptationRepoList.at(n);
+      storageHash->insert("adaptation", adaptationRepo);
+      ssuLog->print(LOG_DEBUG, "Found first adaptation " + adaptationName);
+
+      QHash<QString, QString> h = variableSection(adaptationRepo);
+
+      QHash<QString, QString>::const_iterator i = h.constBegin();
+      while (i != h.constEnd()){
+        storageHash->insert(i.key(), i.value());
+        i++;
+      }
+    } else
+      ssuLog->print(LOG_INFO, "Note: adaptation repo for invalid repo requested " + adaptationName);
+
+    return "adaptation";
+  }
+  return adaptationName;
 }
 
 QString SsuDeviceInfo::deviceFamily(){
@@ -262,4 +305,14 @@ void SsuDeviceInfo::setDeviceModel(QString model){
 
   cachedFamily = "";
   cachedVariant = "";
+}
+
+QVariant SsuDeviceInfo::value(const QString &key, const QVariant &value){
+  if (boardMappings->contains(deviceVariant()+"/"+key)){
+    return boardMappings->value(deviceVariant()+"/"+key);
+  } else if (boardMappings->contains(deviceModel()+"/"+key)){
+    return boardMappings->value(deviceModel()+"/"+key);
+  }
+
+  return value;
 }
