@@ -1,3 +1,6 @@
+* Tue Apr 02 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.30
+- Add some more unit tests
+
 * Mon Apr 01 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.29.1
 - Do proper handling of rnd/release modes
 - Lowercase model names before searching for partition configuration

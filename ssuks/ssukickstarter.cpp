@@ -150,6 +150,9 @@ QStringList SsuKickstarter::scriptletSection(QString name, bool chroot){
   }
 
   if (!result.isEmpty()){
+    result.prepend(QString("export SSU_RELEASE_TYPE=%1")
+                   .arg(rndMode ? "rnd" : "release"));
+
     if (chroot)
       result.prepend("%" + name);
     else
