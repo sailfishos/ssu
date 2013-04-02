@@ -209,7 +209,7 @@ void SsuKickstarter::write(QString kickstart){
   kout << partitions().join("\n") << endl << endl;
   kout << repos().join("\n") << endl << endl;
   kout << packages().join("\n") << endl << endl;
-  kout << scriptletSection("pre", false).join("\n") << endl << endl;
+  kout << scriptletSection("pre", true).join("\n") << endl << endl;
   kout << scriptletSection("post", true).join("\n") << endl << endl;
   kout << scriptletSection("post", false).join("\n") << endl << endl;
   // add flags as bitmask?
