@@ -1,6 +1,11 @@
 TEMPLATE        = subdirs
 CONFIG         += qt ordered coverage debug
-SUBDIRS         = ut_urlresolver ut_variables
+SUBDIRS         = \
+        sandbox \
+        ut_settings \
+        ut_ssuurlresolver \
+        ut_urlresolver \
+        ut_variables \
 
 !include( tests.pri ) { error("Unable to find tests include") }
 

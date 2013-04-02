@@ -3,6 +3,16 @@
   <!-- Test suite, name mandatory - the same as test package name -->
   <suite name="sync-app-tests" domain="ssu">
     <!-- At least one set per suite, name and description mandatory -->
+    <set name="settings" description="Test to determine if configuration files processing works properly" feature="settings">
+      <case name="ut_settings" type="Functional" description="Settings processing test" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/ut_settings</step>
+      </case>
+    </set>
+    <set name="ssuurlresolver" description="Test to determine if the UrlResolverPlugin works well with installed version of libzypp" feature="ssuurlresolver">
+      <case name="ut_ssuurlresolver" type="Functional" description="URL resolver plugin test" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/ut_ssuurlresolver</step>
+      </case>
+    </set>
     <set name="urlresolver" description="Test to determine if URL resolving works properly" feature="urlresolver">
       <case name="ut_urlresolver" type="Functional" description="URL resolver tests" timeout="1000" subfeature="">
         <step expected_result="0">/opt/tests/ssu/ut_urlresolver</step>

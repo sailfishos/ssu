@@ -13,6 +13,8 @@
 class SsuSettings: public QSettings {
     Q_OBJECT
 
+    friend class SettingsTest;
+
   public:
     SsuSettings();
     SsuSettings(const QString &fileName, Format format, QObject *parent=0);
@@ -30,6 +32,7 @@ class SsuSettings: public QSettings {
   private:
     QString defaultSettingsFile, settingsd;
     void merge(bool keepOld=false);
+    static void merge(QSettings *masterSettings, const QStringList &settingsFiles);
     void upgrade();
 
 };

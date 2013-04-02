@@ -1,0 +1,10 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <file>testdata/merge/settings.d/bar.ini</file>
+    <file>testdata/merge/settings.d/foo.ini</file>
+    <file>testdata/merge/merged.ini</file>
+    <file>testdata/merge/settings.ini</file>
+    <file>testdata/upgrade/recipe</file>
+  </qresource>
+</RCC>

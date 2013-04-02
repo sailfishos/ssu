@@ -119,7 +119,7 @@ void Ssu::setRelease(QString release, bool rnd){
 
 void Ssu::setDomain(QString domain){
   SsuCoreConfig *settings = SsuCoreConfig::instance();
-  setDomain(domain);
+  settings->setDomain(domain);
 }
 
 bool Ssu::useSslVerify(){

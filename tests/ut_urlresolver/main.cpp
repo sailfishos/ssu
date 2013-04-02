@@ -7,9 +7,12 @@
 
 #include <QtTest/QtTest>
 
+#include "../sandbox/sandboxfileenginehandler.h"
 #include "urlresolvertest.cpp"
 
 int main(int argc, char **argv){
+  SandboxFileEngineHandler h;
+
   UrlResolverTest urlResolverTest;
 
   if (QTest::qExec(&urlResolverTest, argc, argv))

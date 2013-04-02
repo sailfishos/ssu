@@ -67,30 +67,42 @@ void SsuSettings::merge(bool keepOld){
   if (settingsFiles.count() > 0 && !keepOld)
     clear();
 
+  merge(this, settingsFiles);
+  sync();
+}
+
+void SsuSettings::merge(QSettings *masterSettings, const QStringList &settingsFiles){
+  SsuLog *ssuLog = SsuLog::instance();
+
   foreach (const QString &settingsFile, settingsFiles){
     QSettings settings(settingsFile, QSettings::IniFormat);
     QStringList groups = settings.childGroups();
 
     ssuLog->print(LOG_DEBUG, QString("Merging %1 into %2")
                   .arg(settingsFile)
-                  .arg(fileName()));
+                  .arg(masterSettings->fileName()));
 
     foreach (const QString &group, groups){
-      beginGroup(group);
+      masterSettings->beginGroup(group);
       settings.beginGroup(group);
 
       QStringList keys = settings.allKeys();
       foreach (const QString &key, keys){
-        setValue(key, settings.value(key));
+        masterSettings->setValue(key, settings.value(key));
       }
 
       settings.endGroup();
-      endGroup();
+      masterSettings->endGroup();
     }
-    sync();
   }
 }
 
+/*
+ * If you change anything here, run `make update-upgrade-test-recipe` inside
+ * tests/ut_settings/ and check the impact of your changes with
+ * `git diff testdata/upgrade/recipe`. See ut_settings/upgradetesthelper.cpp for
+ * more details.
+ */
 void SsuSettings::upgrade(){
   int configVersion=0;
   int defaultConfigVersion=0;
@@ -175,5 +187,6 @@ void SsuSettings::upgrade(){
       }
       setValue("configVersion", i);
     }
+    sync();
   }
 }
