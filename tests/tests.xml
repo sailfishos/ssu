@@ -3,6 +3,11 @@
   <!-- Test suite, name mandatory - the same as test package name -->
   <suite name="sync-app-tests" domain="ssu">
     <!-- At least one set per suite, name and description mandatory -->
+    <set name="rndssucli" description="Test to determine if ssu command line tool works properly" feature="rndssucli">
+      <case name="ut_rndssucli" type="Functional" description="SSU command line utility test" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/ut_rndssucli</step>
+      </case>
+    </set>
     <set name="settings" description="Test to determine if configuration files processing works properly" feature="settings">
       <case name="ut_settings" type="Functional" description="Settings processing test" timeout="1000" subfeature="">
         <step expected_result="0">/opt/tests/ssu/ut_settings</step>
