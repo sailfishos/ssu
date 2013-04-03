@@ -1,7 +1,8 @@
 TEMPLATE        = subdirs
 CONFIG         += qt ordered coverage debug
 SUBDIRS         = \
-        sandbox \
+        testutils \
+        testutils/sandboxhook.pro \
         ut_rndssucli \
         ut_settings \
         ut_ssuurlresolver \

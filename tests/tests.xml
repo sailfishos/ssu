@@ -5,27 +5,27 @@
     <!-- At least one set per suite, name and description mandatory -->
     <set name="rndssucli" description="Test to determine if ssu command line tool works properly" feature="rndssucli">
       <case name="ut_rndssucli" type="Functional" description="SSU command line utility test" timeout="1000" subfeature="">
-        <step expected_result="0">/opt/tests/ssu/ut_rndssucli</step>
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_rndssucli</step>
       </case>
     </set>
     <set name="settings" description="Test to determine if configuration files processing works properly" feature="settings">
       <case name="ut_settings" type="Functional" description="Settings processing test" timeout="1000" subfeature="">
-        <step expected_result="0">/opt/tests/ssu/ut_settings</step>
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_settings</step>
       </case>
     </set>
     <set name="ssuurlresolver" description="Test to determine if the UrlResolverPlugin works well with installed version of libzypp" feature="ssuurlresolver">
       <case name="ut_ssuurlresolver" type="Functional" description="URL resolver plugin test" timeout="1000" subfeature="">
-        <step expected_result="0">/opt/tests/ssu/ut_ssuurlresolver</step>
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_ssuurlresolver</step>
       </case>
     </set>
     <set name="urlresolver" description="Test to determine if URL resolving works properly" feature="urlresolver">
       <case name="ut_urlresolver" type="Functional" description="URL resolver tests" timeout="1000" subfeature="">
-        <step expected_result="0">/opt/tests/ssu/ut_urlresolver</step>
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_urlresolver</step>
       </case>
     </set>
     <set name="variables" description="Test to determine if variable resolving works properly" feature="variables">
       <case name="ut_variables" type="Functional" description="Variable resolver tests" timeout="1000" subfeature="">
-        <step expected_result="0">/opt/tests/ssu/ut_variables</step>
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_variables</step>
       </case>
     </set>
   </suite>

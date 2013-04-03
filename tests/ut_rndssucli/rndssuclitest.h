@@ -13,8 +13,6 @@
 class RndSsuCliTest: public QObject {
     Q_OBJECT
 
-    class Process;
-
   private slots:
     void initTestCase();
     void cleanupTestCase();

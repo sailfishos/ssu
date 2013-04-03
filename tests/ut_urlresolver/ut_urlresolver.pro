@@ -3,7 +3,7 @@ SOURCES = main.cpp \
         urlresolvertest.cpp
 TEMPLATE = app
 TARGET = ut_urlresolver
-LIBS += -lssu
+LIBS += -lssu -ltestutils
 CONFIG -= app_bundle
 CONFIG += console qtestlib
 QT -= gui

@@ -7,6 +7,8 @@ CONFIG += console qtestlib
 QT -= gui
 QT += network testlib
 
+LIBS += -ltestutils
+
 !include( ../tests.pri ) { error("Unable to find tests include") }
 
 unix:target.path = $${PREFIX}/$$TESTS_PATH

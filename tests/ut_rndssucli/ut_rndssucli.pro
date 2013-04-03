@@ -10,6 +10,7 @@ TARGET = ut_rndssucli
 
 LIBS += \
 	-lssu \
+        -ltestutils \
 
 CONFIG -= app_bundle
 CONFIG += console qtestlib

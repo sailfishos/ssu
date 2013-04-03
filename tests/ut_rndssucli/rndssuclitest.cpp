@@ -12,68 +12,9 @@
 
 #include <QtTest/QtTest>
 
+#include "../testutils/process.h"
+
 typedef QStringList Args; // improve readability
-
-class RndSsuCliTest::Process {
-  public:
-    enum ExpectedResult {
-      ExpectSuccess,
-      ExpectFail
-    };
-
-    Process() : m_expectFail(false), m_timedOut(false) {}
-
-    QString execute(const QString &program, const QStringList &arguments,
-        bool expectedResult = ExpectSuccess){
-      Q_ASSERT(processStatus() == NotRunning);
-      m_program = program;
-      m_arguments = arguments;
-      m_expectFail = expectedResult == ExpectFail;
-      m_process.start(program, arguments);
-      m_timedOut = !m_process.waitForFinished();
-      return m_process.readAllStandardOutput();
-    }
-
-    bool hasError(){
-      return m_timedOut
-        || m_process.error() != QProcess::UnknownError
-        || m_process.exitStatus() != QProcess::NormalExit
-        || (m_process.exitCode() != 0) != m_expectFail;
-    }
-
-    QString fmtErrorMessage(){
-      Q_ASSERT(hasError());
-
-      QStringList reasons;
-      if (m_timedOut){
-        reasons.append("Timed out");
-      }else if (m_process.exitStatus() != QProcess::NormalExit){
-        reasons.append("Process crashed");
-      }else if (m_expectFail && (m_process.exitCode() == 0)){
-        reasons.append("Did not fail while it was expected to");
-      }else{
-        if (m_process.error() != QProcess::UnknownError){
-          reasons.append(m_process.errorString());
-        }
-        const QString errorOut = m_process.readAllStandardError();
-        if (!errorOut.isEmpty()){
-          reasons.append(errorOut);
-        }
-      }
-
-      return QString("Failed to execute `%1 %2`: %3")
-        .arg(m_program)
-        .arg(QStringList(m_arguments).replaceInStrings(QRegExp("^|$"), "\"").join(" "))
-        .arg(reasons.join(": "));
-    }
-
-  private:
-    QProcess m_process;
-    QString m_program;
-    QStringList m_arguments;
-    bool m_expectFail;
-    bool m_timedOut;
-};
 
 void RndSsuCliTest::initTestCase(){
   Process mktemp;
