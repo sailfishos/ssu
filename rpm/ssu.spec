@@ -1,5 +1,5 @@
 Name: ssu
-Version: 0.30
+Version: 0.30.1
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
@@ -14,6 +14,7 @@ BuildRequires: pkgconfig(libsystemd-journal)
 BuildRequires: oneshot
 BuildRequires: doxygen
 Requires(pre): shadow-utils
+Requires(pre): /usr/bin/groupadd-user
 Requires(postun): shadow-utils
 Requires: ssu-vendor-data
 
@@ -142,10 +143,7 @@ cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
 
 %pre
 groupadd -rf ssu
-USER=$(getent passwd 1000 | cut -d: -f1)
-if [ -n "$USER" ]; then
-  usermod -a -G ssu $USER
-fi
+groupadd-user ssu
 if [ -f /etc/ssu/ssu.ini ]; then
   chgrp ssu /etc/ssu/ssu.ini
   chmod 664 /etc/ssu/ssu.ini
