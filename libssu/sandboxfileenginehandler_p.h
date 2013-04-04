@@ -13,7 +13,15 @@
 class SandboxFileEngineHandler : public QAbstractFileEngineHandler {
   public:
     SandboxFileEngineHandler();
+    SandboxFileEngineHandler(const QString &sandboxPath);
+
     QAbstractFileEngine *create(const QString &fileName) const;
+
+  private:
+    static QSet<QString> s_ssuConfigFiles;
+    static QSet<QString> s_ssuConfigDirectories;
+    bool m_enabled;
+    QString m_sandboxPath;
 };
 
 #endif

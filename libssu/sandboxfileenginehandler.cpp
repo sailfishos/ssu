@@ -24,55 +24,72 @@
  * directory specified by SSU_TESTS_SANDBOX environment variable.
  */
 
-SandboxFileEngineHandler::SandboxFileEngineHandler() {}
+QSet<QString> SandboxFileEngineHandler::s_ssuConfigFiles = QSet<QString>()
+  << SSU_CONFIGURATION
+  << SSU_REPO_CONFIGURATION
+  << SSU_DEFAULT_CONFIGURATION
+  << SSU_BOARD_MAPPING_CONFIGURATION;
 
-QAbstractFileEngine *SandboxFileEngineHandler::create(const QString &fileName) const{
-  static bool enabled = false;
-  static bool firstCall = true;
+QSet<QString> SandboxFileEngineHandler::s_ssuConfigDirectories = QSet<QString>()
+  << SSU_BOARD_MAPPING_CONFIGURATION_DIR;
 
-  if (!enabled && !firstCall){
-    return 0;
+SandboxFileEngineHandler::SandboxFileEngineHandler(){
+  m_enabled = false;
+  m_sandboxPath = QProcessEnvironment::systemEnvironment().value("SSU_TESTS_SANDBOX");
+
+  if (m_sandboxPath.isEmpty()){
+    return;
   }
 
-  static QString sandboxPath =
-      QProcessEnvironment::systemEnvironment().value("SSU_TESTS_SANDBOX");
+  if (!QFileInfo(m_sandboxPath).exists()){
+    qFatal("%s: Invalid SSU_TESTS_SANDBOX value: No such file or directory",
+        qPrintable(m_sandboxPath));
+  }
 
-  if (firstCall){
-    firstCall = false;
+  if (!QFileInfo(m_sandboxPath).isDir()){
+    qFatal("%s: Invalid SSU_TESTS_SANDBOX value: Not a directory",
+        qPrintable(m_sandboxPath));
+  }
 
-    if (sandboxPath.isEmpty()){
-      return 0;
-    }
+  m_enabled = true;
+}
 
-    if (!QFileInfo(sandboxPath).exists()){
-      qFatal("%s: Invalid SSU_TESTS_SANDBOX value: No such file or directory",
-          qPrintable(sandboxPath));
-    }
+SandboxFileEngineHandler::SandboxFileEngineHandler(const QString &sandboxPath){
+  m_enabled = false;
+  m_sandboxPath = sandboxPath;
 
-    if (!QFileInfo(sandboxPath).isDir()){
-      qFatal("%s: Invalid SSU_TESTS_SANDBOX value: Not a directory",
-          qPrintable(sandboxPath));
-    }
+  if (m_sandboxPath.isEmpty()){
+    qWarning("%s: Empty sandboxPath", Q_FUNC_INFO);
+    return;
+  }
 
-    enabled = true;
+  if (!QFileInfo(m_sandboxPath).exists()){
+    qFatal("%s: Invalid sandboxPath: No such file or directory",
+        qPrintable(m_sandboxPath));
+  }
+
+  if (!QFileInfo(m_sandboxPath).isDir()){
+    qFatal("%s: Invalid sandboxPath: Not a directory",
+        qPrintable(m_sandboxPath));
+  }
+
+  m_enabled = true;
+}
+
+QAbstractFileEngine *SandboxFileEngineHandler::create(const QString &fileName) const{
+  Q_ASSERT(!m_enabled || !m_sandboxPath.isEmpty());
+
+  if (!m_enabled){
+    return 0;
   }
 
   if (!fileName.startsWith('/')){
     return 0;
   }
 
-  static QSet<QString> ssuConfigFiles = QSet<QString>()
-    << SSU_CONFIGURATION
-    << SSU_REPO_CONFIGURATION
-    << SSU_DEFAULT_CONFIGURATION
-    << SSU_BOARD_MAPPING_CONFIGURATION;
-
-  static QSet<QString> ssuConfigDirectories = QSet<QString>()
-    << SSU_BOARD_MAPPING_CONFIGURATION_DIR;
-
-  if (!ssuConfigFiles.contains(fileName)){
+  if (!s_ssuConfigFiles.contains(fileName)){
     bool match = false;
-    foreach (const QString &ssuConfigDirectory, ssuConfigDirectories){
+    foreach (const QString &ssuConfigDirectory, s_ssuConfigDirectories){
       if (fileName.startsWith(ssuConfigDirectory + '/')){
         match = true;
         break;
@@ -83,7 +100,7 @@ QAbstractFileEngine *SandboxFileEngineHandler::create(const QString &fileName) c
     }
   }
 
-  const QString fileName_ = QDir(sandboxPath).absoluteFilePath(QString(fileName).remove(0, 1));
+  const QString fileName_ = QDir(m_sandboxPath).absoluteFilePath(QString(fileName).remove(0, 1));
 
   return new QFSFileEngine(fileName_);
 }
