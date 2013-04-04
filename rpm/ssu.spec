@@ -1,5 +1,5 @@
 Name: ssu
-Version: 0.30.1
+Version: 0.31
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
@@ -128,13 +128,14 @@ Group: Documentation
 
 
 %build
-qmake DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive
+mkdir -p build && cd build
+qmake DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive ..
 make %{?_smp_mflags}
-doxygen doc/Doxyfile
+doxygen ../doc/Doxyfile
 
 
 %install
-make INSTALL_ROOT=%{buildroot} install
+cd build && make INSTALL_ROOT=%{buildroot} install
 mkdir -p %{buildroot}/%{_sysconfdir}/zypp/credentials.d
 ln -s %{_bindir}/ssu %{buildroot}/%{_bindir}/rndssu
 mkdir -p %{buildroot}/%{_docdir}/%{name}
