@@ -13,6 +13,7 @@
 #include <QStringList>
 
 #include "ssukickstarter.h"
+#include "libssu/sandbox_p.h"
 
 #include "ssuks.h"
 
@@ -23,8 +24,6 @@ void SsuKs::run(){
 
   QTextStream qout(stdout);
   QHash<QString, QString> repoParameters;
-
-  SsuKickstarter kickstarter;
 
   QString fileName;
   if (arguments.count() >= 1 && !arguments.at(0).contains("=")){
@@ -42,6 +41,16 @@ void SsuKs::run(){
       repoParameters.insert(split.at(0), split.at(1));
     }
 
+
+    if (repoParameters.contains("sandbox")){
+      QString sandbox = repoParameters.value("sandbox");
+      repoParameters.remove("sandbox");
+
+      qout << "Using sandbox at " << sandbox << endl;
+      Sandbox *sb = new Sandbox(sandbox, Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
+    }
+
+    SsuKickstarter kickstarter;
     kickstarter.setRepoParameters(repoParameters);
     kickstarter.write(fileName);
   } else
@@ -54,7 +63,7 @@ void SsuKs::usage(){
   QTextStream qout(stdout);
   qout << "\nUsage: ssuks <filename> <flags>" << endl
        << endl
-       << "Flags are in the form key=value. 'model' and 'rnd' keys have special meanings." << endl
+       << "Flags are in the form key=value. 'model', 'rnd' and 'sandbox' keys have special meanings." << endl
        << "To do a kickstart for N9 do 'ssuks model=N9'" << endl
        << endl;
   qout.flush();
