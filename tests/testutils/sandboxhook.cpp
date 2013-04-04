@@ -1,6 +1,6 @@
 #include <dlfcn.h>
 
-#include "sandboxfileenginehandler.h"
+#include "libssu/sandboxfileenginehandler_p.h"
 
 extern "C" void qt_startup_hook()
 {

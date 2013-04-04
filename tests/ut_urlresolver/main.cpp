@@ -7,7 +7,7 @@
 
 #include <QtTest/QtTest>
 
-#include "testutils/sandboxfileenginehandler.h"
+#include "libssu/sandboxfileenginehandler_p.h"
 #include "urlresolvertest.cpp"
 
 int main(int argc, char **argv){

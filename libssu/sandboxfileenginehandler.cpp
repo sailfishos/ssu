@@ -5,7 +5,7 @@
  * @date 2013
  */
 
-#include "sandboxfileenginehandler.h"
+#include "sandboxfileenginehandler_p.h"
 
 #include <QtCore/QDir>
 #include <QtCore/QFSFileEngine>

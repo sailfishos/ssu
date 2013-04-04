@@ -1,1 +1,1 @@
-include(../testutils/testutils.pri)
+include(../../libssu/libssu.pri)
