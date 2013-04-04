@@ -10,12 +10,12 @@
 
 #include <QObject>
 
+class Sandbox;
+
 class RndSsuCliTest: public QObject {
     Q_OBJECT
 
   private slots:
-    void initTestCase();
-    void cleanupTestCase();
     void init();
     void cleanup();
 
@@ -24,7 +24,7 @@ class RndSsuCliTest: public QObject {
     void testSubcommandMode();
 
   private:
-    QString tempDir;
+    Sandbox *m_sandbox;
 };
 
 #endif

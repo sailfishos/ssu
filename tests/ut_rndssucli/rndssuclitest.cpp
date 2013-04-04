@@ -12,53 +12,22 @@
 
 #include <QtTest/QtTest>
 
+#include "libssu/sandbox_p.h"
 #include "testutils/process.h"
 
 typedef QStringList Args; // improve readability
 
-void RndSsuCliTest::initTestCase(){
-  Process mktemp;
-  tempDir =
-    mktemp.execute("mktemp", Args() << "-t" << "-d" << "ut_rndssucli.XXX").trimmed();
-  QVERIFY2(!mktemp.hasError(), qPrintable(mktemp.fmtErrorMessage()));
-
-  QVERIFY2(QFileInfo(tempDir).isDir(), qPrintable(
-        QString("Temporary directory disappeared: '%1'").arg(tempDir)));
-
-  setenv("LD_PRELOAD", qPrintable(QString("%1/libsandboxhook.so").arg(TESTS_PATH)), 1);
-  setenv("SSU_TESTS_SANDBOX", qPrintable(QString("%1/configroot").arg(tempDir)), 1);
-}
-
-void RndSsuCliTest::cleanupTestCase(){
-
-  if (tempDir.isEmpty()){
-    return;
-  }
-
-  Process rm;
-  rm.execute("rm", Args() << "-rf" << tempDir);
-  QVERIFY2(!rm.hasError(), qPrintable(rm.fmtErrorMessage()));
-}
-
 void RndSsuCliTest::init(){
-  Q_ASSERT(!tempDir.isEmpty());
+  Q_ASSERT(m_sandbox == 0);
 
-  QVERIFY2(QFileInfo(tempDir).isDir(), qPrintable(
-        QString("Temporary directory disappeared: '%1'").arg(tempDir)));
-  QVERIFY2(QDir(tempDir).entryList(QDir::NoDotAndDotDot).count() == 0, qPrintable(
-        QString("Garbage in temporary directory: '%1'").arg(tempDir)));
-
-  Process cp;
-  cp.execute("cp", Args() << "-r" << QString("%1/configroot").arg(TESTS_DATA_PATH) << tempDir);
-  QVERIFY2(!cp.hasError(), qPrintable(cp.fmtErrorMessage()));
+  m_sandbox = new Sandbox(QString("%1/configroot").arg(TESTS_DATA_PATH),
+      Sandbox::UseAsSkeleton, Sandbox::ChildProcesses);
+  setenv("LD_PRELOAD", qPrintable(QString("%1/libsandboxhook.so").arg(TESTS_PATH)), 1);
 }
 
 void RndSsuCliTest::cleanup(){
-  Q_ASSERT(!tempDir.isEmpty());
-
-  Process rm;
-  rm.execute("rm", Args() << "-rf" << QString("%1/configroot").arg(tempDir));
-  QVERIFY2(!rm.hasError(), qPrintable(rm.fmtErrorMessage()));
+  delete m_sandbox;
+  m_sandbox = 0;
 }
 
 void RndSsuCliTest::testSubcommandFlavour(){
