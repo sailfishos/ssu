@@ -7,7 +7,7 @@ public_headers = \
 
 HEADERS = \
         $${public_headers} \
-        sandboxfileenginehandler_p.h \
+        sandbox_p.h \
         ssucoreconfig.h \
         ssudeviceinfo.h \
         ssulog.h \
@@ -16,7 +16,7 @@ HEADERS = \
         ssurepomanager.h \
 
 SOURCES = \
-        sandboxfileenginehandler.cpp \
+        sandbox.cpp \
         ssu.cpp \
         ssucoreconfig.cpp \
         ssudeviceinfo.cpp \
