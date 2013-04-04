@@ -20,9 +20,15 @@ class Sandbox {
       UseAsSkeleton,
     };
 
+    enum Scope {
+      ThisProcess    = 0x01,
+      ChildProcesses = 0x02,
+    };
+    Q_DECLARE_FLAGS(Scopes, Scope)
+
   public:
     Sandbox();
-    Sandbox(const QString &sandboxPath, Usage usage);
+    Sandbox(const QString &sandboxPath, Usage usage, Scopes scopes);
     ~Sandbox();
 
   private:
@@ -33,5 +39,7 @@ class Sandbox {
     QString m_tempDir;
     FileEngineHandler *m_handler;
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Sandbox::Scopes)
 
 #endif

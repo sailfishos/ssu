@@ -7,6 +7,8 @@
 
 #include "sandbox_p.h"
 
+#include <stdlib.h>
+
 #include <QtCore/QAbstractFileEngineHandler>
 #include <QtCore/QDir>
 #include <QtCore/QFSFileEngine>
@@ -38,6 +40,10 @@ class Sandbox::FileEngineHandler : public QAbstractFileEngineHandler {
  * When constructed with @a usage UseAsSkeleton, it will first make temporary
  * copy of @a sandboxPath to work on and files in the original directory will
  * stay untouched.
+ *
+ * The argument @scopes allows to control if the sandbox will be used by this
+ * process, its children processes (@c SSU_TESTS_SANDBOX environment variable
+ * will be exported), or both.
  *
  * Internally it is based on QAbstractFileEngineHandler.
  */
@@ -81,7 +87,7 @@ Sandbox::Sandbox(){
   m_handler = new FileEngineHandler(m_sandboxPath);
 }
 
-Sandbox::Sandbox(const QString &sandboxPath, Usage usage){
+Sandbox::Sandbox(const QString &sandboxPath, Usage usage, Scopes scopes){
   if (s_instance != 0){
     qFatal("%s: Cannot be instantiated more than once", Q_FUNC_INFO);
   }
@@ -128,7 +134,13 @@ Sandbox::Sandbox(const QString &sandboxPath, Usage usage){
     m_sandboxPath = sandboxCopyPath;
   }
 
-  m_handler = new FileEngineHandler(m_sandboxPath);
+  if (scopes & ThisProcess){
+    m_handler = new FileEngineHandler(m_sandboxPath);
+  }
+
+  if (scopes & ChildProcesses){
+    setenv("SSU_TESTS_SANDBOX", qPrintable(m_sandboxPath), 1);
+  }
 }
 
 Sandbox::~Sandbox(){
