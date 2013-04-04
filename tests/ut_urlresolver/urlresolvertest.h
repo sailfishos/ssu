@@ -12,7 +12,7 @@
 #include <QtTest/QtTest>
 #include <QHash>
 
-#include <ssu.h>
+#include "libssu/ssu.h"
 
 class UrlResolverTest: public QObject {
     Q_OBJECT

@@ -9,6 +9,7 @@
 #include <QTranslator>
 #include <QLocale>
 #include <QLibraryInfo>
+#include <QTimer>
 #include "ssuurlresolver.h"
 
 int main(int argc, char** argv){

@@ -12,8 +12,8 @@
 #include <QSettings>
 #include <QHash>
 
-#include <ssudeviceinfo.h>
-#include <ssu.h>
+#include "libssu/ssudeviceinfo.h"
+#include "libssu/ssu.h"
 
 /*
 class Q_CORE_EXPORT SsuKickstarter: public QObject {

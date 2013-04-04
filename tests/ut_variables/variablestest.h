@@ -12,8 +12,8 @@
 #include <QtTest/QtTest>
 #include <QHash>
 
-#include <ssu.h>
-#include <ssuvariables.h>
+#include "libssu/ssu.h"
+#include "libssu/ssuvariables.h"
 
 class VariablesTest: public QObject {
     Q_OBJECT

@@ -5,6 +5,7 @@
  * @date 2012
  */
 
+#include <QtNetwork>
 #include <QtXml/QDomDocument>
 
 #include "ssu.h"

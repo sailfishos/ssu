@@ -1,5 +1,5 @@
 TEMPLATE        = subdirs
-CONFIG         += qt ordered coverage debug
+CONFIG         += ordered coverage debug
 SUBDIRS         = \
         testutils \
         testutils/sandboxhook.pro \
@@ -9,8 +9,7 @@ SUBDIRS         = \
         ut_urlresolver \
         ut_variables \
 
-!include( tests.pri ) { error("Unable to find tests include") }
-
+include(tests_common.pri)
 tests.files     = tests.xml
 tests.path      = $$TESTS_PATH
 INSTALLS += tests

@@ -9,8 +9,7 @@
 
 #include <QtTest/QtTest>
 
-#include <ssusettings.h>
-
+#include "libssu/ssusettings.h"
 #include "upgradetesthelper.h"
 
 void SettingsTest::initTestCase(){

@@ -9,9 +9,9 @@
 
 #include <termios.h>
 
-#include <ssudeviceinfo.h>
-#include <ssurepomanager.h>
-#include <ssucoreconfig.h>
+#include "libssu/ssudeviceinfo.h"
+#include "libssu/ssurepomanager.h"
+#include "libssu/ssucoreconfig.h"
 
 #include <QDebug>
 

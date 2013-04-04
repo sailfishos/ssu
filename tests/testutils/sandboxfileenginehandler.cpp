@@ -13,8 +13,9 @@
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QSet>
 
-#include <ssucoreconfig.h>
-#include "../../constants.h"
+#include "libssu/ssucoreconfig.h"
+// TODO: rename to ssuconstants.h?
+#include "constants.h"
 
 /**
  * @class SandboxFileEngineHandler

@@ -8,15 +8,17 @@
 #ifndef _Ssu_H
 #define _Ssu_H
 
+#include <QDateTime>
 #include <QObject>
 #include <QSettings>
 #include <QDebug>
 
-#include <QtNetwork>
-
 #include <QtXml/QDomDocument>
 
-#include <ssudeviceinfo.h>
+#include "ssudeviceinfo.h"
+
+class QNetworkAccessManager;
+class QNetworkReply;
 
 class Ssu: public QObject {
     Q_OBJECT

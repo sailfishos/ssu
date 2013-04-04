@@ -6,6 +6,7 @@
  */
 
 #include <QDeclarativeContext>
+#include <QDir>
 #include <QGraphicsObject>
 #include <QApplication>
 

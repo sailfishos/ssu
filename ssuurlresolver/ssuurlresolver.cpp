@@ -5,11 +5,14 @@
  * @date 2012
  */
 
+#include "ssuurlresolver.h"
+
 #include <QCoreApplication>
+#include <QFileInfo>
+#include <QStringList>
 #include <systemd/sd-journal.h>
 
-#include "ssuurlresolver.h"
-#include "ssulog.h"
+#include "libssu/ssulog.h"
 
 SsuUrlResolver::SsuUrlResolver(): QObject(){
   QObject::connect(this,SIGNAL(done()),

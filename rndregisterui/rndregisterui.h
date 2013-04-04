@@ -11,7 +11,7 @@
 #include <QMainWindow>
 #include <QtDeclarative/QDeclarativeView>
 
-#include <ssu.h>
+#include "libssu/ssu.h"
 
 namespace Ui {
   class RndRegisterUi;

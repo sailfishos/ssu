@@ -11,8 +11,8 @@
 #include <QObject>
 #include <QSettings>
 
-#include <ssusettings.h>
-#include <ssu.h>
+#include "ssusettings.h"
+#include "ssu.h"
 
 #ifndef SSU_CONFIGURATION
 /// Path to the main SSU configuration file

@@ -13,7 +13,7 @@
 #include <QtCore/QTemporaryFile>
 #include <QtCore/QTextStream>
 
-#include <ssusettings.h>
+#include "libssu/ssusettings.h"
 
 /**
  * @class UpgradeTestHelper

@@ -12,7 +12,7 @@
 
 #include <QtTest/QtTest>
 
-#include "../testutils/process.h"
+#include "testutils/process.h"
 
 typedef QStringList Args; // improve readability
 

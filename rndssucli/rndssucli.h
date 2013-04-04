@@ -10,9 +10,10 @@
 
 #include <QObject>
 #include <QSettings>
+#include <QStringList>
 #include <QDebug>
 
-#include <ssu.h>
+#include "libssu/ssu.h"
 
 class RndSsuCli: public QObject {
     Q_OBJECT

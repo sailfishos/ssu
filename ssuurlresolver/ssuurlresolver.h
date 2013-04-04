@@ -11,12 +11,13 @@
 #include <QObject>
 #include <QSettings>
 #include <QDebug>
+#include <QEventLoop>
 #include <QFile>
 
 #include <iostream>
 #include <zypp/PluginFrame.h>
 
-#include <ssu.h>
+#include "libssu/ssu.h"
 
 // quick hack for waiting for a signal
 class SignalWait: public QObject {

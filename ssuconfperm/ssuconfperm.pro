@@ -1,10 +1,5 @@
-TEMPLATE = app
 TARGET   = ssuconfperm
+include(../ssuapplication.pri)
+
 SOURCES  = ssuconfperm.c
-HEADERS  = ../constants.h
 CONFIG  -= qt
-
-!include(../buildpath.pri){ error("Unable to find build path configuration")}
-
-unix:target.path = $${PREFIX}/usr/bin
-INSTALLS += target

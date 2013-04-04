@@ -1,35 +1,35 @@
-BUILD = ../build/libssu
-HEADERS = ssu.h \
+TARGET = ssu
+include(../ssulibrary.pri)
+
+# TODO: which headers are public? i.e. to be installed
+public_headers = \
+        ssu.h \
+
+HEADERS = \
+        $${public_headers} \
         ssucoreconfig.h \
         ssudeviceinfo.h \
         ssulog.h \
         ssuvariables.h \
         ssusettings.h \
         ssurepomanager.h \
-        ../constants.h
-SOURCES = ssu.cpp \
+
+SOURCES = \
+        ssu.cpp \
         ssucoreconfig.cpp \
         ssudeviceinfo.cpp \
         ssulog.cpp \
         ssuvariables.cpp \
         ssurepomanager.cpp \
         ssusettings.cpp
-TEMPLATE = lib
-TARGET = ssu
-CONFIG += dll mobility link_pkgconfig
-QT -= gui
+
+CONFIG += mobility link_pkgconfig
 QT += network xml
 MOBILITY += systeminfo
 PKGCONFIG += libsystemd-journal
 
-headers.files = ssu.h
-headers.path  = /usr/include
-
-unix:target.path = $${PREFIX}/usr/lib
-INSTALLS += target headers
+install_headers.files = $${public_headers}
 
 ssuconfhack {
     DEFINES += SSUCONFHACK
 }
-
-!include( ../buildpath.pri ) { error("Unable to find build path specification") }

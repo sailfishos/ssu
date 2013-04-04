@@ -11,7 +11,7 @@
 #include <QObject>
 #include <QSettings>
 
-#include <ssusettings.h>
+#include "ssusettings.h"
 
 class SsuDeviceInfo: public QObject {
     Q_OBJECT
