@@ -11,7 +11,8 @@
 #include "urlresolvertest.cpp"
 
 int main(int argc, char **argv){
-  Sandbox s;
+  Sandbox(QString("%1/configroot").arg(TESTS_DATA_PATH),
+      Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
 
   UrlResolverTest urlResolverTest;
 
