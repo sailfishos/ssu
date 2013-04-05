@@ -220,10 +220,11 @@ bool SsuKickstarter::write(QString kickstart){
 
   if (kickstart.isEmpty()){
     if (repoOverride.contains("filename")){
+      QString fileName = QString("%1/%2")
+                                 .arg(repoOverride.value("outputdir"))
+                                 .arg(var.resolveString(repoOverride.value("filename"), &repoOverride));
 
-      ks.setFileName(repoOverride.value("outputdir") +
-                     var.resolveString(repoOverride.value("filename"),
-                     &repoOverride));
+      ks.setFileName(fileName);
       ks.open(QIODevice::WriteOnly);
     } else {
       qerr << "No filename specified, and no default filename configured" << endl;
@@ -236,7 +237,16 @@ bool SsuKickstarter::write(QString kickstart){
     ks.open(QIODevice::WriteOnly);
   }
 
+  QString displayName = QString("# DisplayName: %1 %2/%3 (%4) %5")
+                                .arg(repoOverride.value("brand"))
+                                .arg(deviceInfo.deviceModel())
+                                .arg(repoOverride.value("arch"))
+                                .arg((rndMode ? "rnd"
+                                              : "release"))
+                                .arg(repoOverride.value("version"));
+
   kout.setDevice(&ks);
+  kout << displayName << endl << endl;
 
   kout << commands().join("\n") << endl << endl;
   kout << partitions().join("\n") << endl << endl;
