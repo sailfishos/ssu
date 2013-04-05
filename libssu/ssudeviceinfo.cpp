@@ -60,7 +60,17 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
       storageHash->insert("adaptation", adaptationRepo);
       ssuLog->print(LOG_DEBUG, "Found first adaptation " + adaptationName);
 
+      QString model = deviceVariant(true);
       QHash<QString, QString> h;
+
+      // add global variables for this model
+      if (boardMappings->contains(model + "/variables")){
+        QStringList sections = boardMappings->value(model + "/variables").toStringList();
+        foreach(const QString &section, sections)
+          variableSection(section, &h);
+      }
+
+      // override with variables specific to this repository
       variableSection(adaptationRepo, &h);
 
       QHash<QString, QString>::const_iterator i = h.constBegin();
@@ -269,7 +279,9 @@ void SsuDeviceInfo::variableSection(QString section, QHash<QString, QString> *st
     section = "var-" + section;
 
   if (boardMappings->contains(section + "/variables")){
-    variableSection(boardMappings->value(section + "/variables").toString(), storageHash);
+    QStringList sections = boardMappings->value(section + "/variables").toStringList();
+    foreach(const QString &section, sections)
+      variableSection(section, storageHash);
     return;
   }
 
