@@ -60,7 +60,8 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
       storageHash->insert("adaptation", adaptationRepo);
       ssuLog->print(LOG_DEBUG, "Found first adaptation " + adaptationName);
 
-      QHash<QString, QString> h = variableSection(adaptationRepo);
+      QHash<QString, QString> h;
+      variableSection(adaptationRepo, &h);
 
       QHash<QString, QString>::const_iterator i = h.constBegin();
       while (i != h.constEnd()){
@@ -263,26 +264,23 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
   return result;
 }
 
-QHash<QString, QString> SsuDeviceInfo::variableSection(QString section){
-  QHash<QString, QString> result;
-
+void SsuDeviceInfo::variableSection(QString section, QHash<QString, QString> *storageHash){
   if (!section.startsWith("var-"))
     section = "var-" + section;
 
   if (boardMappings->contains(section + "/variables")){
-    return variableSection(boardMappings->value(section + "/variables").toString());
+    variableSection(boardMappings->value(section + "/variables").toString(), storageHash);
+    return;
   }
 
   boardMappings->beginGroup(section);
   if (boardMappings->group() != section)
-    return result;
+    return;
 
   QStringList keys = boardMappings->allKeys();
   foreach (const QString &key, keys){
-    result.insert(key, boardMappings->value(key).toString());
+    storageHash->insert(key, boardMappings->value(key).toString());
   }
-
-  return result;
 }
 
 void SsuDeviceInfo::setDeviceModel(QString model){

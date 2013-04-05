@@ -76,7 +76,8 @@ class SsuDeviceInfo: public QObject {
      * Return the requested variable section. 'var-' is automatically
      * prepended to the section name if not specified already.
      */
-    QHash<QString, QString> variableSection(QString section);
+    void variableSection(QString section, QHash<QString, QString> *storageHash);
+
     /**
      * Return a value from an adaptation section. Returns an empty string
      * or a given default value if key does not exist.

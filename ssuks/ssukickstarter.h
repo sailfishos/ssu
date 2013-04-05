@@ -23,7 +23,7 @@ class SsuKickstarter {
   public:
     SsuKickstarter();
     void setRepoParameters(QHash<QString, QString> parameters);
-    void write(QString kickstart="");
+    bool write(QString kickstart="");
 
   private:
     QHash<QString, QString> repoOverride;

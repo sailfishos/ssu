@@ -10,18 +10,14 @@
 #include <QDirIterator>
 
 #include "ssukickstarter.h"
+#include "libssu/ssurepomanager.h"
+#include "libssu/ssuvariables.h"
 
 #include "../constants.h"
 
 /* TODO:
- * - rnd/release handling.
- *   repo --name=adaptation0-@RNDRELEASE@
- *        --baseurl=https://releases.jollamobile.com/nemo/@RELEASE@-devel/adaptation-n9xx-common/@ARCH@/
- *   @RELEASE@ should be @RNDRELEASE@ in this case as well
  * - commands from the command section should be verified
- * - go through the variable lookup process for non-url variables as well
  * - allow overriding brand key
- * - use (and expand) filename key if no filename is given on command line
  */
 
 
@@ -39,7 +35,9 @@ QStringList SsuKickstarter::commands(){
   SsuDeviceInfo deviceInfo(deviceModel);
   QStringList result;
 
-  QHash<QString, QString> h = deviceInfo.variableSection("kickstart-commands");
+  QHash<QString, QString> h;
+
+  deviceInfo.variableSection("kickstart-commands", &h);
 
   // read commands from variable, ...
 
@@ -168,34 +166,17 @@ void SsuKickstarter::setRepoParameters(QHash<QString, QString> parameters){
 
   if (repoOverride.contains("model"))
     deviceModel = repoOverride.value("model");
-/*
-  else
-    repoOverride.insert("model", deviceInfo.deviceModel());
-*/
 }
 
-void SsuKickstarter::write(QString kickstart){
+bool SsuKickstarter::write(QString kickstart){
   QFile ks;
   QTextStream kout;
-  SsuDeviceInfo deviceInfo;
+  QTextStream qerr(stderr);
+  SsuDeviceInfo deviceInfo(deviceModel);
+  SsuRepoManager repoManager;
+  SsuVariables var;
 
-  if (kickstart.isEmpty())
-    ks.open(stdout, QIODevice::WriteOnly);
-  else {
-    ks.setFileName(kickstart);
-    ks.open(QIODevice::WriteOnly);
-  }
-
-  kout.setDevice(&ks);
-
-  QHash<QString, QString> defaults = deviceInfo.variableSection("kickstart-defaults");
-  QHash<QString, QString>::const_iterator it = defaults.constBegin();
-  while (it != defaults.constEnd()){
-    if (!repoOverride.contains(it.key()))
-      repoOverride.insert(it.key(), it.value());
-    it++;
-  }
-
+  // rnd mode should not come from the defaults
   if (repoOverride.contains("rnd")){
     if (repoOverride.value("rnd") == "true")
       rndMode = true;
@@ -203,10 +184,51 @@ void SsuKickstarter::write(QString kickstart){
       rndMode = false;
   }
 
+  QHash<QString, QString> defaults;
+  // get generic repo variables; domain and adaptation specific bits are not interesting
+  // in the kickstart
+  repoManager.repoVariables(&defaults, rndMode);
+
+  // overwrite with kickstart defaults
+  deviceInfo.variableSection("kickstart-defaults", &defaults);
+
+  QHash<QString, QString>::const_iterator it = defaults.constBegin();
+  while (it != defaults.constEnd()){
+    if (!repoOverride.contains(it.key()))
+      repoOverride.insert(it.key(), it.value());
+    it++;
+  }
+
   // in rnd mode both rndRelease an release should be the same,
   // as the variable name used is %(release)
   if (rndMode && repoOverride.contains("rndRelease"))
     repoOverride.insert("release", repoOverride.value("rndRelease"));
+
+  // release mode variables should not contain flavourName
+  if (!rndMode && repoOverride.contains("flavourName"))
+    repoOverride.remove("flavourName");
+
+  //TODO: check for mandatory keys, brand, ..
+  if (!repoOverride.contains("deviceModel"))
+    repoOverride.insert("deviceModel", deviceInfo.deviceModel());
+
+  if (kickstart.isEmpty()){
+    if (repoOverride.contains("filename")){
+      ks.setFileName(var.resolveString(repoOverride.value("filename"),
+                                       &repoOverride));
+      ks.open(QIODevice::WriteOnly);
+    } else {
+      qerr << "No filename specified, and no default filename configured" << endl;
+      return false;
+    }
+  } else if (kickstart == "-")
+    ks.open(stdout, QIODevice::WriteOnly);
+  else {
+    ks.setFileName(kickstart);
+    ks.open(QIODevice::WriteOnly);
+  }
+
+  kout.setDevice(&ks);
 
   kout << commands().join("\n") << endl << endl;
   kout << partitions().join("\n") << endl << endl;
@@ -217,4 +239,6 @@ void SsuKickstarter::write(QString kickstart){
   kout << scriptletSection("post", false).join("\n") << endl << endl;
   // add flags as bitmask?
   // POST, die-on-error
+
+  return true;
 }
