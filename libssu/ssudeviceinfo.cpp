@@ -293,6 +293,7 @@ void SsuDeviceInfo::variableSection(QString section, QHash<QString, QString> *st
   foreach (const QString &key, keys){
     storageHash->insert(key, boardMappings->value(key).toString());
   }
+  boardMappings->endGroup();
 }
 
 void SsuDeviceInfo::setDeviceModel(QString model){

@@ -43,19 +43,26 @@ void SsuKs::run(){
     }
 
 
+    Sandbox *sb;
     if (repoParameters.contains("sandbox")){
       QString sandbox = repoParameters.value("sandbox");
       repoParameters.remove("sandbox");
 
-      qout << "Using sandbox at " << sandbox << endl;
-      Sandbox *sb = new Sandbox(sandbox, Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
+      sb = new Sandbox(sandbox, Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
       sb->addWorldFiles(SSU_BOARD_MAPPING_CONFIGURATION_DIR);
-      sb->activate();
+      sb->addWorldFiles("/etc/ssu");
+      sb->addWorldFiles("/usr/share/ssu");
+      if (sb->activate())
+        qout << "Using sandbox at " << sandbox << endl;
+      else {
+        qout << "Failed to activate sandbox" << endl;
+        return;
+      }
     }
 
-    SsuKickstarter kickstarter;
-    kickstarter.setRepoParameters(repoParameters);
-    kickstarter.write(fileName);
+    SsuKickstarter *kickstarter = new SsuKickstarter();
+    kickstarter->setRepoParameters(repoParameters);
+    kickstarter->write(fileName);
   } else
     usage();
 
