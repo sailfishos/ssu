@@ -50,15 +50,6 @@ class Sandbox::FileEngineHandler : public QAbstractFileEngineHandler {
 
 Sandbox *Sandbox::s_instance = 0;
 
-QSet<QString> Sandbox::s_ssuConfigFiles = QSet<QString>()
-  << SSU_CONFIGURATION
-  << SSU_REPO_CONFIGURATION
-  << SSU_DEFAULT_CONFIGURATION
-  << SSU_BOARD_MAPPING_CONFIGURATION;
-
-QSet<QString> Sandbox::s_ssuConfigDirectories = QSet<QString>()
-  << SSU_BOARD_MAPPING_CONFIGURATION_DIR;
-
 Sandbox::Sandbox(){
   if (s_instance != 0){
     qFatal("%s: Cannot be instantiated more than once", Q_FUNC_INFO);
@@ -171,20 +162,19 @@ QAbstractFileEngine *Sandbox::FileEngineHandler::create(const QString &fileName)
     return 0;
   }
 
-  if (!s_ssuConfigFiles.contains(fileName)){
-    bool match = false;
-    foreach (const QString &ssuConfigDirectory, s_ssuConfigDirectories){
-      if (fileName.startsWith(ssuConfigDirectory + '/')){
-        match = true;
-        break;
-      }
-    }
-    if (!match){
-      return 0;
-    }
+  const QString sandboxedFileName = m_sandboxPath + fileName;
+  QScopedPointer<QFSFileEngine> sandboxedFileEngine(new QFSFileEngine(sandboxedFileName));
+
+  const QAbstractFileEngine::FileFlags flags = sandboxedFileEngine->fileFlags(
+      QAbstractFileEngine::ExistsFlag | QAbstractFileEngine::DirectoryType);
+
+  if (!(flags & QAbstractFileEngine::ExistsFlag)){
+    return 0;
   }
 
-  const QString fileName_ = QDir(m_sandboxPath).absoluteFilePath(QString(fileName).remove(0, 1));
+  if (flags & QAbstractFileEngine::DirectoryType){
+    return 0;
+  }
 
-  return new QFSFileEngine(fileName_);
+  return sandboxedFileEngine.take();
 }
