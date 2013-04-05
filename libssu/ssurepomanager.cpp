@@ -170,6 +170,45 @@ void SsuRepoManager::update(){
   }
 }
 
+QStringList SsuRepoManager::repoVariables(QHash<QString, QString> *storageHash, bool rnd){
+  SsuVariables var;
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  QStringList configSections;
+  QSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+  //QSettings *repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+
+  // fill in all arbitrary variables from ssu.ini
+  var.resolveSection(settings, "repository-url-variables", storageHash);
+
+  // add/overwrite some of the variables with sane ones
+  if (rnd){
+    storageHash->insert("flavour",
+                          repoSettings.value(
+                            settings->flavour()+"-flavour/flavour-pattern").toString());
+    storageHash->insert("flavourPattern",
+                          repoSettings.value(
+                            settings->flavour()+"-flavour/flavour-pattern").toString());
+    storageHash->insert("flavourName", settings->flavour());
+    configSections << settings->flavour()+"-flavour" << "rnd" << "all";
+
+    // Make it possible to give any values with the flavour as well.
+    // These values can be overridden later with domain if needed.
+    var.resolveSection(&repoSettings, settings->flavour()+"-flavour", storageHash);
+  } else {
+    configSections << "release" << "all";
+  }
+
+  storageHash->insert("release", settings->release(rnd));
+
+  if (!storageHash->contains("debugSplit"))
+    storageHash->insert("debugSplit", "packages");
+
+  if (!storageHash->contains("arch"))
+    storageHash->insert("arch", settings->value("arch").toString());
+
+  return configSections;
+}
+
 // RND repos have flavour (devel, testing, release), and release (latest, next)
 // Release repos only have release (latest, next, version number)
 QString SsuRepoManager::url(QString repoName, bool rndRepo,
@@ -180,37 +219,10 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
   SsuVariables var;
   SsuLog *ssuLog = SsuLog::instance();
   SsuCoreConfig *settings = SsuCoreConfig::instance();
-  QSettings *repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+  QSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
   SsuDeviceInfo deviceInfo;
 
-  // fill in all arbitrary variables from ssu.ini
-  var.resolveSection(settings, "repository-url-variables", &repoParameters);
-
-  // add/overwrite some of the variables with sane ones
-  if (rndRepo){
-    repoParameters.insert("flavour",
-                          repoSettings->value(
-                            settings->flavour()+"-flavour/flavour-pattern").toString());
-    repoParameters.insert("flavourPattern",
-                          repoSettings->value(
-                            settings->flavour()+"-flavour/flavour-pattern").toString());
-    repoParameters.insert("flavourName", settings->flavour());
-    configSections << settings->flavour()+"-flavour" << "rnd" << "all";
-
-    // Make it possible to give any values with the flavour as well.
-    // These values can be overridden later with domain if needed.
-    var.resolveSection(repoSettings, settings->flavour()+"-flavour", &repoParameters);
-  } else {
-    configSections << "release" << "all";
-  }
-
-  repoParameters.insert("release", settings->release(rndRepo));
-
-  if (!repoParameters.contains("debugSplit"))
-    repoParameters.insert("debugSplit", "packages");
-
-  if (!repoParameters.contains("arch"))
-    repoParameters.insert("arch", settings->value("arch").toString());
+  configSections = repoVariables(&repoParameters, rndRepo);
 
   // Override device model (and therefore all the family, ... stuff)
   if (parametersOverride.contains("model"))
@@ -223,10 +235,10 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
 
   // Domain variables
   // first read all variables from default-domain
-  var.resolveSection(repoSettings, "default-domain", &repoParameters);
+  var.resolveSection(&repoSettings, "default-domain", &repoParameters);
 
   // then overwrite with domain specific things if that block is available
-  var.resolveSection(repoSettings, settings->domain()+"-domain", &repoParameters);
+  var.resolveSection(&repoSettings, settings->domain()+"-domain", &repoParameters);
 
   // override arbitrary variables, mostly useful for generating mic URLs
   QHash<QString, QString>::const_iterator i = parametersOverride.constBegin();
@@ -239,13 +251,13 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
     r = settings->value("repository-urls/" + repoName).toString();
   else {
     foreach (const QString &section, configSections){
-      repoSettings->beginGroup(section);
-      if (repoSettings->contains(repoName)){
-        r = repoSettings->value(repoName).toString();
-        repoSettings->endGroup();
+      repoSettings.beginGroup(section);
+      if (repoSettings.contains(repoName)){
+        r = repoSettings.value(repoName).toString();
+        repoSettings.endGroup();
         break;
       }
-      repoSettings->endGroup();
+      repoSettings.endGroup();
     }
   }
 

@@ -34,6 +34,14 @@ class SsuRepoManager: public QObject {
      */
     void remove(QString repo);
     /**
+     * Resolve repository specific variables, and store them in storageHash. Does
+     * not include adaptation specific variables, see SsuDeviceInfo::adaptationVariables
+     *
+     * Returns a list of sections in the configuration file that  might contain repository
+     * URLs
+     */
+    QStringList repoVariables(QHash<QString, QString> *storageHash, bool rnd=false);
+    /**
      * Update the repository files on disk
      */
     void update();
