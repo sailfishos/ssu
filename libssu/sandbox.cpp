@@ -22,9 +22,8 @@
 
 class Sandbox::FileEngineHandler : public QAbstractFileEngineHandler {
   public:
-    FileEngineHandler(const QString &sandboxPath);
+    FileEngineHandler(const QString &sandboxPath, const QSet<QString> &overlayEnabledDirectories);
 
-    void enableDirectoryOverlay(const QString &path);
     bool isDirectoryOverlayEnabled(const QString &path) const;
 
   public:
@@ -54,90 +53,21 @@ class Sandbox::FileEngineHandler : public QAbstractFileEngineHandler {
  * Internally it is based on QAbstractFileEngineHandler.
  */
 
-Sandbox *Sandbox::s_instance = 0;
+Sandbox *Sandbox::s_activeInstance = 0;
 
-Sandbox::Sandbox(){
-  if (s_instance != 0){
-    qFatal("%s: Cannot be instantiated more than once", Q_FUNC_INFO);
+Sandbox::Sandbox()
+  : m_defaultConstructed(true), m_usage(UseDirectly), m_scopes(ThisProcess),
+    m_sandboxPath(QProcessEnvironment::systemEnvironment().value("SSU_TESTS_SANDBOX")),
+    m_prepared(false), m_handler(0){
+  if (!activate()){
+    qFatal("%s: Failed to activate", Q_FUNC_INFO);
   }
-
-  s_instance = this;
-
-  m_handler = 0;
-
-  m_sandboxPath = QProcessEnvironment::systemEnvironment().value("SSU_TESTS_SANDBOX");
-
-  if (m_sandboxPath.isEmpty()){
-    return;
-  }
-
-  if (!QFileInfo(m_sandboxPath).exists()){
-    qFatal("%s: Invalid SSU_TESTS_SANDBOX value: No such file or directory",
-        qPrintable(m_sandboxPath));
-  }
-
-  if (!QFileInfo(m_sandboxPath).isDir()){
-    qFatal("%s: Invalid SSU_TESTS_SANDBOX value: Not a directory",
-        qPrintable(m_sandboxPath));
-  }
-
-  m_handler = new FileEngineHandler(m_sandboxPath);
 }
 
-Sandbox::Sandbox(const QString &sandboxPath, Usage usage, Scopes scopes){
-  if (s_instance != 0){
-    qFatal("%s: Cannot be instantiated more than once", Q_FUNC_INFO);
-  }
-
-  s_instance = this;
-
-  m_handler = 0;
-
-  m_sandboxPath = sandboxPath;
-
-  if (m_sandboxPath.isEmpty()){
-    qWarning("%s: Empty sandboxPath", Q_FUNC_INFO);
-    return;
-  }
-
-  if (!QFileInfo(m_sandboxPath).exists()){
-    qFatal("%s: Invalid sandboxPath: No such file or directory",
-        qPrintable(m_sandboxPath));
-  }
-
-  if (!QFileInfo(m_sandboxPath).isDir()){
-    qFatal("%s: Invalid sandboxPath: Not a directory",
-        qPrintable(m_sandboxPath));
-  }
-
-  if (usage == UseAsSkeleton){
-    QProcess mktemp;
-    mktemp.start("mktemp", QStringList() << "-t" << "-d" << "ssu-sandbox.XXX");
-    if (!mktemp.waitForFinished() || mktemp.exitCode() != 0){
-      qFatal("%s: Failed to create sandbox directory", Q_FUNC_INFO);
-    }
-
-    m_tempDir = mktemp.readAllStandardOutput().trimmed();
-    if (!QFileInfo(m_tempDir).isDir()){
-      qFatal("%s: Temporary directory disappeared: '%s'", Q_FUNC_INFO, qPrintable(m_tempDir));
-    }
-
-    const QString sandboxCopyPath = QString("%1/configroot").arg(m_tempDir);
-
-    if (QProcess::execute("cp", QStringList() << "-r" << m_sandboxPath << sandboxCopyPath) != 0){
-      qFatal("%s: Failed to copy sandbox directory", Q_FUNC_INFO);
-    }
-
-    m_sandboxPath = sandboxCopyPath;
-  }
-
-  if (scopes & ThisProcess){
-    m_handler = new FileEngineHandler(m_sandboxPath);
-  }
-
-  if (scopes & ChildProcesses){
-    setenv("SSU_TESTS_SANDBOX", qPrintable(m_sandboxPath), 1);
-  }
+Sandbox::Sandbox(const QString &sandboxPath, Usage usage, Scopes scopes)
+  : m_defaultConstructed(false), m_usage(usage), m_scopes(scopes),
+    m_sandboxPath(sandboxPath), m_prepared(false), m_handler(0){
+  Q_ASSERT(!sandboxPath.isEmpty());
 }
 
 Sandbox::~Sandbox(){
@@ -149,11 +79,30 @@ Sandbox::~Sandbox(){
     }
   }
 
-  s_instance = 0;
+  s_activeInstance = 0;
 }
 
 bool Sandbox::isActive() const{
-  return m_handler != 0;
+  return s_activeInstance == this;
+}
+
+bool Sandbox::activate(){
+  Q_ASSERT_X(s_activeInstance == 0, Q_FUNC_INFO, "Only one instance can be active!");
+
+  if (!prepare()){
+    return false;
+  }
+
+  if (m_scopes & ThisProcess){
+    m_handler = new FileEngineHandler(m_workingSandboxPath, m_overlayEnabledDirectories);
+  }
+
+  if (m_scopes & ChildProcesses){
+    setenv("SSU_TESTS_SANDBOX", qPrintable(m_workingSandboxPath), 1);
+  }
+
+  s_activeInstance = this;
+  return true;
 }
 
 /**
@@ -161,8 +110,9 @@ bool Sandbox::isActive() const{
  *
  * @c QDir::NoDotAndDotDot is always added into @a filters.
  */
-void Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
+bool Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
     const QStringList &filterNames){
+  Q_ASSERT(!isActive());
   Q_ASSERT(!directory.isEmpty());
   Q_ASSERT(directory.startsWith('/'));
   Q_ASSERT(!directory.contains(':')); // separator in environment variable
@@ -171,42 +121,32 @@ void Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
       && !directory.contains("//"));
   Q_ASSERT_X(!(m_scopes & ChildProcesses), Q_FUNC_INFO, "Unimplemented case!");
 
-  if (!isActive()){
-    qDebug("%s: Sandbox is not active", Q_FUNC_INFO);
-    return;
+  if (!prepare()){
+    return false;
   }
 
-  const QString sandboxedDirectory = m_sandboxPath + directory;
+  const QString sandboxedDirectory = m_workingSandboxPath + directory;
 
-  QFSFileEngine worldDirectoryEngine(directory);
-  QFSFileEngine sandboxDirectoryEngine(m_sandboxPath);
-  QFSFileEngine sandboxedDirectoryEngine(sandboxedDirectory);
-
-  const QAbstractFileEngine::FileFlags worldDirectoryFlags =
-    worldDirectoryEngine.fileFlags(
-        QAbstractFileEngine::ExistsFlag | QAbstractFileEngine::DirectoryType);
-
-  if (!(worldDirectoryFlags & QAbstractFileEngine::ExistsFlag)){
-    qDebug("%s: Directory does not exist: '%s'", Q_FUNC_INFO, qPrintable(directory));
-    return;
+  if (!QFileInfo(directory).exists()){
+    qWarning("%s: Directory does not exist: '%s'", Q_FUNC_INFO, qPrintable(directory));
+    return false;
   }
 
-  if (!(worldDirectoryFlags & QAbstractFileEngine::DirectoryType)){
-    qFatal("%s: Is not a directory: '%s'", Q_FUNC_INFO, qPrintable(directory));
+  if (!QFileInfo(directory).isDir()){
+    qWarning("%s: Is not a directory: '%s'", Q_FUNC_INFO, qPrintable(directory));
+    return false;
   }
 
-  const QAbstractFileEngine::FileFlags sandboxedDirectoryFlags =
-    sandboxedDirectoryEngine.fileFlags(
-        QAbstractFileEngine::ExistsFlag | QAbstractFileEngine::DirectoryType);
-
-  if (!(sandboxedDirectoryFlags & QAbstractFileEngine::ExistsFlag)){
-    if (!sandboxedDirectoryEngine.mkdir(sandboxedDirectory, true)){
-      qFatal("%s: Failed to create sandbox directory '%s': %s", Q_FUNC_INFO,
-          qPrintable(sandboxedDirectory), qPrintable(sandboxedDirectoryEngine.errorString()));
+  if (!QFileInfo(sandboxedDirectory).exists()){
+    if (!QDir().mkpath(sandboxedDirectory)){
+      qWarning("%s: Failed to create sandbox directory '%s'", Q_FUNC_INFO,
+          qPrintable(sandboxedDirectory));
+      return false;
     }
-  } else if (!(sandboxedDirectoryFlags & QAbstractFileEngine::DirectoryType)){
-    qFatal("%s: Failed to create sandbox directory '%s': Is not a directory", Q_FUNC_INFO,
+  } else if (!QFileInfo(sandboxedDirectory).isDir()){
+    qWarning("%s: Failed to create sandbox directory '%s': Is not a directory", Q_FUNC_INFO,
         qPrintable(sandboxedDirectory));
+    return false;
   }
 
   if (filters == QDir::NoFilter){
@@ -215,83 +155,90 @@ void Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
 
   filters |= QDir::NoDotAndDotDot;
 
-  foreach (const QString &entryName, worldDirectoryEngine.entryList(filters, filterNames)){
+  foreach (const QFileInfo &worldEntryInfo, QDir(directory).entryInfoList(filterNames, filters)){
 
-    QFSFileEngine worldEntryEngine(directory + '/' + entryName);
-    const QAbstractFileEngine::FileFlags worldEntryFlags = worldEntryEngine.fileFlags(
-        QAbstractFileEngine::DirectoryType | QAbstractFileEngine::FileType);
+    const QFileInfo sandboxEntryInfo(sandboxedDirectory + '/' + worldEntryInfo.fileName());
 
-    QFSFileEngine sandboxEntryEngine(sandboxedDirectory + '/' + entryName);
-    const QAbstractFileEngine::FileFlags sandboxEntryFlags = sandboxEntryEngine.fileFlags(
-        QAbstractFileEngine::ExistsFlag | QAbstractFileEngine::DirectoryType);
-
-    if (worldEntryFlags & QAbstractFileEngine::DirectoryType){
-      if (!(sandboxEntryFlags & QAbstractFileEngine::ExistsFlag)){
-        if (!sandboxedDirectoryEngine.mkdir(entryName, false)){
-          qFatal("%s: Failed to create overlay directory '%s/%s': %s", Q_FUNC_INFO,
-              qPrintable(sandboxedDirectory), qPrintable(entryName),
-              qPrintable(sandboxedDirectoryEngine.errorString()));
+    if (worldEntryInfo.isDir()){
+      if (!sandboxEntryInfo.exists()){
+        if (!QDir(sandboxedDirectory).mkdir(worldEntryInfo.fileName())){
+          qWarning("%s: Failed to create overlay directory '%s/%s'", Q_FUNC_INFO,
+              qPrintable(sandboxedDirectory), qPrintable(worldEntryInfo.fileName()));
+          return false;
         }
-      } else if (!(sandboxEntryFlags & QAbstractFileEngine::DirectoryType)){
-          qFatal("%s: Failed to create sandboxed copy '%s/%s': Is not a directory", Q_FUNC_INFO,
-              qPrintable(sandboxedDirectory), qPrintable(entryName));
-      }
-    } else if (worldEntryFlags & QAbstractFileEngine::FileType){
-      if (!(sandboxEntryFlags & QAbstractFileEngine::ExistsFlag)){
-        if (!copyFile(&worldEntryEngine, &sandboxEntryEngine)){
-          return;
-        }
-      } else if (sandboxEntryFlags & QAbstractFileEngine::DirectoryType){
-          qFatal("%s: Failed to create sandboxed copy '%s/%s': Is a directory", Q_FUNC_INFO,
-              qPrintable(sandboxedDirectory), qPrintable(entryName));
+      } else if (!sandboxEntryInfo.isDir()){
+          qWarning("%s: Failed to create sandboxed copy '%s': Is not a directory", Q_FUNC_INFO,
+              qPrintable(sandboxEntryInfo.filePath()));
+          return false;
       }
     } else{
-      qFatal("%s: Failed to create sandboxed copy '%s/%s': "
-          "Can only copy regular files and directories", Q_FUNC_INFO,
-          qPrintable(sandboxedDirectory), qPrintable(entryName));
+      if (!sandboxEntryInfo.exists()){
+        if (!QFile(worldEntryInfo.filePath()).copy(sandboxEntryInfo.filePath())){
+          qWarning("%s: Failed to copy file into sandbox '%s'", Q_FUNC_INFO,
+              qPrintable(worldEntryInfo.filePath()));
+          return false;
+        }
+      } else if (sandboxEntryInfo.isDir()){
+          qWarning("%s: Failed to create sandboxed copy '%s': Is a directory", Q_FUNC_INFO,
+              qPrintable(sandboxEntryInfo.filePath()));
+          return false;
+      }
     }
   }
 
-  m_handler->enableDirectoryOverlay(directory);
+  m_overlayEnabledDirectories.insert(directory);
+
+  return true;
 }
 
-bool Sandbox::copyFile(QAbstractFileEngine *src, QAbstractFileEngine *dst){
-  if (!src->open(QIODevice::ReadOnly)){
-    qFatal("%s: Failed to create sandbox copy: '%s': Cannot open source file for reading",
-        Q_FUNC_INFO, qPrintable(src->fileName()));
+bool Sandbox::prepare(){
+  Q_ASSERT(m_defaultConstructed || !m_sandboxPath.isEmpty());
+
+  if (m_prepared){
+    return true;
+  }
+
+  if (m_sandboxPath.isEmpty()){
+    return true;
+  }
+
+  if (!QFileInfo(m_sandboxPath).exists()){
+    qWarning("%s: Invalid sandboxPath: No such file or directory", qPrintable(m_sandboxPath));
     return false;
   }
 
-  if (!dst->open(QIODevice::ReadWrite)){
-    qFatal("%s: Failed to create sandbox copy: '%s': Cannot open file for writing",
-        Q_FUNC_INFO, qPrintable(dst->fileName()));
+  if (!QFileInfo(m_sandboxPath).isDir()){
+    qWarning("%s: Invalid sandboxPath: Not a directory", qPrintable(m_sandboxPath));
     return false;
   }
 
-  char buf[4096];
-  qint64 totalRead = 0;
-  while (!src->atEnd()){
-    qint64 read = src->read(buf, sizeof(buf));
-    if (read <= 0){
-      break;
-    }
-    totalRead += read;
-    if (dst->write(buf, read) != read){
-      qFatal("%s: Failed to create sandbox copy: '%s': Write error", Q_FUNC_INFO,
-          qPrintable(src->fileName()));
+  if (m_usage == UseAsSkeleton){
+    QProcess mktemp;
+    mktemp.start("mktemp", QStringList() << "-t" << "-d" << "ssu-sandbox.XXX");
+    if (!mktemp.waitForFinished() || mktemp.exitCode() != 0){
+      qWarning("%s: Failed to create sandbox directory", Q_FUNC_INFO);
       return false;
     }
-  }
 
-  if (totalRead != src->size()){
-    qFatal("%s: Failed to create sandbox copy: '%s': Read/write error", Q_FUNC_INFO,
-        qPrintable(src->fileName()));
+    m_tempDir = mktemp.readAllStandardOutput().trimmed();
+    if (!QFileInfo(m_tempDir).isDir()){
+      qWarning("%s: Temporary directory disappeared: '%s'", Q_FUNC_INFO, qPrintable(m_tempDir));
       return false;
+    }
+
+    const QString sandboxCopyPath = QString("%1/configroot").arg(m_tempDir);
+
+    if (QProcess::execute("cp", QStringList() << "-r" << m_sandboxPath << sandboxCopyPath) != 0){
+      qWarning("%s: Failed to copy sandbox directory", Q_FUNC_INFO);
+      return false;
+    }
+
+    m_workingSandboxPath = sandboxCopyPath;
+  } else{
+    m_workingSandboxPath = m_sandboxPath;
   }
 
-  src->close();
-  dst->close();
-
+  m_prepared = true;
   return true;
 }
 
@@ -299,13 +246,10 @@ bool Sandbox::copyFile(QAbstractFileEngine *src, QAbstractFileEngine *dst){
  * @class Sandbox::FileEngineHandler
  */
 
-Sandbox::FileEngineHandler::FileEngineHandler(const QString &sandboxPath):
-  m_sandboxPath(sandboxPath){
+Sandbox::FileEngineHandler::FileEngineHandler(const QString &sandboxPath,
+    const QSet<QString> &overlayEnabledDirectories):
+  m_sandboxPath(sandboxPath), m_overlayEnabledDirectories(overlayEnabledDirectories){
   Q_ASSERT(!sandboxPath.isEmpty());
-}
-
-void Sandbox::FileEngineHandler::enableDirectoryOverlay(const QString &path){
-  m_overlayEnabledDirectories.insert(path);
 }
 
 bool Sandbox::FileEngineHandler::isDirectoryOverlayEnabled(const QString &path) const{

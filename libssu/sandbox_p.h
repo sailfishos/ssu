@@ -9,6 +9,7 @@
 #define _SANDBOX_P_H
 
 #include <QtCore/QDir>
+#include <QtCore/QSet>
 #include <QtCore/QString>
 
 class Sandbox {
@@ -31,18 +32,25 @@ class Sandbox {
     Sandbox(const QString &sandboxPath, Usage usage, Scopes scopes);
     ~Sandbox();
 
+    bool activate();
     bool isActive() const;
 
-    void addWorldFiles(const QString &directory, QDir::Filters filters = QDir::NoFilter,
+    bool addWorldFiles(const QString &directory, QDir::Filters filters = QDir::NoFilter,
         const QStringList &filterNames = QStringList());
 
   private:
-    bool copyFile(QAbstractFileEngine *src, QAbstractFileEngine *dst);
+    bool prepare();
 
   private:
-    static Sandbox *s_instance;
-    QString m_sandboxPath;
+    static Sandbox *s_activeInstance;
+    const bool m_defaultConstructed;
+    const Usage m_usage;
+    const Scopes m_scopes;
+    const QString m_sandboxPath;
+    bool m_prepared;
     QString m_tempDir;
+    QString m_workingSandboxPath;
+    QSet<QString> m_overlayEnabledDirectories;
     FileEngineHandler *m_handler;
 };
 

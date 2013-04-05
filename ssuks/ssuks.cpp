@@ -50,6 +50,7 @@ void SsuKs::run(){
       qout << "Using sandbox at " << sandbox << endl;
       Sandbox *sb = new Sandbox(sandbox, Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
       sb->addWorldFiles(SSU_BOARD_MAPPING_CONFIGURATION_DIR);
+      sb->activate();
     }
 
     SsuKickstarter kickstarter;

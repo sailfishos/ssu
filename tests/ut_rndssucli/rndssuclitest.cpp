@@ -22,6 +22,9 @@ void RndSsuCliTest::init(){
 
   m_sandbox = new Sandbox(QString("%1/configroot").arg(TESTS_DATA_PATH),
       Sandbox::UseAsSkeleton, Sandbox::ChildProcesses);
+  if (!m_sandbox->activate()){
+    QFAIL("Failed to activate sandbox");
+  }
   setenv("LD_PRELOAD", qPrintable(QString("%1/libsandboxhook.so").arg(TESTS_PATH)), 1);
 }
 
