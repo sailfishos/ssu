@@ -21,12 +21,13 @@ class Q_CORE_EXPORT SsuKickstarter: public QObject {
 */
 class SsuKickstarter {
   public:
-    SsuKickstarter();
+    SsuKickstarter(QString sandbox="");
     void setRepoParameters(QHash<QString, QString> parameters);
     bool write(QString kickstart="");
 
   private:
     QHash<QString, QString> repoOverride;
+    QString pathPrefix;
     Ssu ssu;
     bool rndMode;
     QString deviceModel;

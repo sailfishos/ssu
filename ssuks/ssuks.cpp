@@ -11,6 +11,7 @@
 #include <QLibraryInfo>
 #include <QTimer>
 #include <QStringList>
+#include <QDirIterator>
 
 #include "ssukickstarter.h"
 #include "constants.h"
@@ -42,16 +43,38 @@ void SsuKs::run(){
       repoParameters.insert(split.at(0), split.at(1));
     }
 
-
+    QString sandbox;
     Sandbox *sb;
     if (repoParameters.contains("sandbox")){
-      QString sandbox = repoParameters.value("sandbox");
+      sandbox = repoParameters.value("sandbox");
       repoParameters.remove("sandbox");
 
-      sb = new Sandbox(sandbox, Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
-      sb->addWorldFiles(SSU_BOARD_MAPPING_CONFIGURATION_DIR);
-      sb->addWorldFiles("/etc/ssu");
-      sb->addWorldFiles("/usr/share/ssu");
+
+      // work around sandbox not sandboxing directories
+      QDirIterator it(SSU_DATA_DIR, QDir::AllEntries|QDir::NoDot|QDir::NoDotDot, QDirIterator::Subdirectories);
+      while (it.hasNext()){
+        it.next();
+
+        if (it.fileName() == "board-mappings.ini")
+          continue;
+
+        QDir dir;
+        QFileInfo info = it.fileInfo();
+
+        dir.mkpath(sandbox + info.absoluteDir().path());
+        QFile::copy(it.filePath(), sandbox + it.filePath());
+      }
+
+      QFile::remove(sandbox + "/" + SSU_BOARD_MAPPING_CONFIGURATION);
+      SsuSettings boardMappings(QString("%1/%2")
+                                .arg(sandbox)
+                                .arg(SSU_BOARD_MAPPING_CONFIGURATION),
+                                QString("%1/%2")
+                                .arg(sandbox)
+                                .arg(SSU_BOARD_MAPPING_CONFIGURATION_DIR));
+
+      sb = new Sandbox(sandbox, Sandbox::UseDirectly, Sandbox::ThisProcess);
+
       if (sb->activate())
         qout << "Using sandbox at " << sandbox << endl;
       else {
@@ -60,9 +83,9 @@ void SsuKs::run(){
       }
     }
 
-    SsuKickstarter *kickstarter = new SsuKickstarter();
-    kickstarter->setRepoParameters(repoParameters);
-    kickstarter->write(fileName);
+    SsuKickstarter kickstarter(sandbox);
+    kickstarter.setRepoParameters(repoParameters);
+    kickstarter.write(fileName);
   } else
     usage();
 

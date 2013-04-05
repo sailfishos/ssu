@@ -21,7 +21,9 @@
  */
 
 
-SsuKickstarter::SsuKickstarter() {
+SsuKickstarter::SsuKickstarter(QString sandbox) {
+  pathPrefix = sandbox;
+
   SsuDeviceInfo deviceInfo;
   deviceModel = deviceInfo.deviceModel();
 
@@ -93,7 +95,9 @@ QStringList SsuKickstarter::partitions(){
   QString partitionFile;
   QFile part;
 
-  QDir dir(QString("%1/kickstart/part/").arg(SSU_DATA_DIR));
+  QDir dir(QString("/%1/%2/kickstart/part/")
+           .arg(pathPrefix)
+           .arg(SSU_DATA_DIR));
 
   if (dir.exists(deviceModel.toLower()))
     partitionFile = deviceModel.toLower();
@@ -124,11 +128,13 @@ QStringList SsuKickstarter::scriptletSection(QString name, bool chroot){
   QDir dir;
 
   if (chroot)
-    path = QString("%1/kickstart/%2/")
+    path = QString("/%1/%2/kickstart/%3/")
+      .arg(pathPrefix)
       .arg(SSU_DATA_DIR)
       .arg(name);
   else
-    path = QString("%1/kickstart/%2_nochroot/")
+    path = QString("/%1/%2/kickstart/%3_nochroot/")
+      .arg(pathPrefix)
       .arg(SSU_DATA_DIR)
       .arg(name);
 
