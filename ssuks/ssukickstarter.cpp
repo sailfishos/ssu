@@ -220,8 +220,10 @@ bool SsuKickstarter::write(QString kickstart){
 
   if (kickstart.isEmpty()){
     if (repoOverride.contains("filename")){
-      ks.setFileName(var.resolveString(repoOverride.value("filename"),
-                                       &repoOverride));
+
+      ks.setFileName(repoOverride.value("outputdir") +
+                     var.resolveString(repoOverride.value("filename"),
+                     &repoOverride));
       ks.open(QIODevice::WriteOnly);
     } else {
       qerr << "No filename specified, and no default filename configured" << endl;
@@ -230,7 +232,7 @@ bool SsuKickstarter::write(QString kickstart){
   } else if (kickstart == "-")
     ks.open(stdout, QIODevice::WriteOnly);
   else {
-    ks.setFileName(kickstart);
+    ks.setFileName(repoOverride.value("outputdir") + kickstart);
     ks.open(QIODevice::WriteOnly);
   }
 

@@ -1,3 +1,6 @@
+* Fri Apr 05 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.31.1
+- Add output directory for kickstarter
+
 * Thu Apr 04 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.31
 - Refactorize project files
 - Add Sandbox
