@@ -13,6 +13,7 @@
 #include <QStringList>
 
 #include "ssukickstarter.h"
+#include "constants.h"
 #include "libssu/sandbox_p.h"
 
 #include "ssuks.h"
@@ -48,6 +49,7 @@ void SsuKs::run(){
 
       qout << "Using sandbox at " << sandbox << endl;
       Sandbox *sb = new Sandbox(sandbox, Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
+      sb->addWorldFiles(SSU_BOARD_MAPPING_CONFIGURATION_DIR);
     }
 
     SsuKickstarter kickstarter;
