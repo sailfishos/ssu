@@ -1,5 +1,5 @@
 Name: ssu
-Version: 0.31.2
+Version: 0.31.3
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base

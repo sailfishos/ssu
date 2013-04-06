@@ -218,23 +218,32 @@ bool SsuKickstarter::write(QString kickstart){
   if (!repoOverride.contains("deviceModel"))
     repoOverride.insert("deviceModel", deviceInfo.deviceModel());
 
+  bool opened = false;
+  QString outputDir = repoOverride.value("outputdir");
+  if (!outputDir.isEmpty()) outputDir.append("/");
+
   if (kickstart.isEmpty()){
     if (repoOverride.contains("filename")){
-      QString fileName = QString("%1/%2")
-                                 .arg(repoOverride.value("outputdir"))
+      QString fileName = QString("%1%2")
+                                 .arg(outputDir)
                                  .arg(var.resolveString(repoOverride.value("filename"), &repoOverride));
 
       ks.setFileName(fileName);
-      ks.open(QIODevice::WriteOnly);
+      opened = ks.open(QIODevice::WriteOnly);
     } else {
       qerr << "No filename specified, and no default filename configured" << endl;
       return false;
     }
   } else if (kickstart == "-")
-    ks.open(stdout, QIODevice::WriteOnly);
+    opened = ks.open(stdout, QIODevice::WriteOnly);
   else {
-    ks.setFileName(repoOverride.value("outputdir") + kickstart);
-    ks.open(QIODevice::WriteOnly);
+    ks.setFileName(outputDir + kickstart);
+    opened = ks.open(QIODevice::WriteOnly);
+  }
+
+  if (!opened) {
+    qerr << "Unable to write output file " << ks.fileName() << ": " << ks.errorString() << endl;
+    return false;
   }
 
   QString displayName = QString("# DisplayName: %1 %2/%3 (%4) %5")
