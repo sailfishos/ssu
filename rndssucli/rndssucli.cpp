@@ -8,6 +8,7 @@
 #include <QCoreApplication>
 
 #include <termios.h>
+#include <unistd.h>
 
 #include "libssu/ssudeviceinfo.h"
 #include "libssu/ssurepomanager.h"
@@ -45,6 +46,11 @@ void RndSsuCli::optFlavour(QStringList opt){
     qout << "Changing flavour from " << ssu.flavour()
          << " to " << opt.at(2) << endl;
     ssu.setFlavour(opt.at(2));
+
+    SsuRepoManager repoManager;
+    repoManager.update();
+    uidWarning();
+
     state = Idle;
   } else if (opt.count() == 2) {
     qout << "Device flavour is currently: " << ssu.flavour() << endl;
@@ -82,6 +88,11 @@ void RndSsuCli::optMode(QStringList opt){
     qout << "Setting device mode from " << ssu.deviceMode()
          << " to " << opt.at(2) << endl;
     ssu.setDeviceMode(opt.at(2).toInt());
+
+    SsuRepoManager repoManager;
+    repoManager.update();
+    uidWarning();
+
     state = Idle;
   }
 }
@@ -95,23 +106,28 @@ void RndSsuCli::optModifyRepo(int action, QStringList opt){
       case Add:
         repoManager.add(opt.at(2));
         repoManager.update();
+        uidWarning();
         break;
       case Remove:
         repoManager.remove(opt.at(2));
         repoManager.update();
+        uidWarning();
         break;
       case Disable:
         repoManager.disable(opt.at(2));
         repoManager.update();
+        uidWarning();
         break;
       case Enable:
         repoManager.enable(opt.at(2));
         repoManager.update();
+        uidWarning();
         break;
     }
   } else if (opt.count() == 4 && action == Add){
     repoManager.add(opt.at(2), opt.at(3));
     repoManager.update();
+    uidWarning();
   }
 }
 
@@ -156,6 +172,11 @@ void RndSsuCli::optRelease(QStringList opt){
            << " to " << opt.at(2) << endl;
       qout << "Your device is now in release mode!" << endl;
       ssu.setRelease(opt.at(2));
+
+      SsuRepoManager repoManager;
+      repoManager.update();
+      uidWarning();
+
       state = Idle;
     }
   } else if (opt.count() == 2) {
@@ -166,6 +187,11 @@ void RndSsuCli::optRelease(QStringList opt){
          << " to " << opt.at(3) << endl;
     qout << "Your device is now in RnD mode!" << endl;
     ssu.setRelease(opt.at(3), true);
+
+    SsuRepoManager repoManager;
+    repoManager.update();
+    uidWarning();
+
     state = Idle;
   }
 }
@@ -364,6 +390,7 @@ void RndSsuCli::optUpdateCredentials(QStringList opt){
 void RndSsuCli::optUpdateRepos(){
   SsuRepoManager repoManager;
   repoManager.update();
+  uidWarning();
 }
 
 void RndSsuCli::run(){
@@ -428,8 +455,18 @@ void RndSsuCli::run(){
     usage();
 }
 
+void RndSsuCli::uidWarning(QString message){
+  if (message.isEmpty())
+    message = "Run 'ssu ur' as root to recreate repository files";
+
+  if (geteuid() != 0){
+    QTextStream qout(stderr);
+    qout << "You're not root. " << message << endl;
+  }
+}
+
 void RndSsuCli::usage(){
-  QTextStream qout(stdout);
+  QTextStream qout(stderr);
   qout << "\nUsage: ssu <command> [-command-options] [arguments]" << endl
        << endl
        << "Repository management:" << endl
