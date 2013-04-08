@@ -17,7 +17,6 @@
 #include <QtCore/QSet>
 
 #include "libssu/ssucoreconfig.h"
-// TODO: rename to ssuconstants.h?
 #include "constants.h"
 
 class Sandbox::FileEngineHandler : public QAbstractFileEngineHandler {
@@ -37,20 +36,35 @@ class Sandbox::FileEngineHandler : public QAbstractFileEngineHandler {
 
 /**
  * @class Sandbox
+ * @brief Simple sandboxing with Qt file system abstraction.
  *
- * Redirects all file operations on system configuration files to files under
- * sandbox directory. When constructed without arguments, the directory is get
- * from @c SSU_TESTS_SANDBOX environment variable.
+ * Redirects all file operations on selected files to files under sandbox
+ * directory. The term <em>world files</em> is used to reffer files outside
+ * sandbox.
+ *
+ * Its effect is controlled by activate() and deactivate() calls. Only one
+ * Sandbox instance can be active at any time. Active sandbox is automatically
+ * deactivated upon destruction.
+ *
+ * When constructed without arguments, path to sandbox directory is get from
+ * @c SSU_TESTS_SANDBOX environment variable.
+ *
+ * @attention When constructed without arguments, it is activated automatically
+ * and failure to do so is reported with @c qFatal(), i.e., application will be
+ * abort()ed.
  *
  * When constructed with @a usage UseAsSkeleton, it will first make temporary
  * copy of @a sandboxPath to work on and files in the original directory will
- * stay untouched.
+ * stay untouched.  Also see addWorldFiles().
  *
  * The argument @scopes allows to control if the sandbox will be used by this
  * process, its children processes (@c SSU_TESTS_SANDBOX environment variable
  * will be exported), or both.
  *
  * Internally it is based on QAbstractFileEngineHandler.
+ *
+ * @attention QDir lists entries presented in the world directory.  The behavior
+ * changed with Qt 4.8.0 (Qt commit b9b55234a777c3b206332bafbe227e1355ca9186)
  */
 
 Sandbox *Sandbox::s_activeInstance = 0;
@@ -71,15 +85,15 @@ Sandbox::Sandbox(const QString &sandboxPath, Usage usage, Scopes scopes)
 }
 
 Sandbox::~Sandbox(){
-  delete m_handler;
+  if (isActive()){
+    deactivate();
+  }
 
   if (!m_tempDir.isEmpty() && QFileInfo(m_tempDir).exists()){
     if (QProcess::execute("rm", QStringList() << "-rf" << m_tempDir) != 0){
       qWarning("%s: Failed to remove temporary directory", Q_FUNC_INFO);
     }
   }
-
-  s_activeInstance = 0;
 }
 
 bool Sandbox::isActive() const{
@@ -103,6 +117,20 @@ bool Sandbox::activate(){
 
   s_activeInstance = this;
   return true;
+}
+
+void Sandbox::deactivate(){
+  Q_ASSERT(isActive());
+
+  if (m_scopes & ThisProcess){
+    delete m_handler;
+  }
+
+  if (m_scopes & ChildProcesses){
+    unsetenv("SSU_TESTS_SANDBOX");
+  }
+
+  s_activeInstance = 0;
 }
 
 /**
