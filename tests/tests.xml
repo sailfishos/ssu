@@ -13,6 +13,11 @@
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_rndssucli</step>
       </case>
     </set>
+    <set name="sandbox" description="Test to determine if sandboxing works properly" feature="sandbox">
+      <case name="ut_sandbox" type="Functional" description="Sandboxing test" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_sandbox</step>
+      </case>
+    </set>
     <set name="settings" description="Test to determine if configuration files processing works properly" feature="settings">
       <case name="ut_settings" type="Functional" description="Settings processing test" timeout="1000" subfeature="">
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_settings</step>
