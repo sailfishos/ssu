@@ -15,6 +15,9 @@ class Sandbox;
 class RndSsuCliTest: public QObject {
     Q_OBJECT
 
+  public:
+    RndSsuCliTest(): m_sandbox(0) {}
+
   private slots:
     void init();
     void cleanup();

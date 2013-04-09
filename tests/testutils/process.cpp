@@ -42,7 +42,9 @@ bool Process::hasError(){
 }
 
 QString Process::fmtErrorMessage(){
-  Q_ASSERT(hasError());
+  if (!hasError()){
+    return QString();
+  }
 
   QStringList reasons;
   if (m_timedOut){

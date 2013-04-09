@@ -147,7 +147,6 @@ bool Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
   Q_ASSERT(!directory.contains("/./") && !directory.endsWith("/.")
       && !directory.contains("/../") && !directory.endsWith("/..")
       && !directory.contains("//"));
-  Q_ASSERT_X(!(m_scopes & ChildProcesses), Q_FUNC_INFO, "Unimplemented case!");
 
   if (!prepare()){
     return false;

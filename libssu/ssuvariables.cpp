@@ -89,7 +89,7 @@ QString SsuVariables::resolveVariable(QString variable, QHash<QString, QString> 
 
   // find the operator who's after your colon
   QChar op;
-  if (variable.length() >= magic +1)
+  if (variable.length() > magic +1)
     op = variable.at(magic + 1);
 
   switch(op.toAscii()){
