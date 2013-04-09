@@ -218,6 +218,11 @@ bool Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
   return true;
 }
 
+bool Sandbox::addWorldFile(const QString &file){
+  return addWorldFiles(QFileInfo(file).path(), QDir::NoFilter,
+      QStringList() << QFileInfo(file).fileName());
+}
+
 bool Sandbox::prepare(){
   Q_ASSERT(m_defaultConstructed || !m_sandboxPath.isEmpty());
 

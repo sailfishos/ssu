@@ -38,6 +38,7 @@ class Sandbox {
 
     bool addWorldFiles(const QString &directory, QDir::Filters filters = QDir::NoFilter,
         const QStringList &filterNames = QStringList());
+    bool addWorldFile(const QString &file);
 
   private:
     bool prepare();
