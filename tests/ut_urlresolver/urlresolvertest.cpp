@@ -124,4 +124,70 @@ void UrlResolverTest::checkReleaseRepoUrls(){
   }
 }
 
+void UrlResolverTest::checkSetCredentials(){
+  QDomDocument doc("foo");
 
+  QDomElement root = doc.createElement("foo");
+  doc.appendChild(root);
+
+  QDomElement credentials1 = doc.createElement("credentials");
+  root.appendChild(credentials1);
+
+  QVERIFY2(!ssu.setCredentials(&doc),
+      "Ssu::setCredentials() should fail when 'scope' is not defined");
+
+  credentials1.setAttribute("scope", "utscope1");
+
+  QVERIFY2(!ssu.setCredentials(&doc),
+      "Ssu::setCredentials() should fail when username/password is missing");
+
+  QDomElement username1 = doc.createElement("username");
+  credentials1.appendChild(username1);
+  username1.appendChild(doc.createTextNode("john.doe1"));
+
+  QVERIFY2(!ssu.setCredentials(&doc),
+      "Ssu::setCredentials() should fail when password is missing");
+
+  QDomElement password1 = doc.createElement("password");
+  credentials1.appendChild(password1);
+  password1.appendChild(doc.createTextNode("SeCrEt1"));
+
+  QVERIFY2(ssu.setCredentials(&doc),
+      qPrintable(QString("setCredentials() failed: %1").arg(ssu.lastError())));
+
+  QVERIFY2(ssu.lastCredentialsUpdate() > QDateTime::currentDateTime().addSecs(-5) &&
+      ssu.lastCredentialsUpdate() <= QDateTime::currentDateTime(),
+      "Ssu::lastCredentialsUpdate was not updated");
+
+  //QVERIFY(ssu.credentialScopes().contains("utscope1"));
+  QCOMPARE(ssu.credentials("utscope1").first, QString("john.doe1"));
+  QCOMPARE(ssu.credentials("utscope1").second, QString("SeCrEt1"));
+
+
+  QDomElement credentials2 = doc.createElement("credentials");
+  root.appendChild(credentials2);
+  credentials2.setAttribute("scope", "utscope2");
+
+  QDomElement username2 = doc.createElement("username");
+  credentials2.appendChild(username2);
+  username2.appendChild(doc.createTextNode("john.doe2"));
+
+  QDomElement password2 = doc.createElement("password");
+  credentials2.appendChild(password2);
+  password2.appendChild(doc.createTextNode("SeCrEt2"));
+
+  QVERIFY2(ssu.setCredentials(&doc),
+      qPrintable(QString("setCredentials() failed: %1").arg(ssu.lastError())));
+
+  QVERIFY2(ssu.lastCredentialsUpdate() > QDateTime::currentDateTime().addSecs(-5) &&
+      ssu.lastCredentialsUpdate() <= QDateTime::currentDateTime(),
+      "Ssu::lastCredentialsUpdate was not updated");
+
+  //QVERIFY(ssu.credentialScopes().contains("utscope1"));
+  QCOMPARE(ssu.credentials("utscope1").first, QString("john.doe1"));
+  QCOMPARE(ssu.credentials("utscope1").second, QString("SeCrEt1"));
+
+  //QVERIFY(ssu.credentialScopes().contains("utscope2"));
+  QCOMPARE(ssu.credentials("utscope2").first, QString("john.doe2"));
+  QCOMPARE(ssu.credentials("utscope2").second, QString("SeCrEt2"));
+}
