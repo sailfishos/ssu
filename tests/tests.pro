@@ -4,6 +4,7 @@ SUBDIRS         = \
         testutils \
         testutils/sandboxhook.pro \
         ut_coreconfig \
+        ut_deviceinfo \
         ut_rndssucli \
         ut_sandbox \
         ut_settings \
