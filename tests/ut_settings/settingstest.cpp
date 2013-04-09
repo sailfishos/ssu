@@ -112,13 +112,13 @@ void SettingsTest::testUpgrade_data(){
       const QString key = group.isEmpty() ? testCase.key() : group + '/' + testCase.key();
       QTest::newRow(qPrintable(QString("%1%2:%3:%4")
           .arg(group.isEmpty() ? "" : group + "/")
-          .arg(testCase.history)
-          .arg(testCase.current)
-          .arg(testCase.expected)))
+          .arg(testCase.history())
+          .arg(testCase.current())
+          .arg(testCase.expected())))
         << ssuSettings.contains(key)
         << testCase.keyShouldBeSet()
         << ssuSettings.value(key).toString()
-        << testCase.expected;
+        << testCase.expected();
     }
   }
 }
