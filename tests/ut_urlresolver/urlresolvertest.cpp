@@ -125,6 +125,51 @@ void UrlResolverTest::checkReleaseRepoUrls(){
   }
 }
 
+void UrlResolverTest::checkRegisterDevice(){
+  QDomDocument doc("foo");
+
+  QDomElement root = doc.createElement("foo");
+  doc.appendChild(root);
+
+  QDomElement certificate = doc.createElement("certificate");
+  root.appendChild(certificate);
+
+  QVERIFY2(!ssu.registerDevice(&doc),
+      "Ssu::registerDevice() should fail when 'certificate' is empty");
+
+  QFile certificateFile(TESTS_DATA_PATH "/mycert.crt");
+  QVERIFY(certificateFile.open(QIODevice::ReadOnly));
+
+  certificate.appendChild(doc.createTextNode(certificateFile.readAll()));
+
+  QDomElement privateKey = doc.createElement("privateKey");
+  root.appendChild(privateKey);
+
+  QVERIFY2(!ssu.registerDevice(&doc),
+      "Ssu::registerDevice() should fail when 'privateKey' is empty");
+
+  QFile privateKeyFile(TESTS_DATA_PATH "/mykey.key");
+  QVERIFY(privateKeyFile.open(QIODevice::ReadOnly));
+
+  privateKey.appendChild(doc.createTextNode(privateKeyFile.readAll()));
+
+  QDomElement user = doc.createElement("user");
+  root.appendChild(user);
+  user.appendChild(doc.createTextNode("john.doe"));
+
+  QSignalSpy registrationStatusChanged_spy(&ssu, SIGNAL(registrationStatusChanged()));
+
+  QVERIFY(ssu.registerDevice(&doc));
+
+  QVERIFY(registrationStatusChanged_spy.count() == 1);
+  QVERIFY(ssu.isRegistered());
+
+  ssu.unregister();
+
+  QVERIFY(registrationStatusChanged_spy.count() == 2);
+  QVERIFY(!ssu.isRegistered());
+}
+
 void UrlResolverTest::checkSetCredentials(){
   QDomDocument doc("foo");
 

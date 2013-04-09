@@ -8,6 +8,10 @@ HEADERS = urlresolvertest.h
 SOURCES = main.cpp \
         urlresolvertest.cpp
 
+test_data.files = \
+        testdata/mycert.crt \
+        testdata/mykey.key \
+
 test_data_etc.files = \
 	testdata/ssu.ini \
 
