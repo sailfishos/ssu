@@ -6,6 +6,7 @@
  */
 
 #include "urlresolvertest.h"
+#include "testutils/process.h"
 
 void UrlResolverTest::initTestCase(){
 #ifdef TARGET_ARCH
@@ -190,4 +191,61 @@ void UrlResolverTest::checkSetCredentials(){
   //QVERIFY(ssu.credentialScopes().contains("utscope2"));
   QCOMPARE(ssu.credentials("utscope2").first, QString("john.doe2"));
   QCOMPARE(ssu.credentials("utscope2").second, QString("SeCrEt2"));
+}
+
+void UrlResolverTest::checkStoreAuthorizedKeys(){
+  struct Cleanup {
+    ~Cleanup(){
+      if (!tempHomePath.isEmpty()){
+        Process rmtemp;
+        rmtemp.execute("rm", QStringList() << "-rf" << tempHomePath);
+        if (rmtemp.hasError()){
+          qWarning("%s: Failed to remove temporary directory '%s': %s", Q_FUNC_INFO,
+              tempHomePath.constData(), qPrintable(rmtemp.fmtErrorMessage()));
+        }
+
+        if (!qputenv("HOME", originalHomePath)){
+          qFatal("%s: Failed to restore HOME environment variable", Q_FUNC_INFO);
+        }
+      }
+    }
+
+    QByteArray originalHomePath;
+    QByteArray tempHomePath;
+  } cleanup;
+
+  // Temporarily change HOME path so Ssu::storeAuthorizedKeys() does not touch
+  // real home directory
+  cleanup.originalHomePath = qgetenv("HOME");
+  QVERIFY(!cleanup.originalHomePath.isEmpty());
+
+  Process mktemp;
+  cleanup.tempHomePath = mktemp.execute("mktemp",
+      QStringList() << "-t" << "-d" << "ut_urlresolver.temp-home.XXX").trimmed().toLocal8Bit();
+  QVERIFY2(!mktemp.hasError(), qPrintable(mktemp.fmtErrorMessage()));
+
+  QVERIFY(qputenv("HOME", cleanup.tempHomePath));
+  QVERIFY2(QDir::homePath() == QString(cleanup.tempHomePath),
+      "QDir::homePath() does not change after qputenv(\"HOME\", \"...\")");
+
+  // Here starts the test itself
+  QByteArray testData("# test data\n");
+  ssu.storeAuthorizedKeys(testData);
+
+  QFile authorizedKeys(QDir::home().filePath(".ssh/authorized_keys"));
+  QVERIFY(authorizedKeys.open(QIODevice::ReadOnly));
+
+  QVERIFY(authorizedKeys.readAll().split('\n').contains(testData.trimmed()));
+
+  QByteArray testData2("# test data2\n");
+  ssu.storeAuthorizedKeys(testData2);
+
+  QEXPECT_FAIL("", "Ssu::storeAuthorizedKeys() does not modify existing authorized_keys", Continue);
+  authorizedKeys.seek(0);
+  QVERIFY(authorizedKeys.readAll().split('\n').contains(testData2.trimmed()));
+
+  const QFile::Permissions go_rwx =
+    QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
+    QFile::ReadOther | QFile::WriteOther | QFile::ExeOther;
+  QVERIFY((QFileInfo(QDir::home().filePath(".ssh")).permissions() & go_rwx) == 0);
 }

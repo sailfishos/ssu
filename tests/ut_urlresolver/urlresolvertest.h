@@ -27,6 +27,7 @@ class UrlResolverTest: public QObject {
     void simpleRepoUrlLookup();
     void checkReleaseRepoUrls();
     void checkSetCredentials();
+    void checkStoreAuthorizedKeys();
 
   private:
     Ssu ssu;
