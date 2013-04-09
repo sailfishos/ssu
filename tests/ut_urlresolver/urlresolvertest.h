@@ -29,6 +29,7 @@ class UrlResolverTest: public QObject {
     void checkRegisterDevice();
     void checkSetCredentials();
     void checkStoreAuthorizedKeys();
+    void checkVerifyResponse();
 
   private:
     Ssu ssu;

@@ -6,6 +6,7 @@
  */
 
 #include "urlresolvertest.h"
+#include "constants.h"
 #include "testutils/process.h"
 
 void UrlResolverTest::initTestCase(){
@@ -293,4 +294,32 @@ void UrlResolverTest::checkStoreAuthorizedKeys(){
     QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
     QFile::ReadOther | QFile::WriteOther | QFile::ExeOther;
   QVERIFY((QFileInfo(QDir::home().filePath(".ssh")).permissions() & go_rwx) == 0);
+}
+
+void UrlResolverTest::checkVerifyResponse(){
+  QDomDocument doc("foo");
+
+  QDomElement root = doc.createElement("foo");
+  doc.appendChild(root);
+
+  QDomElement action = doc.createElement("action");
+  root.appendChild(action);
+  action.appendChild(doc.createTextNode("register"));
+
+  QDomElement deviceId = doc.createElement("deviceId");
+  root.appendChild(deviceId);
+  deviceId.appendChild(doc.createTextNode("deadbeef-dead-beef-dead"));
+
+  QDomElement protocolVersion = doc.createElement("protocolVersion");
+  root.appendChild(protocolVersion);
+
+  QDomText protocolVersionText = doc.createTextNode(SSU_PROTOCOL_VERSION);
+  protocolVersion.appendChild(protocolVersionText);
+
+  QVERIFY(ssu.verifyResponse(&doc));
+
+  protocolVersionText.setData(SSU_PROTOCOL_VERSION ".invalid");
+
+  QVERIFY2(!ssu.verifyResponse(&doc),
+      "Ssu::verifyResponse() should fail when protocolVersion does not match SSU_PROTOCOL_VERSION");
 }
