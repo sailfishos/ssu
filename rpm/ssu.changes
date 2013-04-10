@@ -1,3 +1,6 @@
+* Wed Apr 10 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.31.4
+- Allow arbitrary argument order for ssu ar
+
 * Sat Apr 06 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.31.3
 - Add warning when updating repos as non-root to ssu cli
 - Rewrite repo files on flavour, release and mode changes

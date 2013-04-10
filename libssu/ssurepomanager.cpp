@@ -144,10 +144,22 @@ void SsuRepoManager::update(){
 
   // ... and create all repositories required for this device
   foreach (const QString &repo, repos){
-    QFile repoFile(QString("%1/ssu_%2_%3.repo")
-                   .arg(ZYPP_REPO_PATH)
-                   .arg(repo)
-                   .arg(rndMode ? "rnd" : "release"));
+    QString repoFilePath = QString("%1/ssu_%2_%3.repo")
+      .arg(ZYPP_REPO_PATH)
+      .arg(repo)
+      .arg(rndMode ? "rnd" : "release");
+
+    if (url(repo, rndMode) == ""){
+      // TODO, repositories should only be disabled if they're not required
+      //       for this machine. For required repositories error is better
+      QTextStream qerr(stderr);
+      qerr << "Repository " << repo << " does not contain valid URL, skipping and disabling." << endl;
+      disable(repo);
+      QFile(repoFilePath).remove();
+      continue;
+    }
+
+    QFile repoFile(repoFilePath);
 
     if (repoFile.open(QIODevice::WriteOnly | QIODevice::Text)){
       QTextStream out(&repoFile);

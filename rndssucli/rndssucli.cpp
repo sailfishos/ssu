@@ -100,6 +100,7 @@ void RndSsuCli::optMode(QStringList opt){
 void RndSsuCli::optModifyRepo(int action, QStringList opt){
   SsuRepoManager repoManager;
   QTextStream qout(stdout);
+  QTextStream qerr(stderr);
 
   if (opt.count() == 3){
     switch(action){
@@ -125,7 +126,20 @@ void RndSsuCli::optModifyRepo(int action, QStringList opt){
         break;
     }
   } else if (opt.count() == 4 && action == Add){
-    repoManager.add(opt.at(2), opt.at(3));
+    QString url, repo;
+
+    if (opt.at(2).indexOf(QRegExp("[a-z]*://", Qt::CaseInsensitive)) == 0){
+      url = opt.at(2);
+      repo = opt.at(3);
+    } else if (opt.at(3).indexOf(QRegExp("[a-z]*://", Qt::CaseInsensitive)) == 0){
+      url = opt.at(3);
+      repo = opt.at(2);
+    } else {
+      qerr << "Invalid parameters for 'ssu ar': URL required." << endl;
+      return;
+    }
+
+    repoManager.add(repo, url);
     repoManager.update();
     uidWarning();
   }
