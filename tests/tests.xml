@@ -13,6 +13,11 @@
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_deviceinfo</step>
       </case>
     </set>
+    <set name="repomanager" description="Test to determine if ssu repository management works properly" feature="repomanager">
+      <case name="ut_repomanager" type="Functional" description="SSU repo management test" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_repomanager</step>
+      </case>
+    </set>
     <set name="rndssucli" description="Test to determine if ssu command line tool works properly" feature="rndssucli">
       <case name="ut_rndssucli" type="Functional" description="SSU command line utility test" timeout="1000" subfeature="">
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_rndssucli</step>
