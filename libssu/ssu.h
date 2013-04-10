@@ -23,6 +23,8 @@ class QNetworkReply;
 class Ssu: public QObject {
     Q_OBJECT
 
+    friend class UrlResolverTest;
+
   public:
     Ssu();
     /**

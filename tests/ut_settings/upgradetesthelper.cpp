@@ -110,8 +110,8 @@ void UpgradeTestHelper::fillSettings(QSettings *settings, const QList<TestCase> 
     settings->beginGroup(group);
 
     foreach (const TestCase &testCase, testCases){
-      if (!testCase.current.isEmpty()){
-        settings->setValue(testCase.key(), testCase.current);
+      if (!testCase.current().isEmpty()){
+        settings->setValue(testCase.key(), testCase.current());
       }
     }
 
@@ -136,7 +136,7 @@ void UpgradeTestHelper::fillDefaultSettings(QSettings *defaultSettings, const QL
       defaultSettings->beginGroup(group);
 
       foreach (const TestCase &testCase, testCases){
-        switch (testCase.history.at(revision - 1).toAscii()){
+        switch (testCase.history().at(revision - 1).toAscii()){
         case 'S': // (S)et value
           lastSetValue[testCase.key()] = QString("v%1-default").arg(revision);
           defaultSettings->setValue(testCase.key(), lastSetValue[testCase.key()]);
@@ -144,7 +144,7 @@ void UpgradeTestHelper::fillDefaultSettings(QSettings *defaultSettings, const QL
 
         case 'K': // (K)eep value
           Q_ASSERT_X(!lastSetValue[testCase.key()].isEmpty(), Q_FUNC_INFO,
-              qPrintable(QString("Inalid TestCase::history: '%1'").arg(testCase.history)));
+              qPrintable(QString("Inalid TestCase::history: '%1'").arg(testCase.history())));
           defaultSettings->setValue(testCase.key(), lastSetValue[testCase.key()]);
           break;
 
@@ -159,8 +159,8 @@ void UpgradeTestHelper::fillDefaultSettings(QSettings *defaultSettings, const QL
         default:
           Q_ASSERT_X(false, Q_FUNC_INFO, qPrintable(QString(
                   "Inalid TestCase::history: '%1': invalid command-code '%2'")
-                .arg(testCase.history)
-                .arg(testCase.history.at(revision - 1))));
+                .arg(testCase.history())
+                .arg(testCase.history().at(revision - 1))));
         }
 
       }
@@ -242,8 +242,8 @@ bool UpgradeTestHelper::generateSnapshotRecipe(QTextStream *out){
       ? ssuSettings.value(testCase.key()).toString()
       : "@NOTSET@";
     *out << QString("%1:%2:%3\n")
-      .arg(testCase.history)
-      .arg(testCase.current)
+      .arg(testCase.history())
+      .arg(testCase.current())
       .arg(expected);
   }
 

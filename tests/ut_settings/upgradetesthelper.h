@@ -31,20 +31,24 @@ class UpgradeTestHelper {
 
 struct UpgradeTestHelper::TestCase {
   TestCase(const QString &history, const QString &current, const QString &expected) :
-    history(history), current(current), expected(expected){
+    m_history(history), m_current(current), m_expected(expected){
   }
 
+  QString history() const { return m_history; }
+  QString current() const { return m_current; }
+  QString expected() const { return m_expected; }
+
   QString key() const{
-    return QString("%1__%2").arg(history).arg(current);
+    return QString("%1__%2").arg(m_history).arg(m_current);
   }
 
   bool keyShouldBeSet() const{
-    return expected != "@NOTSET@";
+    return m_expected != "@NOTSET@";
   }
 
-  const QString history; // Sequence of (S)et, (K)eep, (R)emove, (N)oop
-  const QString current;
-  const QString expected;
+  QString m_history; // Sequence of (S)et, (K)eep, (R)emove, (N)oop
+  QString m_current;
+  QString m_expected;
 };
 
 #endif

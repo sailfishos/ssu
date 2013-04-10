@@ -25,7 +25,7 @@ Process::Process() : m_expectFail(false), m_timedOut(false) {}
 
 QString Process::execute(const QString &program, const QStringList &arguments,
     bool expectedResult){
-  Q_ASSERT(processStatus() == NotRunning);
+  Q_ASSERT(m_process.state() == QProcess::NotRunning);
   m_program = program;
   m_arguments = arguments;
   m_expectFail = expectedResult == ExpectFail;
@@ -42,7 +42,9 @@ bool Process::hasError(){
 }
 
 QString Process::fmtErrorMessage(){
-  Q_ASSERT(hasError());
+  if (!hasError()){
+    return QString();
+  }
 
   QStringList reasons;
   if (m_timedOut){

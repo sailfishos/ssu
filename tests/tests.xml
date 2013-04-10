@@ -3,9 +3,29 @@
   <!-- Test suite, name mandatory - the same as test package name -->
   <suite name="sync-app-tests" domain="ssu">
     <!-- At least one set per suite, name and description mandatory -->
+    <set name="coreconfig" description="Test to determine if code configuration file processing works properly" feature="coreconfig">
+      <case name="ut_coreconfig" type="Functional" description="Core config processing test" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_coreconfig</step>
+      </case>
+    </set>
+    <set name="deviceinfo" description="Test to determine if device info can be retrieved properly" feature="deviceinfo">
+      <case name="ut_deviceinfo" type="Functional" description="Device info processing test" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_deviceinfo</step>
+      </case>
+    </set>
+    <set name="repomanager" description="Test to determine if ssu repository management works properly" feature="repomanager">
+      <case name="ut_repomanager" type="Functional" description="SSU repo management test" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_repomanager</step>
+      </case>
+    </set>
     <set name="rndssucli" description="Test to determine if ssu command line tool works properly" feature="rndssucli">
       <case name="ut_rndssucli" type="Functional" description="SSU command line utility test" timeout="1000" subfeature="">
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_rndssucli</step>
+      </case>
+    </set>
+    <set name="sandbox" description="Test to determine if sandboxing works properly" feature="sandbox">
+      <case name="ut_sandbox" type="Functional" description="Sandboxing test" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_sandbox</step>
       </case>
     </set>
     <set name="settings" description="Test to determine if configuration files processing works properly" feature="settings">

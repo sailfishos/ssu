@@ -3,7 +3,11 @@ CONFIG         += ordered coverage debug
 SUBDIRS         = \
         testutils \
         testutils/sandboxhook.pro \
+        ut_coreconfig \
+        ut_deviceinfo \
+        ut_repomanager \
         ut_rndssucli \
+        ut_sandbox \
         ut_settings \
         ut_ssuurlresolver \
         ut_urlresolver \
