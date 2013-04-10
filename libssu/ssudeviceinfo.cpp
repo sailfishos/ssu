@@ -225,11 +225,11 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
   int adaptationCount = adaptationRepos().size();
   QStringList result;
 
-  // for repo names we have adaptation0, adaptation1, ..., adaptationN
-  for (int i=0; i<adaptationCount; i++)
-    result.append(QString("adaptation%1").arg(i));
-
   if (filter == NoFilter || filter == BoardFilter || filter == BoardFilterUserBlacklist){
+    // for repo names we have adaptation0, adaptation1, ..., adaptationN
+    for (int i=0; i<adaptationCount; i++)
+      result.append(QString("adaptation%1").arg(i));
+
     // now read the release/rnd repos
     QSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
     QString repoKey = (rnd ? "default-repos/rnd" : "default-repos/release");
