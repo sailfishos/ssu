@@ -42,7 +42,10 @@ void RndSsuCli::handleResponse(){
 void RndSsuCli::optFlavour(QStringList opt){
   QTextStream qout(stdout);
 
-  if (opt.count() == 3){
+  if (opt.count() == 3 && opt.at(2) == "-s"){
+    qout << ssu.flavour();
+    state = Idle;
+  } else if (opt.count() == 3){
     qout << "Changing flavour from " << ssu.flavour()
          << " to " << opt.at(2) << endl;
     ssu.setFlavour(opt.at(2));
@@ -84,6 +87,9 @@ void RndSsuCli::optMode(QStringList opt){
       qout << "Both Release and RnD mode set, device is in RnD mode" << endl;
 
     state = Idle;
+  } else if (opt.count() == 3 && opt.at(2) == "-s"){
+    qout << ssu.deviceMode();
+    state = Idle;
   } else if (opt.count() == 3){
     qout << "Setting device mode from " << ssu.deviceMode()
          << " to " << opt.at(2) << endl;
@@ -93,6 +99,19 @@ void RndSsuCli::optMode(QStringList opt){
     repoManager.update();
     uidWarning();
 
+    state = Idle;
+  }
+}
+
+void RndSsuCli::optModel(QStringList opt){
+  QTextStream qout(stdout);
+  SsuDeviceInfo deviceInfo;
+
+  if (opt.count() == 3 && opt.at(2) == "-s"){
+    qout << deviceInfo.deviceModel();
+    state = Idle;
+  } else if (opt.count() == 2){
+    qout << "Device model is: " << deviceInfo.deviceModel() << endl;
     state = Idle;
   }
 }
@@ -375,10 +394,14 @@ void RndSsuCli::optStatus(){
    */
   qout << "Device registration status: "
        << (ssu.isRegistered() ? "registered" : "not registered") << endl;
-  qout << "Device family: " << deviceInfo.deviceFamily() << endl;
   qout << "Device model: " << deviceInfo.deviceModel() << endl;
-  qout << "Device variant: " << deviceInfo.deviceVariant() << endl;
+  if (deviceInfo.deviceVariant() != "")
+    qout << "Device variant: " << deviceInfo.deviceVariant() << endl;
   qout << "Device UID: " << deviceInfo.deviceUid() << endl;
+  if ((ssu.deviceMode() & Ssu::RndMode) == Ssu::RndMode)
+    qout << "Release (rnd): " << ssu.release(true) << " (" << ssu.flavour() << ")" << endl;
+  else
+    qout << "Release: " << ssu.release() << endl;
 }
 
 void RndSsuCli::optUpdateCredentials(QStringList opt){
@@ -456,6 +479,8 @@ void RndSsuCli::run(){
     optFlavour(arguments);
   else if (arguments.at(1) == "mode" || arguments.at(1) == "m")
     optMode(arguments);
+  else if (arguments.at(1) == "model" || arguments.at(1) == "mo")
+    optModel(arguments);
   else if (arguments.at(1) == "release" || arguments.at(1) == "re")
     optRelease(arguments);
   else if (arguments.at(1) == "update" || arguments.at(1) == "up")
@@ -510,6 +535,7 @@ void RndSsuCli::usage(){
        << "\tregister, r   \tregister this device" << endl
        << "\tupdate, up    \tupdate repository credentials" << endl
        << "\t      [-f]    \tforce update" << endl
+       << "\tmodel, mo     \tprint name of device model (like N9)" << endl
        << endl;
   qout.flush();
   QCoreApplication::exit(1);

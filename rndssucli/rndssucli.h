@@ -32,6 +32,7 @@ class RndSsuCli: public QObject {
     void uidWarning(QString message="");
     void optFlavour(QStringList opt);
     void optMode(QStringList opt);
+    void optModel(QStringList opt);
     void optModifyRepo(int action, QStringList opt);
     void optRegister();
     void optRelease(QStringList opt);
