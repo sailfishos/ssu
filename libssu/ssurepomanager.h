@@ -18,7 +18,10 @@ class SsuRepoManager: public QObject {
   public:
     SsuRepoManager();
     /**
-     * Add a repository
+     * Add a repository. Note: Repositories ending with -debuginfo receive special
+     * treatment. They'll get saved with the full name to make zypper and the user
+     * happy, but internally the -debuginfo will be stripped, and the debugSplit
+     * parameter set to debug instead.
      */
     void add(QString repo, QString repoUrl="");
     /**

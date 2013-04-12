@@ -303,7 +303,14 @@ void RndSsuCli::optRepos(QStringList opt){
   if (micMode){
     repos = deviceInfo.repos(rndRepo, SsuDeviceInfo::BoardFilter);
     foreach (const QString &repo, repos){
-      QString repoUrl = ssu.repoUrl(repo, rndRepo, repoParameters, repoOverride);
+      QString repoName = repo;
+      if (repo.endsWith("-debuginfo")){
+        repoName = repo.left(repo.size() - 10);
+        repoParameters.insert("debugSplit", "debug");
+      } else if (repoParameters.value("debugSplit") == "debug")
+        repoParameters.remove("debugSplit");
+
+      QString repoUrl = ssu.repoUrl(repoName, rndRepo, repoParameters, repoOverride);
       qout << "repo --name=" << repo << "-"
            << (rndRepo ? repoOverride.value("rndRelease")
                        : repoOverride.value("release"))
@@ -333,7 +340,14 @@ void RndSsuCli::optRepos(QStringList opt){
     qout.setFieldAlignment(QTextStream::AlignLeft);
 
     foreach (const QString &repo, repos){
-      QString repoUrl = ssu.repoUrl(repo, rndRepo, repoParameters, repoOverride);
+      QString repoName = repo;
+      if (repo.endsWith("-debuginfo")){
+        repoName = repo.left(repo.size() - 10);
+        repoParameters.insert("debugSplit", "debug");
+      } else if (repoParameters.value("debugSplit") == "debug")
+        repoParameters.remove("debugSplit");
+
+      QString repoUrl = ssu.repoUrl(repoName, rndRepo, repoParameters, repoOverride);
       qout << " - " << qSetFieldWidth(longestField) << repo << qSetFieldWidth(0) << " ... " << repoUrl << endl;
     }
 

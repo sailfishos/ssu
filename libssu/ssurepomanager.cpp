@@ -144,12 +144,21 @@ void SsuRepoManager::update(){
 
   // ... and create all repositories required for this device
   foreach (const QString &repo, repos){
+    // repo should be used where a unique identifier for silly human brains, or
+    // zypper is required. repoName contains the shortened form for ssu use
+    QString repoName = repo;
+    QString debugSplit;
+    if (repo.endsWith("-debuginfo")){
+      debugSplit = "&debug";
+      repoName = repo.left(repo.size() - 10);
+    }
+
     QString repoFilePath = QString("%1/ssu_%2_%3.repo")
       .arg(ZYPP_REPO_PATH)
       .arg(repo)
       .arg(rndMode ? "rnd" : "release");
 
-    if (url(repo, rndMode) == ""){
+    if (url(repoName, rndMode) == ""){
       // TODO, repositories should only be disabled if they're not required
       //       for this machine. For required repositories error is better
       QTextStream qerr(stderr);
@@ -173,9 +182,9 @@ void SsuRepoManager::update(){
           << "enabled=1" << endl;
 
       if (rndMode)
-        out << "baseurl=plugin:ssu?rnd&repo=" << repo << endl;
+        out << "baseurl=plugin:ssu?rnd&repo=" << repoName << debugSplit << endl;
       else
-        out << "baseurl=plugin:ssu?repo=" << repo << endl;
+        out << "baseurl=plugin:ssu?repo=" << repoName << debugSplit << endl;
 
       out.flush();
     }
@@ -234,7 +243,14 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
   QSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
   SsuDeviceInfo deviceInfo;
 
+  // set debugSplit for incorrectly configured debuginfo repositories (debugSplit
+  // should already be passed by the url resolver); might be overriden later on,
+  // if required
+  if (repoName.endsWith("-debuginfo") && !repoParameters.contains("debugSplit"))
+    repoParameters.insert("debugSplit", "debug");
+
   configSections = repoVariables(&repoParameters, rndRepo);
+
 
   // Override device model (and therefore all the family, ... stuff)
   if (parametersOverride.contains("model"))

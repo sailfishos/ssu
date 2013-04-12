@@ -1,3 +1,6 @@
+* Fri Apr 12 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.32
+- Add debug-split special handling for -debuginfo repositories
+
 * Wed Apr 10 2013 Bernd Wachter <bernd.wachter@jollamobile.com> - 0.31.5
 - Add model option to ssu, add -s (short) output for scripts to some options
 
