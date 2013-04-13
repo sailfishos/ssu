@@ -4,16 +4,16 @@ include(../ssulibrary.pri)
 # TODO: which headers are public? i.e. to be installed
 public_headers = \
         ssu.h \
+        ssudeviceinfo.h \
+        ssulog.h \
+        ssurepomanager.h \
+        ssusettings.h \
+        ssuvariables.h
 
 HEADERS = \
         $${public_headers} \
         sandbox_p.h \
-        ssucoreconfig.h \
-        ssudeviceinfo.h \
-        ssulog.h \
-        ssuvariables.h \
-        ssusettings.h \
-        ssurepomanager.h \
+        ssucoreconfig.h
 
 SOURCES = \
         sandbox.cpp \

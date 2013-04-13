@@ -1,5 +1,5 @@
 Name: ssu
-Version: 0.32
+Version: 0.33
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
@@ -82,7 +82,7 @@ Requires: %{name} = %{version}-%{release}
 %files devel
 %defattr(-,root,root,-)
 %{_libdir}/*.so
-%{_includedir}/ssu.h
+%{_includedir}/ssu*.h
 
 
 %package tests
