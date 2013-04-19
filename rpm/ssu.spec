@@ -49,12 +49,15 @@ Group: System/Base
 %package ks
 Summary: Kickstart generator using %{name} data
 Group: System/Base
+# required for QA to pick up new macros
+Provides: rpm-macros
 
 %description ks
 %{summary}. With ponies!
 
 %files ks
 %defattr(-,root,root,-)
+%config %{_sysconfdir}/rpm/macros.ssuks
 %{_bindir}/ssuks
 
 

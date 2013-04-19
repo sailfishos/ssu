@@ -1,0 +1,17 @@
+# copy all the relevant files for kickstart generation both from system and
+# newly installed into sandbox for ssuks; then create rnd and release kickstarts
+# for all devices listed.
+%define gen_ks() \
+    mkdir -p /tmp/sandbox/%{_datadir} \
+    [ -d %{_datadir}/ssu ] && cp -Rf %{_datadir}/ssu /tmp/sandbox/%{_datadir}/ \
+    rm -f /tmp/sandbox/%{_datadir}/ssu/board-mappings.ini \
+    cp -R %{buildroot}/%{_datadir}/ssu /tmp/sandbox/%{_datadir}/ \
+    rm -f %{buildroot}/%{_datadir}/ssu/board-mappings.ini \
+    mkdir -p %{buildroot}/%{_datadir}/kickstarts \
+    sleep 1 \
+    for M in %{?*}; do \
+        for B in true false; do  \
+            ssuks model=$M sandbox=/tmp/sandbox outputdir=%{buildroot}/%{_datadir}/kickstarts/ rnd=$B version=%{version} \
+        done \
+    done \
+%{nil}
