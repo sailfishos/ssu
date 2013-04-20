@@ -13,7 +13,10 @@ public_headers = \
 HEADERS = \
         $${public_headers} \
         sandbox_p.h \
-        ssucoreconfig.h
+        ssucoreconfig.h \
+        mobility-booty/qofonoservice_linux_p.h \
+        mobility-booty/qsysteminfo_linux_common_p.h \
+        mobility-booty/qsysteminfo_dbus_p.h
 
 SOURCES = \
         sandbox.cpp \
@@ -23,11 +26,14 @@ SOURCES = \
         ssulog.cpp \
         ssuvariables.cpp \
         ssurepomanager.cpp \
-        ssusettings.cpp
+        ssusettings.cpp \
+        mobility-booty/qofonoservice_linux.cpp \
+        mobility-booty/qsysteminfo_linux_common.cpp \
 
-CONFIG += mobility link_pkgconfig
-QT += network xml
-MOBILITY += systeminfo
+#CONFIG += mobility link_pkgconfig
+CONFIG += link_pkgconfig
+QT += network xml dbus
+#MOBILITY += systeminfo
 PKGCONFIG += libsystemd-journal
 
 install_headers.files = $${public_headers}

@@ -1,4 +1,5 @@
 CONFIG -= gui
+QT -= gui
 
 INCLUDEPATH *= $$PWD
 DEPENDPATH *= $$PWD

@@ -1,0 +1,2 @@
+This directory contains the handful of bits used from QtSystemInfo, to avoid
+pulling in the whole X11 stack.

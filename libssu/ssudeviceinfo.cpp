@@ -5,7 +5,7 @@
  * @date 2013
  */
 
-#include <QSystemDeviceInfo>
+
 #include <QTextStream>
 #include <QDir>
 
@@ -15,7 +15,10 @@
 
 #include "../constants.h"
 
-QTM_USE_NAMESPACE
+#include "mobility-booty/qsysteminfo_linux_common_p.h"
+
+//#include <QSystemDeviceInfo>
+//QTM_USE_NAMESPACE
 
 SsuDeviceInfo::SsuDeviceInfo(QString model): QObject(){
 
@@ -139,7 +142,14 @@ QString SsuDeviceInfo::deviceModel(){
   if (!cachedModel.isEmpty()) return cachedModel;
 
   // check if the QSystemInfo model is useful
-  QSystemDeviceInfo devInfo;
+  //QSystemDeviceInfo devInfo;
+  // TODO Current Mer SystemDeviceInfo only returns cpuinfo stuff,
+  //      which is what we can do with cpuinfo matching in a more
+  //      flexible way, so there's not really any need to pull in the
+  //      whole X11 stack just for this. Can be enabled once systeminfo
+  //      is less insane
+  /*
+  QSystemDeviceInfoLinuxCommonPrivate devInfo;
   QString model = devInfo.model();
   boardMappings->beginGroup("systeminfo.equals");
   keys = boardMappings->allKeys();
@@ -152,6 +162,7 @@ QString SsuDeviceInfo::deviceModel(){
   }
   boardMappings->endGroup();
   if (!cachedModel.isEmpty()) return cachedModel;
+  */
 
   // check if the device can be identified by a string in /proc/cpuinfo
   procCpuinfo.setFileName("/proc/cpuinfo");
@@ -195,7 +206,8 @@ QString SsuDeviceInfo::deviceModel(){
 
 QString SsuDeviceInfo::deviceUid(){
   QString IMEI;
-  QSystemDeviceInfo devInfo;
+  //QSystemDeviceInfo devInfo;
+  QSystemDeviceInfoLinuxCommonPrivate devInfo;
 
   IMEI = devInfo.imei();
 

@@ -7,8 +7,11 @@ License: GPLv2
 Source0: %{name}-%{version}.tar.gz
 URL: https://github.com/nemomobile/ssu
 BuildRequires: pkgconfig(QtCore)
+BuildRequires: pkgconfig(QtDBus)
+BuildRequires: pkgconfig(QtDeclarative)
+BuildRequires: pkgconfig(QtNetwork)
+BuildRequires: pkgconfig(QtXml)
 BuildRequires: pkgconfig(libzypp)
-BuildRequires: pkgconfig(QtSystemInfo)
 BuildRequires: pkgconfig(qt-boostable)
 BuildRequires: pkgconfig(libsystemd-journal)
 BuildRequires: oneshot
