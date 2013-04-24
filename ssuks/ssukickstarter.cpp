@@ -60,12 +60,21 @@ QStringList SsuKickstarter::repos(){
 
   foreach (const QString &repo, repos){
     QString repoUrl = ssu.repoUrl(repo, rndMode, QHash<QString, QString>(), repoOverride);
-    result.append(QString("repo --name=%1-%2 --baseurl=%3")
-                  .arg(repo)
-                  .arg((rndMode ? repoOverride.value("rndRelease")
-                                : repoOverride.value("release")))
-                  .arg(repoUrl)
-      );
+    if (repo.startsWith("adaptation"))
+      result.append(QString("repo --name=%1-%2-%3 --baseurl=%4")
+                    .arg(repo)
+                    .arg(deviceModel)
+                    .arg((rndMode ? repoOverride.value("rndRelease")
+                          : repoOverride.value("release")))
+                    .arg(repoUrl)
+        );
+    else
+      result.append(QString("repo --name=%1-%2 --baseurl=%3")
+                    .arg(repo)
+                    .arg((rndMode ? repoOverride.value("rndRelease")
+                          : repoOverride.value("release")))
+                    .arg(repoUrl)
+        );
   }
 
   return result;
