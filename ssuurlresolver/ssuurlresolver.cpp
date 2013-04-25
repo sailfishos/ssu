@@ -111,7 +111,7 @@ void SsuUrlResolver::run(){
   resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
 
   // only do credentials magic on secure connections
-  if (resolvedUrl.startsWith("https://")){
+  if (resolvedUrl.startsWith("https://") && ssu.isRegistered()){
     // TODO: check for credentials scope required for repository; check if the file exists;
     //       compare with configuration, and dump credentials to file if necessary
     ssuLog->print(LOG_DEBUG, QString("Requesting credentials for '%1' with RND status %2...").arg(repo).arg(isRnd));
