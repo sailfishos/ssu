@@ -9,6 +9,8 @@
 #include <QTextStream>
 #include <QDir>
 
+#include <sys/utsname.h>
+
 #include "ssudeviceinfo.h"
 #include "ssucoreconfig.h"
 #include "ssulog.h"
@@ -184,8 +186,25 @@ QString SsuDeviceInfo::deviceModel(){
   }
   if (!cachedModel.isEmpty()) return cachedModel;
 
+  // check if the device can be identified by the kernel version string
+  struct utsname buf;
+  if (!uname(&buf)){
+    QString utsRelease(buf.release);
+    boardMappings->beginGroup("uname-release.contains");
+    keys = boardMappings->allKeys();
 
-  // check if there's a match on arch ofr generic fallback. This probably
+    foreach (const QString &key, keys){
+      QString value = boardMappings->value(key).toString();
+      if (utsRelease.contains(value)){
+        cachedModel = key;
+        break;
+      }
+    }
+    boardMappings->endGroup();
+  }
+  if (!cachedModel.isEmpty()) return cachedModel;
+
+  // check if there's a match on arch of generic fallback. This probably
   // only makes sense for x86
   boardMappings->beginGroup("arch.equals");
   keys = boardMappings->allKeys();
