@@ -265,8 +265,13 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
   // first read all variables from default-domain
   var.resolveSection(&repoSettings, "default-domain", &repoParameters);
 
-  // then overwrite with domain specific things if that block is available
-  var.resolveSection(&repoSettings, settings->domain()+"-domain", &repoParameters);
+  // then overwrite with domain specific things if that block is available,
+  // taking into account override parameters
+  if (parametersOverride.contains("domain"))
+    var.resolveSection(&repoSettings,
+                       parametersOverride.value("domain")+"-domain", &repoParameters);
+  else
+    var.resolveSection(&repoSettings, settings->domain()+"-domain", &repoParameters);
 
   // override arbitrary variables, mostly useful for generating mic URLs
   QHash<QString, QString>::const_iterator i = parametersOverride.constBegin();
