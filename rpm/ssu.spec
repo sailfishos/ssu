@@ -138,7 +138,7 @@ Group: Documentation
 mkdir -p build && cd build
 qmake DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive ..
 make %{?_smp_mflags}
-doxygen ../doc/Doxyfile
+cd .. && doxygen doc/Doxyfile
 
 
 %install
@@ -146,7 +146,7 @@ cd build && make INSTALL_ROOT=%{buildroot} install
 mkdir -p %{buildroot}/%{_sysconfdir}/zypp/credentials.d
 ln -s %{_bindir}/ssu %{buildroot}/%{_bindir}/rndssu
 mkdir -p %{buildroot}/%{_docdir}/%{name}
-cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
+cd .. && cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
 
 
 %pre
