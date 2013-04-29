@@ -6,6 +6,7 @@ Group: System/Base
 License: GPLv2
 Source0: %{name}-%{version}.tar.gz
 URL: https://github.com/nemomobile/ssu
+BuildRequires: pkgconfig(boardname)
 BuildRequires: pkgconfig(QtCore)
 BuildRequires: pkgconfig(QtDBus)
 BuildRequires: pkgconfig(QtDeclarative)

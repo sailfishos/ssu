@@ -34,7 +34,7 @@ SOURCES = \
 CONFIG += link_pkgconfig
 QT += network xml dbus
 #MOBILITY += systeminfo
-PKGCONFIG += libsystemd-journal
+PKGCONFIG += libsystemd-journal boardname
 
 install_headers.files = $${public_headers}
 

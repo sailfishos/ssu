@@ -11,6 +11,10 @@
 
 #include <sys/utsname.h>
 
+extern "C" {
+#include <boardname.h>
+}
+
 #include "ssudeviceinfo.h"
 #include "ssucoreconfig.h"
 #include "ssulog.h"
@@ -125,6 +129,7 @@ QString SsuDeviceInfo::deviceModel(){
   QDir dir;
   QFile procCpuinfo;
   QStringList keys;
+  QStringList sections;
 
   if (!cachedModel.isEmpty())
     return cachedModel;
@@ -141,6 +146,33 @@ QString SsuDeviceInfo::deviceModel(){
     }
   }
   boardMappings->endGroup();
+  if (!cachedModel.isEmpty()) return cachedModel;
+
+  // check if boardname matches/contains
+  QString boardName(getboardname());
+  boardName = boardName.trimmed();
+  sections.clear();
+  sections << "boardname.equals" << "boardname.contains";
+  foreach (const QString &section, sections){
+    boardMappings->beginGroup(section);
+    keys = boardMappings->allKeys();
+    foreach (const QString &key, keys){
+      QString value = boardMappings->value(key).toString();
+      if (section.endsWith(".contains")){
+        if (boardName.contains(value)){
+          cachedModel = key;
+          break;
+        }
+      } else if (section.endsWith(".equals")){
+        if (boardName == value){
+          cachedModel = key;
+          break;
+        }
+      }
+    }
+    boardMappings->endGroup();
+    if (!cachedModel.isEmpty()) break;
+  }
   if (!cachedModel.isEmpty()) return cachedModel;
 
   // check if the QSystemInfo model is useful
