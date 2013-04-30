@@ -541,8 +541,6 @@ void RndSsuCli::usage(){
        << "\trelease, re     \tdisplay release used" << endl
        << "\t  [-r]          \tuse RnD release" << endl
        << "\t  [newrelease]  \tset new (RnD)release" << endl
-       << "\tmode, m         \tdisplay current device mode" << endl
-       << "\t  [newmode]     \tset new device mode" << endl
        << endl
        << "Device management:" << endl
        << "\tstatus, s     \tprint registration status and device information" << endl
