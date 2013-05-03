@@ -53,6 +53,7 @@ class SsuUrlResolver: public QObject {
 
   private:
     Ssu ssu;
+    void error(QString message);
     void printJournal(int priority, QString message);
     bool writeCredentials(QString filePath, QString credentialsScope);
 

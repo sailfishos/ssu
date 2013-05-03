@@ -20,6 +20,16 @@ SsuUrlResolver::SsuUrlResolver(): QObject(){
                    Qt::QueuedConnection);
 }
 
+void SsuUrlResolver::error(QString message){
+  SsuLog *ssuLog = SsuLog::instance();
+  ssuLog->print(LOG_WARNING, message);
+
+  PluginFrame out("ERROR");
+  out.setBody(message.toStdString());
+  out.writeTo(std::cout);
+  QCoreApplication::exit(1);
+}
+
 bool SsuUrlResolver::writeCredentials(QString filePath, QString credentialsScope){
   QFile credentialsFile(filePath);
   QPair<QString, QString> credentials = ssu.credentials(credentialsScope);
@@ -53,8 +63,7 @@ void SsuUrlResolver::run(){
   PluginFrame in(std::cin);
 
   if (in.headerEmpty()){
-    // FIXME, do something; we need at least repo header
-    ssuLog->print(LOG_WARNING, "Received empty header list. Most likely your ssu setup is broken");
+    error("Received empty header list. Most likely your ssu setup is broken");
   }
 
   PluginFrame::HeaderListIterator it;
@@ -101,8 +110,7 @@ void SsuUrlResolver::run(){
     // TODO: figure out if there's better eror handling for
     //       zypper plugins than 'blow up'
     if (ssu.error()){
-      emit done();
-      return;
+      error(ssu.lastError());
     }
   } else
     ssuLog->print(LOG_DEBUG, "Device not registered -- skipping credential update");
@@ -139,9 +147,15 @@ void SsuUrlResolver::run(){
   //       is protected, but device is not registered and/or we don't have credentials
   ssuLog->print(LOG_INFO, QString("%1 resolved to %2").arg(repo).arg(resolvedUrl));
 
-  PluginFrame out("RESOLVEDURL");
-  out.setBody(resolvedUrl.toStdString());
-  out.writeTo(std::cout);
+  if (resolvedUrl.isEmpty()){
+    error("URL for repository is not set.");
+  } else if (resolvedUrl.indexOf(QRegExp("[a-z]*://", Qt::CaseInsensitive)) != 0) {
+    error ("URL for repository is invalid.");
+  } else {
+    PluginFrame out("RESOLVEDURL");
+    out.setBody(resolvedUrl.toStdString());
+    out.writeTo(std::cout);
+  }
 
   emit done();
 }
