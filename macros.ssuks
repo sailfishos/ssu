@@ -11,7 +11,7 @@
     sleep 1 \
     for M in %{?*}; do \
         for B in true false; do  \
-            ssuks model=$M sandbox=/tmp/sandbox outputdir=%{buildroot}/%{_datadir}/kickstarts/ rnd=$B version=%{version} \
+            ssuks model="$M" sandbox=/tmp/sandbox outputdir=%{buildroot}/%{_datadir}/kickstarts/ rnd=$B version=%{version} \
         done \
     done \
 %{nil}
