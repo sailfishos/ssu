@@ -8,6 +8,10 @@
 #include <QtNetwork>
 #include <QtXml/QDomDocument>
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+#include <QUrlQuery>
+#endif
+
 #include "ssu.h"
 #include "ssulog.h"
 #include "ssuvariables.h"
@@ -138,7 +142,7 @@ QString Ssu::lastError(){
 
 bool Ssu::registerDevice(QDomDocument *response){
   QString certificateString = response->elementsByTagName("certificate").at(0).toElement().text();
-  QSslCertificate certificate(certificateString.toAscii());
+  QSslCertificate certificate(certificateString.toLatin1());
   SsuLog *ssuLog = SsuLog::instance();
   SsuCoreConfig *settings = SsuCoreConfig::instance();
 
@@ -151,7 +155,7 @@ bool Ssu::registerDevice(QDomDocument *response){
     settings->setValue("certificate", certificate.toPem());
 
   QString privateKeyString = response->elementsByTagName("privateKey").at(0).toElement().text();
-  QSslKey privateKey(privateKeyString.toAscii(), QSsl::Rsa);
+  QSslKey privateKey(privateKeyString.toLatin1(), QSsl::Rsa);
 
   if (privateKey.isNull()){
     settings->setValue("registered", false);
@@ -186,6 +190,15 @@ void Ssu::requestFinished(QNetworkReply *reply){
   SsuLog *ssuLog = SsuLog::instance();
   SsuCoreConfig *settings = SsuCoreConfig::instance();
 
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+  ssuLog->print(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
+                .arg(sslConfiguration.peerCertificate().subjectInfo(QSslCertificate::CommonName).join(""))
+                .arg(sslConfiguration.peerCertificate().issuerInfo(QSslCertificate::CommonName).join("")));
+
+  foreach (const QSslCertificate cert, sslConfiguration.peerCertificateChain()){
+    ssuLog->print(LOG_DEBUG, QString("-> %1").arg(cert.subjectInfo(QSslCertificate::CommonName).join("")));
+  }
+#else
   ssuLog->print(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
                .arg(sslConfiguration.peerCertificate().subjectInfo(QSslCertificate::CommonName))
                .arg(sslConfiguration.peerCertificate().issuerInfo(QSslCertificate::CommonName)));
@@ -193,6 +206,7 @@ void Ssu::requestFinished(QNetworkReply *reply){
   foreach (const QSslCertificate cert, sslConfiguration.peerCertificateChain()){
     ssuLog->print(LOG_DEBUG, QString("-> %1").arg(cert.subjectInfo(QSslCertificate::CommonName)));
   }
+#endif
 
   // what sucks more, this or goto?
   do {
@@ -304,23 +318,39 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
   request.setRawHeader("Authorization", "Basic " +
                        QByteArray(QString("%1:%2")
                                   .arg(username).arg(password)
-                                  .toAscii()).toBase64());
+                                  .toLatin1()).toBase64());
   request.setHeader(QNetworkRequest::ContentTypeHeader, "application/x-www-form-urlencoded");
 
   QUrl form;
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+  QUrlQuery q;
+  q.addQueryItem("protocolVersion", SSU_PROTOCOL_VERSION);
+  q.addQueryItem("deviceModel", deviceInfo.deviceModel());
+  if (!domain().isEmpty()){
+    q.addQueryItem("domain", domain());
+  }
+
+  form.setQuery(q);
+#else
   form.addQueryItem("protocolVersion", SSU_PROTOCOL_VERSION);
   form.addQueryItem("deviceModel", deviceInfo.deviceModel());
   if (!domain().isEmpty()){
     form.addQueryItem("domain", domain());
   }
+#endif
 
   qDebug() << "Sending request to " << request.url();
-  qDebug() << form.encodedQueryItems();
+  //qDebug() << form.encodedQueryItems();
 
   QNetworkReply *reply;
 
   pendingRequests++;
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+  reply = manager->post(request, form.query(QUrl::FullyEncoded).toStdString().c_str());
+#else
   reply = manager->post(request, form.encodedQuery());
+#endif
   // we could expose downloadProgress() from reply in case we want progress info
 
   QString homeUrl = settings->value("home-url").toString().arg(username);

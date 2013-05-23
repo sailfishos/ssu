@@ -92,7 +92,7 @@ QString SsuVariables::resolveVariable(QString variable, QHash<QString, QString> 
   if (variable.length() > magic +1)
     op = variable.at(magic + 1);
 
-  switch(op.toAscii()){
+  switch(op.toLatin1()){
     case '-':
       // substitute default value if variable is empty
       if (variableValue == "")
