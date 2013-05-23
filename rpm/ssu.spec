@@ -7,13 +7,11 @@ License: GPLv2
 Source0: %{name}-%{version}.tar.gz
 URL: https://github.com/nemomobile/ssu
 BuildRequires: pkgconfig(boardname)
-BuildRequires: pkgconfig(QtCore)
-BuildRequires: pkgconfig(QtDBus)
-BuildRequires: pkgconfig(QtDeclarative)
-BuildRequires: pkgconfig(QtNetwork)
-BuildRequires: pkgconfig(QtXml)
+BuildRequires: pkgconfig(Qt5Core)
+BuildRequires: pkgconfig(Qt5DBus)
+BuildRequires: pkgconfig(Qt5Network)
+BuildRequires: pkgconfig(Qt5Xml)
 BuildRequires: pkgconfig(libzypp)
-BuildRequires: pkgconfig(qt-boostable)
 BuildRequires: pkgconfig(libsystemd-journal)
 BuildRequires: oneshot
 BuildRequires: doxygen
@@ -40,6 +38,7 @@ Requires: ssu-vendor-data
 %package vendor-data-example
 Summary: Sample vendor configuration data
 Group: System/Base
+Provides: ssu-vendor-data
 
 %description vendor-data-example
 %{summary}. A vendor (including Nemo) is supposed to put those configuration on device.
@@ -63,19 +62,6 @@ Provides: rpm-macros
 %defattr(-,root,root,-)
 %config %{_sysconfdir}/rpm/macros.ssuks
 %{_bindir}/ssuks
-
-
-%package rnd-ui
-Summary: Shiny user interface for %{name}
-Group: System/Base
-
-%description rnd-ui
-%{summary}. With ponies!
-
-%files rnd-ui
-%defattr(-,root,root,-)
-%{_bindir}/rndregisterui
-%{_datadir}/applications/*.desktop
 
 
 %package devel
@@ -136,7 +122,7 @@ Group: Documentation
 
 %build
 mkdir -p build && cd build
-qmake DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive ..
+qmake -qt=5 DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive ..
 make %{?_smp_mflags}
 cd .. && doxygen doc/Doxyfile
 

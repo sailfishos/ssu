@@ -21,8 +21,8 @@
  */
 
 
-SsuKickstarter::SsuKickstarter(QString sandbox) {
-  pathPrefix = sandbox;
+SsuKickstarter::SsuKickstarter() {
+  pathPrefix = SsuSettings::sandboxPrefix();
 
   SsuDeviceInfo deviceInfo;
   deviceModel = deviceInfo.deviceModel();

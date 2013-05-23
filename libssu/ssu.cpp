@@ -208,6 +208,7 @@ void Ssu::requestFinished(QNetworkReply *reply){
   }
 #endif
 
+  /// @TODO: indicate that the device is not registered if there's a 404 on credentials update url
   // what sucks more, this or goto?
   do {
     if (settings->contains("home-url")){

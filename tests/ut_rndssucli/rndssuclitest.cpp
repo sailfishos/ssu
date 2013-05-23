@@ -12,12 +12,12 @@
 
 #include <QtTest/QtTest>
 
-#include "libssu/sandbox_p.h"
 #include "testutils/process.h"
 
 typedef QStringList Args; // improve readability
 
 void RndSsuCliTest::init(){
+  /*
   Q_ASSERT(m_sandbox == 0);
 
   m_sandbox = new Sandbox(QString("%1/configroot").arg(TESTS_DATA_PATH),
@@ -26,11 +26,14 @@ void RndSsuCliTest::init(){
     QFAIL("Failed to activate sandbox");
   }
   setenv("LD_PRELOAD", qPrintable(QString("%1/libsandboxhook.so").arg(TESTS_PATH)), 1);
+  */
 }
 
 void RndSsuCliTest::cleanup(){
+  /*
   delete m_sandbox;
   m_sandbox = 0;
+  */
 }
 
 void RndSsuCliTest::testSubcommandFlavour(){

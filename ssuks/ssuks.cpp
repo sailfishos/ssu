@@ -15,7 +15,6 @@
 
 #include "ssukickstarter.h"
 #include "constants.h"
-#include "libssu/sandbox_p.h"
 
 #include "ssuks.h"
 
@@ -44,13 +43,14 @@ void SsuKs::run(){
     }
 
     QString sandbox;
-    Sandbox *sb;
     if (repoParameters.contains("sandbox")){
+      setenv("SSU_SANDBOX_DIR", repoParameters.value("sandbox").toLatin1(), 1);
       sandbox = repoParameters.value("sandbox");
       repoParameters.remove("sandbox");
+    }
 
-
-      // work around sandbox not sandboxing directories
+    sandbox = SsuSettings::sandboxPrefix();
+    if (!sandbox.isEmpty()){
       QDirIterator it(SSU_DATA_DIR, QDir::AllEntries|QDir::NoDot|QDir::NoDotDot, QDirIterator::Subdirectories);
       while (it.hasNext()){
         it.next();
@@ -72,18 +72,9 @@ void SsuKs::run(){
                                 QString("%1/%2")
                                 .arg(sandbox)
                                 .arg(SSU_BOARD_MAPPING_CONFIGURATION_DIR));
-
-      sb = new Sandbox(sandbox, Sandbox::UseDirectly, Sandbox::ThisProcess);
-
-      if (sb->activate())
-        qout << "Using sandbox at " << sandbox << endl;
-      else {
-        qout << "Failed to activate sandbox" << endl;
-        return;
-      }
     }
 
-    SsuKickstarter kickstarter(sandbox);
+    SsuKickstarter kickstarter;
     kickstarter.setRepoParameters(repoParameters);
     kickstarter.write(fileName);
   } else

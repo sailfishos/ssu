@@ -136,7 +136,7 @@ void UpgradeTestHelper::fillDefaultSettings(QSettings *defaultSettings, const QL
       defaultSettings->beginGroup(group);
 
       foreach (const TestCase &testCase, testCases){
-        switch (testCase.history().at(revision - 1).toAscii()){
+        switch (testCase.history().at(revision - 1).toLatin1()){
         case 'S': // (S)et value
           lastSetValue[testCase.key()] = QString("v%1-default").arg(revision);
           defaultSettings->setValue(testCase.key(), lastSetValue[testCase.key()]);
