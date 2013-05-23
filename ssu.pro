@@ -4,7 +4,7 @@ contains(QT_VERSION, ^4\\.[0-7]\\..*) {
 
 TEMPLATE = subdirs
 SUBDIRS = libssu
-SUBDIRS += rndssucli rndregisterui ssuurlresolver ssuks
+SUBDIRS += rndssucli ssuurlresolver ssuks
 
 ssuconfhack {
     SUBDIRS += ssuconfperm
