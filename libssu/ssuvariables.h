@@ -9,8 +9,9 @@
 #define _SSUVARIABLES_H
 
 #include <QObject>
-#include <QSettings>
 #include <QHash>
+
+#include "ssusettings.h"
 
 class SsuVariables: public QObject {
     Q_OBJECT
@@ -22,7 +23,7 @@ class SsuVariables: public QObject {
      * run them through the variable expander, and add them to the supplied
      * QHash
      */
-    void resolveSection(QSettings *settings, QString section, QHash<QString, QString> *storageHash);
+    void resolveSection(SsuSettings *settings, QString section, QHash<QString, QString> *storageHash);
     /**
      * Resolve a whole string, containing several variables. Variables inside variables are allowed
      */

@@ -9,7 +9,6 @@
 #define _SSUCORECONFIG_H
 
 #include <QObject>
-#include <QSettings>
 
 #include "ssusettings.h"
 #include "ssu.h"

@@ -9,7 +9,6 @@
 #define _SSUREPOMANAGER_H
 
 #include <QObject>
-#include <QSettings>
 #include <QHash>
 
 class SsuRepoManager: public QObject {

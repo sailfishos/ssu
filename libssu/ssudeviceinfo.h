@@ -9,7 +9,6 @@
 #define _SSUDEVICEINFO_H
 
 #include <QObject>
-#include <QSettings>
 
 #include "ssusettings.h"
 

@@ -12,6 +12,7 @@
 #include "ssudeviceinfo.h"
 #include "ssurepomanager.h"
 #include "ssucoreconfig.h"
+#include "ssusettings.h"
 #include "ssulog.h"
 #include "ssuvariables.h"
 #include "ssu.h"
@@ -195,8 +196,7 @@ QStringList SsuRepoManager::repoVariables(QHash<QString, QString> *storageHash, 
   SsuVariables var;
   SsuCoreConfig *settings = SsuCoreConfig::instance();
   QStringList configSections;
-  QSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
-  //QSettings *repoSettings = new QSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+  SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
 
   // fill in all arbitrary variables from ssu.ini
   var.resolveSection(settings, "repository-url-variables", storageHash);
@@ -240,7 +240,7 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
   SsuVariables var;
   SsuLog *ssuLog = SsuLog::instance();
   SsuCoreConfig *settings = SsuCoreConfig::instance();
-  QSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+  SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
   SsuDeviceInfo deviceInfo;
 
   // set debugSplit for incorrectly configured debuginfo repositories (debugSplit

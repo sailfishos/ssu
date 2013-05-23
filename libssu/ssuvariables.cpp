@@ -17,7 +17,7 @@ SsuVariables::SsuVariables(): QObject() {
 
 }
 
-void SsuVariables::resolveSection(QSettings *settings, QString section, QHash<QString, QString> *storageHash){
+void SsuVariables::resolveSection(SsuSettings *settings, QString section, QHash<QString, QString> *storageHash){
   QStringList repoVariables;
 
   settings->beginGroup(section);

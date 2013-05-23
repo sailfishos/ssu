@@ -10,7 +10,6 @@
 
 #include <QDateTime>
 #include <QObject>
-#include <QSettings>
 #include <QDebug>
 
 #include <QtXml/QDomDocument>
