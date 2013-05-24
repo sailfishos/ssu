@@ -10,6 +10,7 @@
 #include <stdlib.h>
 
 #include <QtCore/QDir>
+#include <QtCore/QDirIterator>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QSet>
@@ -252,7 +253,7 @@ bool Sandbox::prepare(){
 
     const QString sandboxCopyPath = QDir(m_tempDir).filePath("configroot");
 
-    if (QProcess::execute("cp", QStringList() << "-r" << m_sandboxPath << sandboxCopyPath) != 0){
+    if (!copyDir(m_sandboxPath, sandboxCopyPath)){
       qWarning("%s: Failed to copy sandbox directory", Q_FUNC_INFO);
       return false;
     }
@@ -263,5 +264,41 @@ bool Sandbox::prepare(){
   }
 
   m_prepared = true;
+  return true;
+}
+
+bool Sandbox::copyDir(const QString &directory, const QString &newName){
+  const QDir sourceRoot(directory);
+  const QDir destinationRoot(newName);
+
+  QDirIterator it(directory, QDir::AllEntries|QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
+  while (it.hasNext()){
+    it.next();
+
+    const QFileInfo destination = QFileInfo(destinationRoot.filePath(
+          sourceRoot.relativeFilePath(it.filePath())));
+
+    if (it.fileInfo().isDir()){
+      if (!QDir().mkpath(destination.absoluteFilePath())){
+        qWarning("%s: Failed to mkpath '%s'", Q_FUNC_INFO, qPrintable(destination.absolutePath()));
+        return false;
+      }
+    } else if (it.fileInfo().isFile()){
+      if (!QDir().mkpath(destination.absolutePath())){
+        qWarning("%s: Failed to mkpath '%s'", Q_FUNC_INFO, qPrintable(destination.absolutePath()));
+        return false;
+      }
+
+      if (!QFile::copy(it.fileInfo().absoluteFilePath(), destination.absoluteFilePath())){
+        qWarning("%s: Failed to copy file '%s'", Q_FUNC_INFO, qPrintable(it.filePath()));
+        return false;
+      }
+    } else{
+      qWarning("%s: Cannot copy other than regular files: '%s'", Q_FUNC_INFO,
+          qPrintable(it.filePath()));
+      return false;
+    }
+  }
+
   return true;
 }

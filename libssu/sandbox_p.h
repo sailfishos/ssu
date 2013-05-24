@@ -43,6 +43,7 @@ class Sandbox {
 
   private:
     bool prepare();
+    static bool copyDir(const QString &directory, const QString &newName);
 
   private:
     static Sandbox *s_activeInstance;
