@@ -10,6 +10,7 @@
 #include <QDirIterator>
 
 #include "ssukickstarter.h"
+#include "libssu/sandbox_p.h"
 #include "libssu/ssurepomanager.h"
 #include "libssu/ssuvariables.h"
 
@@ -22,7 +23,7 @@
 
 
 SsuKickstarter::SsuKickstarter() {
-  pathPrefix = SsuSettings::sandboxPrefix();
+  pathPrefix = Sandbox::effectiveRootDir().path();
 
   SsuDeviceInfo deviceInfo;
   deviceModel = deviceInfo.deviceModel();

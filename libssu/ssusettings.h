@@ -28,7 +28,6 @@ class SsuSettings: public QSettings {
      * style settings are supported in this mode.
      */
     SsuSettings(const QString &fileName, const QString &settingsDirectory, QObject *parent=0);
-    static QString sandboxPrefix();
 
   private:
     QString defaultSettingsFile, settingsd;

@@ -7,6 +7,7 @@ SUBDIRS         = \
         ut_deviceinfo \
         ut_repomanager \
         ut_rndssucli \
+        ut_sandbox \
         ut_settings \
         ut_ssuurlresolver \
         ut_urlresolver \

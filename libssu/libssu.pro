@@ -12,12 +12,14 @@ public_headers = \
 
 HEADERS = \
         $${public_headers} \
+        sandbox_p.h \
         ssucoreconfig.h \
         mobility-booty/qofonoservice_linux_p.h \
         mobility-booty/qsysteminfo_linux_common_p.h \
         mobility-booty/qsysteminfo_dbus_p.h
 
 SOURCES = \
+        sandbox.cpp \
         ssu.cpp \
         ssucoreconfig.cpp \
         ssudeviceinfo.cpp \

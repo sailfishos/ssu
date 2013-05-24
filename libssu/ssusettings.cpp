@@ -10,6 +10,7 @@
 #include <QFileInfo>
 #include <QDateTime>
 
+#include "sandbox_p.h"
 #include "ssusettings.h"
 #include "ssulog.h"
 
@@ -18,30 +19,20 @@ SsuSettings::SsuSettings(): QSettings(){
 }
 
 SsuSettings::SsuSettings(const QString &fileName, Format format, QObject *parent):
-  QSettings(SsuSettings::sandboxPrefix() + fileName, format, parent){
+  QSettings(Sandbox::map(fileName), format, parent){
 
 }
 
 SsuSettings::SsuSettings(const QString &fileName, Format format, const QString &defaultFileName, QObject *parent):
-  QSettings(SsuSettings::sandboxPrefix() + fileName, format, parent){
-  defaultSettingsFile = SsuSettings::sandboxPrefix() +  defaultFileName;
+  QSettings(Sandbox::map(fileName), format, parent){
+  defaultSettingsFile = Sandbox::map(defaultFileName);
   upgrade();
 }
 
 SsuSettings::SsuSettings(const QString &fileName, const QString &settingsDirectory, QObject *parent):
-  QSettings(SsuSettings::sandboxPrefix() + fileName, QSettings::IniFormat, parent){
-  settingsd = SsuSettings::sandboxPrefix() + settingsDirectory;
+  QSettings(Sandbox::map(fileName), QSettings::IniFormat, parent){
+  settingsd = Sandbox::map(settingsDirectory);
   merge();
-}
-
-QString SsuSettings::sandboxPrefix(){
-  /// @TODO: do some verification on the sandbox dir before using it
-  QString sandboxDir = getenv("SSU_SANDBOX_DIR");
-
-  if (!sandboxDir.isEmpty() && !sandboxDir.endsWith("/"))
-    sandboxDir += "/";
-
-  return sandboxDir;
 }
 
 void SsuSettings::merge(bool keepOld){

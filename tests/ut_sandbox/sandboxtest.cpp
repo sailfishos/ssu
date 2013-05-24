@@ -15,55 +15,55 @@ void SandboxTest::test(){
 
   const QDir::Filters noHidden = QDir::AllEntries | QDir::NoDotAndDotDot;
 
-  QCOMPARE(QDir(TESTS_DATA_PATH "/world").entryList(noHidden, QDir::Name),
+  QCOMPARE(QDir(Sandbox::map(TESTS_DATA_PATH "/world")).entryList(noHidden, QDir::Name),
       QStringList()
       << "world-and-sandbox"
       << "world-only"
       << "world-only-to-be-copied-into-sandbox");
 
-  QVERIFY(!QFileInfo(TESTS_DATA_PATH "/world/world-only").isWritable());
-  QCOMPARE(readAll(TESTS_DATA_PATH "/world/world-only").trimmed(),
+  QVERIFY(!QFileInfo(Sandbox::map(TESTS_DATA_PATH "/world/world-only")).isWritable());
+  QCOMPARE(readAll(Sandbox::map(TESTS_DATA_PATH "/world/world-only")).trimmed(),
       QString("world/world-only"));
 
-  QVERIFY(!QFileInfo(TESTS_DATA_PATH "/world/world-and-sandbox").isWritable());
-  QCOMPARE(readAll(TESTS_DATA_PATH "/world/world-and-sandbox").trimmed(),
+  QVERIFY(!QFileInfo(Sandbox::map(TESTS_DATA_PATH "/world/world-and-sandbox")).isWritable());
+  QCOMPARE(readAll(Sandbox::map(TESTS_DATA_PATH "/world/world-and-sandbox")).trimmed(),
       QString("world/world-and-sandbox"));
 
-  QVERIFY(!QFileInfo(TESTS_DATA_PATH "/world/world-only-to-be-copied-into-sandbox").isWritable());
-  QCOMPARE(readAll(TESTS_DATA_PATH "/world/world-only-to-be-copied-into-sandbox").trimmed(),
-      QString("world/world-only-to-be-copied-into-sandbox"));
+  QVERIFY(!QFileInfo(Sandbox::map(TESTS_DATA_PATH "/world/world-only-to-be-copied-into-sandbox"))
+      .isWritable());
+  QCOMPARE(readAll(Sandbox::map(TESTS_DATA_PATH "/world/world-only-to-be-copied-into-sandbox"))
+      .trimmed(), QString("world/world-only-to-be-copied-into-sandbox"));
 
-  QVERIFY(!QFileInfo(TESTS_DATA_PATH "/world/sandbox-only").exists());
+  QVERIFY(!QFileInfo(Sandbox::map(TESTS_DATA_PATH "/world/sandbox-only")).exists());
 
 
-  Sandbox sandbox(TESTS_DATA_PATH "/sandbox",
+  Sandbox sandbox(Sandbox::map(TESTS_DATA_PATH "/sandbox"),
       Sandbox::UseAsSkeleton, Sandbox::ThisProcess | Sandbox::ChildProcesses);
-  sandbox.addWorldFiles(TESTS_DATA_PATH "/world", QDir::AllEntries,
+  sandbox.addWorldFiles(Sandbox::map(TESTS_DATA_PATH "/world"), QDir::AllEntries,
       QStringList() << "*-to-be-copied-into-sandbox");
   QVERIFY(sandbox.activate());
 
 
-  QCOMPARE(QDir(TESTS_DATA_PATH "/world").entryList(noHidden, QDir::Name),
+  QCOMPARE(QDir(Sandbox::map(TESTS_DATA_PATH "/world")).entryList(noHidden, QDir::Name),
       QStringList()
+      << "sandbox-only"
       << "world-and-sandbox"
-      << "world-only"
       << "world-only-to-be-copied-into-sandbox");
 
-  QVERIFY(!QFileInfo(TESTS_DATA_PATH "/world/world-only").isWritable());
-  QCOMPARE(readAll(TESTS_DATA_PATH "/world/world-only").trimmed(),
-      QString("world/world-only"));
+  QVERIFY(!QFileInfo(Sandbox::map(TESTS_DATA_PATH "/world/world-only")).exists());
 
-  QVERIFY(QFileInfo(TESTS_DATA_PATH "/world/world-and-sandbox").isWritable());
-  QCOMPARE(readAll(TESTS_DATA_PATH "/world/world-and-sandbox").trimmed(),
+  QVERIFY(QFileInfo(Sandbox::map(TESTS_DATA_PATH "/world/world-and-sandbox")).isWritable());
+  QCOMPARE(readAll(Sandbox::map(TESTS_DATA_PATH "/world/world-and-sandbox")).trimmed(),
       QString("sandbox/world-and-sandbox"));
 
-  QVERIFY(QFileInfo(TESTS_DATA_PATH "/world/world-only-to-be-copied-into-sandbox").isWritable());
-  QCOMPARE(readAll(TESTS_DATA_PATH "/world/world-only-to-be-copied-into-sandbox").trimmed(),
-      QString("world/world-only-to-be-copied-into-sandbox"));
+  QVERIFY(QFileInfo(Sandbox::map(TESTS_DATA_PATH "/world/world-only-to-be-copied-into-sandbox"))
+      .isWritable());
+  QCOMPARE(readAll(Sandbox::map(TESTS_DATA_PATH "/world/world-only-to-be-copied-into-sandbox"))
+      .trimmed(), QString("world/world-only-to-be-copied-into-sandbox"));
 
-  QVERIFY(QFileInfo(TESTS_DATA_PATH "/world/sandbox-only").exists());
-  QVERIFY(QFileInfo(TESTS_DATA_PATH "/world/sandbox-only").isWritable());
-  QCOMPARE(readAll(TESTS_DATA_PATH "/world/sandbox-only").trimmed(),
+  QVERIFY(QFileInfo(Sandbox::map(TESTS_DATA_PATH "/world/sandbox-only")).exists());
+  QVERIFY(QFileInfo(Sandbox::map(TESTS_DATA_PATH "/world/sandbox-only")).isWritable());
+  QCOMPARE(readAll(Sandbox::map(TESTS_DATA_PATH "/world/sandbox-only")).trimmed(),
       QString("sandbox/sandbox-only"));
 }
 
