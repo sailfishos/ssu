@@ -21,7 +21,7 @@
 
 void SsuUrlResolverTest::initTestCase(){
   setenv("LD_PRELOAD", qPrintable(QString("%1/libsandboxhook.so").arg(TESTS_PATH)), 1);
-  setenv("SSU_TESTS_SANDBOX", qPrintable(QString("%1/configroot").arg(TESTS_DATA_PATH)), 1);
+  setenv("SSU_SANDBOX_DIR", qPrintable(QString("%1/configroot").arg(TESTS_DATA_PATH)), 1);
 }
 
 void SsuUrlResolverTest::test_data(){

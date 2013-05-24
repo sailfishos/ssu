@@ -37,7 +37,7 @@
  * deactivated upon destruction.
  *
  * When constructed without arguments, path to sandbox directory is get from
- * @c SSU_TESTS_SANDBOX environment variable.
+ * @c SSU_SANDBOX_DIR environment variable.
  *
  * @attention When constructed without arguments, it is activated automatically
  * and failure to do so is reported with @c qFatal(), i.e., application will be
@@ -48,7 +48,7 @@
  * stay untouched.  Also see addWorldFiles().
  *
  * The argument @scopes allows to control if the sandbox will be used by this
- * process, its children processes (@c SSU_TESTS_SANDBOX environment variable
+ * process, its children processes (@c SSU_SANDBOX_DIR environment variable
  * will be exported), or both.
  */
 
@@ -56,7 +56,7 @@ Sandbox *Sandbox::s_activeInstance = 0;
 
 Sandbox::Sandbox()
   : m_defaultConstructed(true), m_usage(UseDirectly), m_scopes(ThisProcess),
-    m_sandboxPath(QProcessEnvironment::systemEnvironment().value("SSU_TESTS_SANDBOX")),
+    m_sandboxPath(QProcessEnvironment::systemEnvironment().value("SSU_SANDBOX_DIR")),
     m_prepared(false){
   if (!activate()){
     qFatal("%s: Failed to activate", Q_FUNC_INFO);
@@ -93,7 +93,7 @@ bool Sandbox::activate(){
   }
 
   if (m_scopes & ChildProcesses){
-    setenv("SSU_TESTS_SANDBOX", qPrintable(m_workingSandboxDir.path()), 1);
+    setenv("SSU_SANDBOX_DIR", qPrintable(m_workingSandboxDir.path()), 1);
   }
 
   s_activeInstance = this;
@@ -104,7 +104,7 @@ void Sandbox::deactivate(){
   Q_ASSERT(isActive());
 
   if (m_scopes & ChildProcesses){
-    unsetenv("SSU_TESTS_SANDBOX");
+    unsetenv("SSU_SANDBOX_DIR");
   }
 
   s_activeInstance = 0;
