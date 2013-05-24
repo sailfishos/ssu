@@ -9,9 +9,7 @@
 
 #include <stdlib.h>
 
-#include <QtCore/QAbstractFileEngineHandler>
 #include <QtCore/QDir>
-#include <QtCore/QFSFileEngine>
 #include <QtCore/QFileInfo>
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QSet>
@@ -19,28 +17,20 @@
 #include "libssu/ssucoreconfig.h"
 #include "constants.h"
 
-class Sandbox::FileEngineHandler : public QAbstractFileEngineHandler {
-  public:
-    FileEngineHandler(const QString &sandboxPath, const QSet<QString> &overlayEnabledDirectories);
-
-    bool isDirectoryOverlayEnabled(const QString &path) const;
-
-  public:
-    // QAbstractFileEngineHandler
-    QAbstractFileEngine *create(const QString &fileName) const;
-
-  private:
-    const QString m_sandboxPath;
-    QSet<QString> m_overlayEnabledDirectories;
-};
-
 /**
  * @class Sandbox
- * @brief Simple sandboxing with Qt file system abstraction.
+ * @brief Helps to redirect file operations into sandbox directory
  *
- * Redirects all file operations on selected files to files under sandbox
- * directory. The term <em>world files</em> is used to reffer files outside
- * sandbox.
+ * The term <em>world files</em> is used to reffer files outside sandbox.
+ *
+ * To write a sandbox aware code, simply use the map() function to process paths
+ * before accessing them.
+ *
+ * @code
+ * QFile data(Sandbox::map("/usr/share/my_app/data"));
+ * data.open();
+ * ...
+ * @endcode
  *
  * Its effect is controlled by activate() and deactivate() calls. Only one
  * Sandbox instance can be active at any time. Active sandbox is automatically
@@ -60,11 +50,6 @@ class Sandbox::FileEngineHandler : public QAbstractFileEngineHandler {
  * The argument @scopes allows to control if the sandbox will be used by this
  * process, its children processes (@c SSU_TESTS_SANDBOX environment variable
  * will be exported), or both.
- *
- * Internally it is based on QAbstractFileEngineHandler.
- *
- * @attention QDir lists entries presented in the world directory.  The behavior
- * changed with Qt 4.8.0 (Qt commit b9b55234a777c3b206332bafbe227e1355ca9186)
  */
 
 Sandbox *Sandbox::s_activeInstance = 0;
@@ -72,7 +57,7 @@ Sandbox *Sandbox::s_activeInstance = 0;
 Sandbox::Sandbox()
   : m_defaultConstructed(true), m_usage(UseDirectly), m_scopes(ThisProcess),
     m_sandboxPath(QProcessEnvironment::systemEnvironment().value("SSU_TESTS_SANDBOX")),
-    m_prepared(false), m_handler(0){
+    m_prepared(false){
   if (!activate()){
     qFatal("%s: Failed to activate", Q_FUNC_INFO);
   }
@@ -80,7 +65,7 @@ Sandbox::Sandbox()
 
 Sandbox::Sandbox(const QString &sandboxPath, Usage usage, Scopes scopes)
   : m_defaultConstructed(false), m_usage(usage), m_scopes(scopes),
-    m_sandboxPath(sandboxPath), m_prepared(false), m_handler(0){
+    m_sandboxPath(sandboxPath), m_prepared(false){
   Q_ASSERT(!sandboxPath.isEmpty());
 }
 
@@ -107,12 +92,8 @@ bool Sandbox::activate(){
     return false;
   }
 
-  if (m_scopes & ThisProcess){
-    m_handler = new FileEngineHandler(m_workingSandboxPath, m_overlayEnabledDirectories);
-  }
-
   if (m_scopes & ChildProcesses){
-    setenv("SSU_TESTS_SANDBOX", qPrintable(m_workingSandboxPath), 1);
+    setenv("SSU_TESTS_SANDBOX", qPrintable(m_workingSandboxDir.path()), 1);
   }
 
   s_activeInstance = this;
@@ -122,15 +103,25 @@ bool Sandbox::activate(){
 void Sandbox::deactivate(){
   Q_ASSERT(isActive());
 
-  if (m_scopes & ThisProcess){
-    delete m_handler;
-  }
-
   if (m_scopes & ChildProcesses){
     unsetenv("SSU_TESTS_SANDBOX");
   }
 
   s_activeInstance = 0;
+}
+
+QDir Sandbox::effectiveRootDir()
+{
+  return s_activeInstance != 0 && s_activeInstance->m_scopes & ThisProcess
+    ? s_activeInstance->m_workingSandboxDir
+    : QDir::root();
+}
+
+QString Sandbox::map(const QString &fileName)
+{
+  return effectiveRootDir().filePath(
+      QDir::root().relativeFilePath(
+        QFileInfo(fileName).absoluteFilePath()));
 }
 
 /**
@@ -142,17 +133,14 @@ bool Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
     const QStringList &filterNames){
   Q_ASSERT(!isActive());
   Q_ASSERT(!directory.isEmpty());
-  Q_ASSERT(directory.startsWith('/'));
-  Q_ASSERT(!directory.contains(':')); // separator in environment variable
-  Q_ASSERT(!directory.contains("/./") && !directory.endsWith("/.")
-      && !directory.contains("/../") && !directory.endsWith("/..")
-      && !directory.contains("//"));
 
   if (!prepare()){
     return false;
   }
 
-  const QString sandboxedDirectory = m_workingSandboxPath + directory;
+  const QString sandboxedDirectory = m_workingSandboxDir.filePath(
+      QDir::root().relativeFilePath(
+        QFileInfo(directory).absoluteFilePath()));
 
   if (!QFileInfo(directory).exists()){
     qWarning("%s: Directory does not exist: '%s'", Q_FUNC_INFO, qPrintable(directory));
@@ -184,7 +172,7 @@ bool Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
 
   foreach (const QFileInfo &worldEntryInfo, QDir(directory).entryInfoList(filterNames, filters)){
 
-    const QFileInfo sandboxEntryInfo(sandboxedDirectory + '/' + worldEntryInfo.fileName());
+    const QFileInfo sandboxEntryInfo(QDir(sandboxedDirectory).filePath(worldEntryInfo.fileName()));
 
     if (worldEntryInfo.isDir()){
       if (!sandboxEntryInfo.exists()){
@@ -212,8 +200,6 @@ bool Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
       }
     }
   }
-
-  m_overlayEnabledDirectories.insert(directory);
 
   return true;
 }
@@ -258,58 +244,18 @@ bool Sandbox::prepare(){
       return false;
     }
 
-    const QString sandboxCopyPath = QString("%1/configroot").arg(m_tempDir);
+    const QString sandboxCopyPath = QDir(m_tempDir).filePath("configroot");
 
     if (QProcess::execute("cp", QStringList() << "-r" << m_sandboxPath << sandboxCopyPath) != 0){
       qWarning("%s: Failed to copy sandbox directory", Q_FUNC_INFO);
       return false;
     }
 
-    m_workingSandboxPath = sandboxCopyPath;
+    m_workingSandboxDir = QDir(sandboxCopyPath);
   } else{
-    m_workingSandboxPath = m_sandboxPath;
+    m_workingSandboxDir = QDir(m_sandboxPath);
   }
 
   m_prepared = true;
   return true;
-}
-
-/*
- * @class Sandbox::FileEngineHandler
- */
-
-Sandbox::FileEngineHandler::FileEngineHandler(const QString &sandboxPath,
-    const QSet<QString> &overlayEnabledDirectories):
-  m_sandboxPath(sandboxPath), m_overlayEnabledDirectories(overlayEnabledDirectories){
-  Q_ASSERT(!sandboxPath.isEmpty());
-}
-
-bool Sandbox::FileEngineHandler::isDirectoryOverlayEnabled(const QString &path) const{
-  return m_overlayEnabledDirectories.contains(path);
-}
-
-QAbstractFileEngine *Sandbox::FileEngineHandler::create(const QString &fileName) const{
-  Q_ASSERT(!m_sandboxPath.isEmpty());
-
-  if (!fileName.startsWith('/')){
-    return 0;
-  }
-
-  const QString sandboxedFileName = m_sandboxPath + fileName;
-  QScopedPointer<QFSFileEngine> sandboxedFileEngine(new QFSFileEngine(sandboxedFileName));
-
-  const QAbstractFileEngine::FileFlags flags = sandboxedFileEngine->fileFlags(
-      QAbstractFileEngine::ExistsFlag | QAbstractFileEngine::DirectoryType);
-
-  if (!(flags & QAbstractFileEngine::ExistsFlag)){
-    return 0;
-  }
-
-  if (flags & QAbstractFileEngine::DirectoryType){
-    if (!isDirectoryOverlayEnabled(fileName)){
-      return 0;
-    }
-  }
-
-  return sandboxedFileEngine.take();
 }

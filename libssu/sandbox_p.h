@@ -13,8 +13,6 @@
 #include <QtCore/QString>
 
 class Sandbox {
-  class FileEngineHandler;
-
   public:
     enum Usage {
       UseDirectly,
@@ -36,6 +34,9 @@ class Sandbox {
     void deactivate();
     bool isActive() const;
 
+    static QDir effectiveRootDir();
+    static QString map(const QString &fileName);
+
     bool addWorldFiles(const QString &directory, QDir::Filters filters = QDir::NoFilter,
         const QStringList &filterNames = QStringList());
     bool addWorldFile(const QString &file);
@@ -51,9 +52,7 @@ class Sandbox {
     const QString m_sandboxPath;
     bool m_prepared;
     QString m_tempDir;
-    QString m_workingSandboxPath;
-    QSet<QString> m_overlayEnabledDirectories;
-    FileEngineHandler *m_handler;
+    QDir m_workingSandboxDir;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Sandbox::Scopes)
