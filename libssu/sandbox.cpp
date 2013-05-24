@@ -238,16 +238,8 @@ bool Sandbox::prepare(){
   }
 
   if (m_usage == UseAsSkeleton){
-    QProcess mktemp;
-    mktemp.start("mktemp", QStringList() << "-t" << "-d" << "ssu-sandbox.XXX");
-    if (!mktemp.waitForFinished() || mktemp.exitCode() != 0){
+    if (m_tempDir = createTmpDir("ssu-sandbox.%1"), m_tempDir.isEmpty()){
       qWarning("%s: Failed to create sandbox directory", Q_FUNC_INFO);
-      return false;
-    }
-
-    m_tempDir = mktemp.readAllStandardOutput().trimmed();
-    if (!QFileInfo(m_tempDir).isDir()){
-      qWarning("%s: Temporary directory disappeared: '%s'", Q_FUNC_INFO, qPrintable(m_tempDir));
       return false;
     }
 
@@ -265,6 +257,25 @@ bool Sandbox::prepare(){
 
   m_prepared = true;
   return true;
+}
+
+QString Sandbox::createTmpDir(const QString &nameTemplate){
+  static const int REASONABLE_REPEAT_COUNT = 10;
+
+  for (int i = 0; i < REASONABLE_REPEAT_COUNT; ++i){
+    QString path;
+    int suffix = 0;
+    do{
+      path = QDir::temp().filePath(nameTemplate.arg(++suffix));
+    }while(QFileInfo(path).exists());
+
+    if (QDir().mkpath(path)){
+      return path;
+    }
+  }
+
+  qWarning("%s: Failed to create temporary directory", Q_FUNC_INFO);
+  return QString();
 }
 
 bool Sandbox::copyDir(const QString &directory, const QString &newName){

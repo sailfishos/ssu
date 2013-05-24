@@ -43,6 +43,7 @@ class Sandbox {
 
   private:
     bool prepare();
+    static QString createTmpDir(const QString &nameTemplate);
     static bool copyDir(const QString &directory, const QString &newName);
 
   private:
