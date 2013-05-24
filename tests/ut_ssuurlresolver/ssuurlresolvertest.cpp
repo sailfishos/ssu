@@ -12,6 +12,8 @@
 
 #include <QtTest/QtTest>
 
+#include "libssu/sandbox_p.h"
+
 /**
  * @class SsuUrlResolverTest
  * @brief Tests libzypp UrlResolverPlugin plugin compatibility
@@ -20,8 +22,17 @@
  */
 
 void SsuUrlResolverTest::initTestCase(){
+  m_sandbox = new Sandbox(QString("%1/configroot").arg(TESTS_DATA_PATH),
+      Sandbox::UseDirectly, Sandbox::ChildProcesses);
+  if (!m_sandbox->activate()){
+    QFAIL("Failed to activate sandbox");
+  }
   setenv("LD_PRELOAD", qPrintable(QString("%1/libsandboxhook.so").arg(TESTS_PATH)), 1);
-  setenv("SSU_SANDBOX_DIR", qPrintable(QString("%1/configroot").arg(TESTS_DATA_PATH)), 1);
+}
+
+void SsuUrlResolverTest::cleanupTestCase(){
+  delete m_sandbox;
+  m_sandbox = 0;
 }
 
 void SsuUrlResolverTest::test_data(){
