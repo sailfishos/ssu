@@ -27,7 +27,6 @@ class SsuKickstarter {
 
   private:
     QHash<QString, QString> repoOverride;
-    QString pathPrefix;
     Ssu ssu;
     bool rndMode;
     QString deviceModel;
