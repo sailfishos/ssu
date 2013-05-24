@@ -49,31 +49,12 @@ void SsuKs::run(){
       sandbox = repoParameters.value("sandbox");
       repoParameters.remove("sandbox");
 
-
-      // copy files into sandbox
-      QDirIterator it(SSU_DATA_DIR, QDir::AllEntries|QDir::NoDot|QDir::NoDotDot, QDirIterator::Subdirectories);
-      while (it.hasNext()){
-        it.next();
-
-        if (it.fileName() == "board-mappings.ini")
-          continue;
-
-        QDir dir;
-        QFileInfo info = it.fileInfo();
-
-        dir.mkpath(sandbox + info.absoluteDir().path());
-        QFile::copy(it.filePath(), sandbox + it.filePath());
-      }
-
-      QFile::remove(sandbox + "/" + SSU_BOARD_MAPPING_CONFIGURATION);
-      SsuSettings boardMappings(QString("%1/%2")
-                                .arg(sandbox)
-                                .arg(SSU_BOARD_MAPPING_CONFIGURATION),
-                                QString("%1/%2")
-                                .arg(sandbox)
-                                .arg(SSU_BOARD_MAPPING_CONFIGURATION_DIR));
-
       sb = new Sandbox(sandbox, Sandbox::UseDirectly, Sandbox::ThisProcess);
+
+      if (!sb->addWorldFiles(SSU_DATA_DIR)){
+        qout << "Failed to copy files into sandbox" << endl;
+        return;
+      }
 
       if (sb->activate())
         qout << "Using sandbox at " << sandbox << endl;
@@ -81,6 +62,10 @@ void SsuKs::run(){
         qout << "Failed to activate sandbox" << endl;
         return;
       }
+
+      // force re-merge of settings
+      QFile::remove(Sandbox::map(SSU_BOARD_MAPPING_CONFIGURATION));
+      SsuSettings(SSU_BOARD_MAPPING_CONFIGURATION, SSU_BOARD_MAPPING_CONFIGURATION_DIR);
     }
 
     SsuKickstarter kickstarter;
