@@ -130,7 +130,7 @@ QString Sandbox::map(const QString &fileName)
  * @c QDir::NoDotAndDotDot is always added into @a filters.
  */
 bool Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
-    const QStringList &filterNames){
+    const QStringList &filterNames, bool recurse){
   Q_ASSERT(!isActive());
   Q_ASSERT(!directory.isEmpty());
 
@@ -185,6 +185,12 @@ bool Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
           qWarning("%s: Failed to create sandboxed copy '%s': Is not a directory", Q_FUNC_INFO,
               qPrintable(sandboxEntryInfo.filePath()));
           return false;
+      }
+
+      if (recurse){
+        if (!addWorldFiles(worldEntryInfo.absoluteFilePath(), filters, filterNames, true)){
+          return false;
+        }
       }
     } else{
       if (!sandboxEntryInfo.exists()){
