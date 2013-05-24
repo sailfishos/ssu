@@ -41,7 +41,7 @@ void SsuUrlResolverTest::test_data(){
 
   QTest::newRow("basic")
     << "plugin:ssu?repo=mer-core&debug&arch=i586"
-    << "https://packages.testing.com//mer/i586/debug/?credentials=example";
+    << "https://packages.testing.com//mer/i586/debug/";
 }
 
 void SsuUrlResolverTest::test(){
