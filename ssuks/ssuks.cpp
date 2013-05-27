@@ -25,6 +25,7 @@ void SsuKs::run(){
   arguments.removeFirst();
 
   QTextStream qout(stdout);
+  QTextStream qerr(stderr);
   QHash<QString, QString> repoParameters;
 
   QString fileName;
@@ -37,6 +38,7 @@ void SsuKs::run(){
     for (int i=0; i<arguments.count(); i++){
       if (arguments.at(i).count("=") != 1){
         qout << "Invalid flag: " << arguments.at(i) << endl;
+        QCoreApplication::exit(1);
         return;
       }
       QStringList split = arguments.at(i).split("=");
@@ -52,14 +54,14 @@ void SsuKs::run(){
       sb = new Sandbox(sandbox, Sandbox::UseDirectly, Sandbox::ThisProcess);
 
       if (!sb->addWorldFiles(SSU_DATA_DIR)){
-        qout << "Failed to copy files into sandbox" << endl;
-        return;
+        qerr << "Failed to copy files into sandbox, using empty sandbox" << endl;
       }
 
       if (sb->activate())
-        qout << "Using sandbox at " << sandbox << endl;
+        qerr << "Using sandbox at " << sandbox << endl;
       else {
-        qout << "Failed to activate sandbox" << endl;
+        qerr << "Failed to activate sandbox" << endl;
+        QCoreApplication::exit(1);
         return;
       }
 
