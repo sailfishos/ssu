@@ -144,11 +144,10 @@ bool Sandbox::addWorldFiles(const QString &directory, QDir::Filters filters,
         QFileInfo(directory).absoluteFilePath()));
 
   if (!QFileInfo(directory).exists()){
-    qWarning("%s: Directory does not exist: '%s'", Q_FUNC_INFO, qPrintable(directory));
-    return false;
-  }
-
-  if (!QFileInfo(directory).isDir()){
+    // Accept missing world directory - allow to create directories inside sandbox
+    qDebug("%s: Directory does not exist - an empty one will be created instead of copied: '%s'",
+        Q_FUNC_INFO, qPrintable(directory));
+  } else if (!QFileInfo(directory).isDir()){
     qWarning("%s: Is not a directory: '%s'", Q_FUNC_INFO, qPrintable(directory));
     return false;
   }
