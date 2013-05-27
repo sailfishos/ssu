@@ -148,7 +148,7 @@ QStringList SsuKickstarter::scriptletSection(QString name, bool chroot){
                                          QDir::Name);
 
   foreach (const QString &scriptlet, scriptlets){
-    QFile file(path + scriptlet);
+    QFile file(dir.filePath(scriptlet));
     result.append("### begin " + scriptlet);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
       QTextStream in(&file);
