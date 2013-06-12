@@ -1,6 +1,7 @@
 #!/bin/sh
 
 if [ -z "$MIC_RUN" ]; then
+    touch /usr/share/ssu/board-mappings.d/*.ini
     /usr/bin/ssu updaterepos
 else
     exit 1
