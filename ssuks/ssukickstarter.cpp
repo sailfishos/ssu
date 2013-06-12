@@ -59,14 +59,20 @@ QStringList SsuKickstarter::repos(){
 
   foreach (const QString &repo, repos){
     QString repoUrl = ssu.repoUrl(repo, rndMode, QHash<QString, QString>(), repoOverride);
-    if (repo.startsWith("adaptation"))
+    // Adaptation repos need to have separate naming so that when images are done
+    // the repository caches will not be mixed with each other.
+    if (repo.startsWith("adaptation")) {
+      // make sure device model doesn't introduce spaces to the reponame
+      QString deviceModelTmp = deviceModel;
+      deviceModelTmp.replace(" ","-");
       result.append(QString("repo --name=%1-%2-%3 --baseurl=%4")
                     .arg(repo)
-                    .arg(deviceModel)
+                    .arg(deviceModelTmp)
                     .arg((rndMode ? repoOverride.value("rndRelease")
                           : repoOverride.value("release")))
                     .arg(repoUrl)
         );
+    }
     else
       result.append(QString("repo --name=%1-%2 --baseurl=%3")
                     .arg(repo)
@@ -231,7 +237,7 @@ bool SsuKickstarter::write(QString kickstart){
     if (repoOverride.contains("filename")){
       QString fileName = QString("%1%2")
                                  .arg(outputDir)
-                                 .arg(var.resolveString(repoOverride.value("filename"), &repoOverride));
+                                 .arg(var.resolveString(repoOverride.value("filename"), &repoOverride).replace(" ","-"));
 
       ks.setFileName(fileName);
       opened = ks.open(QIODevice::WriteOnly);
