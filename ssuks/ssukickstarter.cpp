@@ -136,8 +136,6 @@ QStringList SsuKickstarter::packages(){
     .arg(deviceModel);
   result.append(configuration);
 
-  // check if there's a kernel, and if so, append it as well
-
   result.sort();
   result.removeDuplicates();
   result.prepend("%packages");

@@ -15,10 +15,6 @@
 #include "libssu/ssudeviceinfo.h"
 #include "libssu/ssu.h"
 
-/*
-class Q_CORE_EXPORT SsuKickstarter: public QObject {
-    Q_OBJECT
-*/
 class SsuKickstarter {
   public:
     SsuKickstarter();

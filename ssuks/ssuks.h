@@ -13,7 +13,6 @@
 
 class SsuKs: public QObject {
     Q_OBJECT
-//class SsuKs {
 
   public:
     SsuKs(){};
