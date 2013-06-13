@@ -337,6 +337,26 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
   return result;
 }
 
+QVariant SsuDeviceInfo::variable(QString section, const QString &key){
+  if (!section.startsWith("var-"))
+    section = "var-" + section;
+
+  if (boardMappings->contains(section + "/" + key)){
+    return boardMappings->value(section + "/" + key);
+  }
+
+  if (boardMappings->contains(section + "/variables")){
+    QStringList sections = boardMappings->value(section + "/variables").toStringList();
+    foreach(const QString &section, sections){
+      QVariant value = variable(section, key);
+      if (value.type() != QMetaType::UnknownType)
+        return value;
+    }
+  }
+
+  return QVariant();
+}
+
 void SsuDeviceInfo::variableSection(QString section, QHash<QString, QString> *storageHash){
   if (!section.startsWith("var-"))
     section = "var-" + section;

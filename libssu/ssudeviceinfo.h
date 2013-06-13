@@ -72,11 +72,17 @@ class SsuDeviceInfo: public QObject {
      */
     Q_INVOKABLE void setDeviceModel(QString model="");
     /**
+     * Return a variable from the given variable section. 'var'- is automatically
+     * prepended to the section name if not specified already. Recursive search
+     * through several variable sections (specified in the section) is supported,
+     * returned will be the first occurence of the variable.
+     */
+    QVariant variable(QString section, const QString &key);
+    /**
      * Return the requested variable section. 'var-' is automatically
      * prepended to the section name if not specified already.
      */
     void variableSection(QString section, QHash<QString, QString> *storageHash);
-
     /**
      * Return a value from an adaptation section. Returns an empty string
      * or a given default value if key does not exist.
