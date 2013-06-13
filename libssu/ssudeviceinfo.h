@@ -37,7 +37,15 @@ class SsuDeviceInfo: public QObject {
      */
     QString adaptationVariables(const QString &adaptationName, QHash<QString, QString> *storageHash);
     /**
-     * Try to find the device family for the system this is running on
+     * Check if a given model is available in the deviceinfo database, either directly,
+     * or as variant. If no model is provided as argument the autodetected or previously
+     * set model is used.
+     */
+    bool contains(const QString &model="");
+    /**
+     * Try to find the device family for the system this is running on. This function
+     * temporarily changes the detected model, and therefore should not be used in a
+     * multithreaded environment, unless you like funny results.
      */
     Q_INVOKABLE QString deviceFamily();
     /**
@@ -93,5 +101,7 @@ class SsuDeviceInfo: public QObject {
   private:
     SsuSettings *boardMappings;
     QString cachedFamily, cachedModel, cachedVariant;
+
+    void clearCache();
 };
 #endif

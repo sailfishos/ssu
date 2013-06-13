@@ -95,6 +95,33 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
   return adaptationName;
 }
 
+void SsuDeviceInfo::clearCache(){
+  cachedFamily = "";
+  cachedModel = "";
+  cachedVariant = "";
+}
+
+bool SsuDeviceInfo::contains(const QString &model){
+  QString oldModel = deviceModel();
+  bool found = false;
+
+  if (!model.isEmpty()){
+    clearCache();
+    setDeviceModel(model);
+  }
+
+  if (!deviceVariant(false).isEmpty())
+    found = true;
+  if (boardMappings->childGroups().contains(deviceModel()))
+    found = true;
+
+  if (!model.isEmpty()){
+    clearCache();
+    setDeviceModel(oldModel);
+  }
+  return found;
+}
+
 QString SsuDeviceInfo::deviceFamily(){
   if (!cachedFamily.isEmpty())
     return cachedFamily;
