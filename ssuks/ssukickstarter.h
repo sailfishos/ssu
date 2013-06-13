@@ -31,8 +31,10 @@ class SsuKickstarter {
     bool rndMode;
     QString deviceModel;
     QStringList commands();
+    /// read a command section from file system
+    QStringList commandSection(const QString &section, const QString &description="");
     QStringList packages();
-    QStringList partitions();
+    QString replaceSpaces(const QString &value);
     QStringList repos();
     QStringList scriptletSection(QString name, bool chroot=true);
 };

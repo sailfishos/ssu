@@ -72,7 +72,8 @@ void SsuKs::run(){
 
     SsuKickstarter kickstarter;
     kickstarter.setRepoParameters(repoParameters);
-    kickstarter.write(fileName);
+    QCoreApplication::exit(!kickstarter.write(fileName));
+    return;
   } else
     usage();
 
@@ -83,8 +84,9 @@ void SsuKs::usage(){
   QTextStream qout(stdout);
   qout << "\nUsage: ssuks <filename> <flags>" << endl
        << endl
-       << "Flags are in the form key=value. 'model', 'rnd' and 'sandbox' keys have special meanings." << endl
+       << "Flags are in the form key=value. 'model', 'force', 'rnd' and 'sandbox' keys have special meanings." << endl
        << "To do a kickstart for N9 do 'ssuks model=N9'" << endl
+       << "To force generating a kickstart for a non-existant device add force=true" << endl
        << endl;
   qout.flush();
   QCoreApplication::exit(1);

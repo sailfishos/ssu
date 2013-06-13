@@ -51,6 +51,51 @@ QStringList SsuKickstarter::commands(){
   return result;
 }
 
+QStringList SsuKickstarter::commandSection(const QString &section, const QString &description){
+  QStringList result;
+  SsuDeviceInfo deviceInfo(deviceModel);
+  QString commandFile;
+  QFile part;
+
+  QDir dir(Sandbox::map(QString("/%1/kickstart/%2/")
+                        .arg(SSU_DATA_DIR)
+                        .arg(section)));
+
+  if (dir.exists(replaceSpaces(deviceModel.toLower())))
+    commandFile = replaceSpaces(deviceModel.toLower());
+  else if (dir.exists(replaceSpaces(deviceInfo.deviceVariant(true).toLower())))
+    commandFile = replaceSpaces(deviceInfo.deviceVariant(true).toLower());
+  else if (dir.exists("default"))
+    commandFile = "default";
+  else {
+    if (description.isEmpty())
+      result.append("## No suitable configuration found in " + dir.path());
+    else
+      result.append("## No configuration for " + description + " found.");
+    return result;
+  }
+
+  QFile file(dir.path() + "/" + commandFile);
+
+  if (description.isEmpty())
+    result.append("### Commands from " + dir.path() + "/" + commandFile);
+  else
+    result.append("### " + description + " from " + commandFile);
+
+  if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
+    QTextStream in(&file);
+    while (!in.atEnd())
+      result.append(in.readLine());
+  }
+
+  return result;
+}
+
+QString SsuKickstarter::replaceSpaces(const QString &value){
+  QString retval = value;
+  return retval.replace(" ", "_");
+}
+
 QStringList SsuKickstarter::repos(){
   QStringList result;
   SsuDeviceInfo deviceInfo(deviceModel);
@@ -62,12 +107,9 @@ QStringList SsuKickstarter::repos(){
     // Adaptation repos need to have separate naming so that when images are done
     // the repository caches will not be mixed with each other.
     if (repo.startsWith("adaptation")) {
-      // make sure device model doesn't introduce spaces to the reponame
-      QString deviceModelTmp = deviceModel;
-      deviceModelTmp.replace(" ","-");
       result.append(QString("repo --name=%1-%2-%3 --baseurl=%4")
                     .arg(repo)
-                    .arg(deviceModelTmp)
+                    .arg(replaceSpaces(deviceModel))
                     .arg((rndMode ? repoOverride.value("rndRelease")
                           : repoOverride.value("release")))
                     .arg(repoUrl)
@@ -100,37 +142,6 @@ QStringList SsuKickstarter::packages(){
   result.removeDuplicates();
   result.prepend("%packages");
   result.append("%end");
-  return result;
-}
-
-QStringList SsuKickstarter::partitions(){
-  QStringList result;
-  SsuDeviceInfo deviceInfo(deviceModel);
-  QString partitionFile;
-  QFile part;
-
-  QDir dir(Sandbox::map(QString("/%1/kickstart/part/")
-           .arg(SSU_DATA_DIR)));
-
-  if (dir.exists(deviceModel.toLower()))
-    partitionFile = deviceModel.toLower();
-  else if (dir.exists(deviceInfo.deviceVariant(true).toLower()))
-    partitionFile = deviceInfo.deviceVariant(true).toLower();
-  else if (dir.exists("default"))
-    partitionFile = "default";
-  else {
-    result.append("## No partition configuration found.");
-    return result;
-  }
-
-  QFile file(dir.path() + "/" + partitionFile);
-  result.append("### partition setup from " + partitionFile);
-  if (file.open(QIODevice::ReadOnly | QIODevice::Text)){
-    QTextStream in(&file);
-    while (!in.atEnd())
-      result.append(in.readLine());
-  }
-
   return result;
 }
 
@@ -192,6 +203,12 @@ bool SsuKickstarter::write(QString kickstart){
   SsuDeviceInfo deviceInfo(deviceModel);
   SsuRepoManager repoManager;
   SsuVariables var;
+  QStringList commandSections;
+
+  // initialize with default 'part' for compatibility, as partitions
+  // used to work without configuration. It'll get replaced with
+  // configuration values, if found
+  commandSections.append("part");
 
   // rnd mode should not come from the defaults
   if (repoOverride.contains("rnd")){
@@ -208,6 +225,11 @@ bool SsuKickstarter::write(QString kickstart){
 
   // overwrite with kickstart defaults
   deviceInfo.variableSection("kickstart-defaults", &defaults);
+  if (deviceInfo.variable("kickstart-defaults", "commandSections")
+      .canConvert(QMetaType::QStringList)){
+    commandSections =
+      deviceInfo.variable("kickstart-defaults", "commandSections").toStringList();
+  }
 
   QHash<QString, QString>::const_iterator it = defaults.constBegin();
   while (it != defaults.constEnd()){
@@ -229,6 +251,23 @@ bool SsuKickstarter::write(QString kickstart){
   if (!repoOverride.contains("deviceModel"))
     repoOverride.insert("deviceModel", deviceInfo.deviceModel());
 
+  // do sanity checking on the model
+  if (deviceInfo.contains() == false) {
+    qerr << "Device model '" << deviceInfo.deviceModel() << "' does not exist" << endl;
+
+    if (repoOverride.value("force") != "true")
+      return false;
+  }
+
+  QRegExp regex(" {2,}", Qt::CaseSensitive, QRegExp::RegExp2);
+  if (regex.indexIn(deviceInfo.deviceModel(), 0) != -1){
+    qerr << "Device model '" << deviceInfo.deviceModel()
+         << "' contains multiple consecutive spaces." << endl;
+    if (deviceInfo.contains())
+      qerr << "Since the model exists it looks like your configuration is broken." << endl;
+    return false;
+  }
+
   bool opened = false;
   QString outputDir = repoOverride.value("outputdir");
   if (!outputDir.isEmpty()) outputDir.append("/");
@@ -236,8 +275,9 @@ bool SsuKickstarter::write(QString kickstart){
   if (kickstart.isEmpty()){
     if (repoOverride.contains("filename")){
       QString fileName = QString("%1%2")
-                                 .arg(outputDir)
-                                 .arg(var.resolveString(repoOverride.value("filename"), &repoOverride).replace(" ","-"));
+        .arg(outputDir)
+        .arg(replaceSpaces(var.resolveString(repoOverride.value("filename"),
+                                             &repoOverride)));
 
       ks.setFileName(fileName);
       opened = ks.open(QIODevice::WriteOnly);
@@ -267,9 +307,10 @@ bool SsuKickstarter::write(QString kickstart){
 
   kout.setDevice(&ks);
   kout << displayName << endl << endl;
-
   kout << commands().join("\n") << endl << endl;
-  kout << partitions().join("\n") << endl << endl;
+  foreach (const QString &section, commandSections){
+    kout << commandSection(section).join("\n") << endl << endl;
+  }
   kout << repos().join("\n") << endl << endl;
   kout << packages().join("\n") << endl << endl;
   kout << scriptletSection("pre", true).join("\n") << endl << endl;
