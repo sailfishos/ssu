@@ -132,7 +132,7 @@ QStringList SsuKickstarter::packages(){
 
   // insert @vendor configuration device
   QString configuration = QString("@%1 Configuration %2")
-    .arg("Jolla")
+    .arg(repoOverride.value("brand"))
     .arg(deviceModel);
   result.append(configuration);
 
@@ -263,6 +263,11 @@ bool SsuKickstarter::write(QString kickstart){
          << "' contains multiple consecutive spaces." << endl;
     if (deviceInfo.contains())
       qerr << "Since the model exists it looks like your configuration is broken." << endl;
+    return false;
+  }
+
+  if (!repoOverride.contains("brand")){
+    qerr << "No brand set. Check your configuration." << endl;
     return false;
   }
 
