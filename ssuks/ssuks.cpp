@@ -28,54 +28,57 @@ void SsuKs::run(){
   QTextStream qerr(stderr);
   QHash<QString, QString> repoParameters;
 
+  if (arguments.count() == 1 && arguments.at(0) == "help"){
+    usage();
+    return;
+  }
+
   QString fileName;
   if (arguments.count() >= 1 && !arguments.at(0).contains("=")){
     fileName = arguments.at(0);
     arguments.removeFirst();
   }
 
-  if (arguments.count() >= 1){
-    for (int i=0; i<arguments.count(); i++){
-      if (arguments.at(i).count("=") != 1){
-        qout << "Invalid flag: " << arguments.at(i) << endl;
-        QCoreApplication::exit(1);
-        return;
-      }
-      QStringList split = arguments.at(i).split("=");
-      repoParameters.insert(split.at(0), split.at(1));
+  for (int i=0; i<arguments.count(); i++){
+    if (arguments.at(i).count("=") != 1){
+      qout << "Invalid flag: " << arguments.at(i) << endl;
+      QCoreApplication::exit(1);
+      return;
+    }
+    QStringList split = arguments.at(i).split("=");
+    repoParameters.insert(split.at(0), split.at(1));
+  }
+
+  QString sandbox;
+  Sandbox *sb;
+  if (repoParameters.contains("sandbox")){
+    sandbox = repoParameters.value("sandbox");
+    repoParameters.remove("sandbox");
+
+    sb = new Sandbox(sandbox, Sandbox::UseDirectly, Sandbox::ThisProcess);
+
+    if (!sb->addWorldFiles(SSU_DATA_DIR)){
+      qerr << "Failed to copy files into sandbox, using empty sandbox" << endl;
     }
 
-    QString sandbox;
-    Sandbox *sb;
-    if (repoParameters.contains("sandbox")){
-      sandbox = repoParameters.value("sandbox");
-      repoParameters.remove("sandbox");
-
-      sb = new Sandbox(sandbox, Sandbox::UseDirectly, Sandbox::ThisProcess);
-
-      if (!sb->addWorldFiles(SSU_DATA_DIR)){
-        qerr << "Failed to copy files into sandbox, using empty sandbox" << endl;
-      }
-
-      if (sb->activate())
-        qerr << "Using sandbox at " << sandbox << endl;
-      else {
-        qerr << "Failed to activate sandbox" << endl;
-        QCoreApplication::exit(1);
-        return;
-      }
-
-      // force re-merge of settings
-      QFile::remove(Sandbox::map(SSU_BOARD_MAPPING_CONFIGURATION));
-      SsuSettings(SSU_BOARD_MAPPING_CONFIGURATION, SSU_BOARD_MAPPING_CONFIGURATION_DIR);
+    if (sb->activate())
+      qerr << "Using sandbox at " << sandbox << endl;
+    else {
+      qerr << "Failed to activate sandbox" << endl;
+      QCoreApplication::exit(1);
+      return;
     }
 
-    SsuKickstarter kickstarter;
-    kickstarter.setRepoParameters(repoParameters);
-    QCoreApplication::exit(!kickstarter.write(fileName));
-    return;
-  } else
-    usage();
+    // force re-merge of settings
+    QFile::remove(Sandbox::map(SSU_BOARD_MAPPING_CONFIGURATION));
+    SsuSettings(SSU_BOARD_MAPPING_CONFIGURATION, SSU_BOARD_MAPPING_CONFIGURATION_DIR);
+  }
+
+  SsuKickstarter kickstarter;
+  kickstarter.setRepoParameters(repoParameters);
+  QCoreApplication::exit(!kickstarter.write(fileName));
+  return;
+
 
   QCoreApplication::exit(0);
 }

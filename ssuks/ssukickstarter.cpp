@@ -298,7 +298,8 @@ bool SsuKickstarter::write(QString kickstart){
   if (!opened) {
     qerr << "Unable to write output file " << ks.fileName() << ": " << ks.errorString() << endl;
     return false;
-  }
+  } else if (!ks.fileName().isEmpty())
+    qerr << "Writing kickstart to " << ks.fileName() << endl;
 
   QString displayName = QString("# DisplayName: %1 %2/%3 (%4) %5")
                                 .arg(repoOverride.value("brand"))
