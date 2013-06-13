@@ -377,28 +377,6 @@ void RndSsuCli::optRepos(QStringList opt){
   state = Idle;
 }
 
-void RndSsuCli::optResolve(QStringList opt){
-  /*
-   * resolve URL and print
-   * TODO: arguments
-   */
-
-  QString repo;
-  bool rndRepo=false;
-/*
-  repo = arguments.at(2);
-
-  if (arguments.count() >= 3){
-    //qout << (arguments.at(3).compare("false")||arguments.at(3).compare("0"));
-    qout << (arguments.at(3).compare("false"));
-  }
-
-  qout << ssu.repoUrl(arguments.at(2));
-  QCoreApplication::exit(1);
-*/
-
-}
-
 void RndSsuCli::optStatus(){
   QTextStream qout(stdout);
   SsuDeviceInfo deviceInfo;
@@ -478,8 +456,6 @@ void RndSsuCli::run(){
       optModifyRepo(Enable, arguments);
     else if (arguments.at(1) == "disablerepo" || arguments.at(1) == "dr")
       optModifyRepo(Disable, arguments);
-    else if (arguments.at(1) == "resolve")
-      optResolve(arguments);
     else
       state = UserError;
   } else

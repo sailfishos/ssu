@@ -37,7 +37,6 @@ class RndSsuCli: public QObject {
     void optRegister();
     void optRelease(QStringList opt);
     void optRepos(QStringList opt);
-    void optResolve(QStringList opt);
     void optStatus();
     void optUpdateCredentials(QStringList opt);
     void optUpdateRepos();
