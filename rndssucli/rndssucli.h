@@ -30,6 +30,7 @@ class RndSsuCli: public QObject {
     int state;
     void usage();
     void uidWarning(QString message="");
+    void optDomain(QStringList opt);
     void optFlavour(QStringList opt);
     void optMode(QStringList opt);
     void optModel(QStringList opt);

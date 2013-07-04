@@ -38,6 +38,23 @@ void RndSsuCli::handleResponse(){
   }
 }
 
+void RndSsuCli::optDomain(QStringList opt){
+  QTextStream qout(stdout);
+
+  if (opt.count() == 3 && opt.at(2) == "-s"){
+    qout << ssu.domain();
+    state = Idle;
+  } else if (opt.count() == 3){
+    qout << "Changing domain from " << ssu.domain()
+         << " to " << opt.at(2) << endl;
+    ssu.setDomain(opt.at(2));
+
+    state = Idle;
+  } else if (opt.count() == 2) {
+    qout << "Device domain is currently: " << ssu.domain() << endl;
+    state = Idle;
+  }
+}
 
 void RndSsuCli::optFlavour(QStringList opt){
   QTextStream qout(stdout);
@@ -475,7 +492,8 @@ void RndSsuCli::run(){
     optRelease(arguments);
   else if (arguments.at(1) == "update" || arguments.at(1) == "up")
     optUpdateCredentials(arguments);
-
+  else if (arguments.at(1) == "domain")
+    optDomain(arguments);
   // functions that need to wait for a response from ssu should set a flag so
   // we can do default exit catchall here
   if (state == Idle)
