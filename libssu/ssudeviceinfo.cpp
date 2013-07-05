@@ -375,6 +375,9 @@ QVariant SsuDeviceInfo::variable(QString section, const QString &key){
 }
 
 void SsuDeviceInfo::variableSection(QString section, QHash<QString, QString> *storageHash){
+  if (!section.startsWith("var-"))
+    section = "var-" + section;
+
   SsuVariables::variableSection(boardMappings, section, storageHash);
 }
 

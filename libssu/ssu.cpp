@@ -89,7 +89,7 @@ int Ssu::deviceMode(){
 
 QString Ssu::domain(){
   SsuCoreConfig *settings = SsuCoreConfig::instance();
-  return settings->domain();
+  return settings->domain(true);
 }
 
 bool Ssu::isRegistered(){

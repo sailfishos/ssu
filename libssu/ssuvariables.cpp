@@ -10,6 +10,7 @@
 #include <QStringRef>
 
 #include "ssuvariables.h"
+#include "ssulog.h"
 
 #include "../constants.h"
 
@@ -17,19 +18,20 @@ SsuVariables::SsuVariables(): QObject() {
 
 }
 
-void SsuVariables::resolveSection(QString section, QHash<QString, QString> *storageHash){
-  resolveSection(m_settings, section, storageHash);
-}
+QString SsuVariables::defaultSection(SsuSettings *settings, QString section){
+ QStringList parts = section.split("-");
 
-void SsuVariables::resolveSection(SsuSettings *settings, QString section, QHash<QString, QString> *storageHash){
-  QStringList repoVariables;
+ if (section.startsWith("var-"))
+   parts.insert(1, "default");
+ else
+   parts.replace(0, "default");
 
-  settings->beginGroup(section);
-  repoVariables = settings->allKeys();
-  foreach (const QString &key, repoVariables){
-    storageHash->insert(key, settings->value(key).toString());
-  }
-  settings->endGroup();
+ QString key = parts.join("-");
+
+ if (settings->childGroups().contains(key))
+   return key;
+ else
+   return "";
 }
 
 QString SsuVariables::resolveString(QString pattern, QHash<QString, QString> *variables, int recursionDepth){
@@ -167,22 +169,72 @@ void SsuVariables::variableSection(QString section, QHash<QString, QString> *sto
 }
 
 void SsuVariables::variableSection(SsuSettings *settings, QString section, QHash<QString, QString> *storageHash){
-  if (!section.startsWith("var-"))
-    section = "var-" + section;
+
+  QString dSection = defaultSection(settings, section);
+  if (dSection.isEmpty())
+    readSection(settings, section, storageHash, 0);
+  else {
+    readSection(settings, dSection, storageHash, 0);
+    readSection(settings, section, storageHash, 0, false);
+  }
+}
+
+
+// resolve a configuration section, recursively following all 'variables' sections.
+// variables which exist in more than one section will get overwritten when discovered
+// again
+// the section itself gets evaluated at the end, again having a chance to overwrite variables
+void SsuVariables::readSection(SsuSettings *settings, QString section,
+                               QHash<QString, QString> *storageHash, int recursionDepth,
+                               bool logOverride){
+  if (recursionDepth >= SSU_MAX_RECURSION){
+    SsuLog::instance()->print(LOG_WARNING,
+                              QString("Maximum recursion depth for resolving section %1 from %2")
+                                      .arg(section)
+                                      .arg(settings->fileName()));
+    return;
+  }
 
   if (settings->contains(section + "/variables")){
+    // child should log unless the parent is a default section
+    bool childLogOverride = true;
+    if (section.startsWith("default-") || section.startsWith("var-default-"))
+      childLogOverride = false;
+
     QStringList sections = settings->value(section + "/variables").toStringList();
-    foreach(const QString &section, sections)
-      variableSection(settings, section, storageHash);
-    return;
+    foreach(const QString &section, sections){
+      if (section.startsWith("var-"))
+        readSection(settings, section, storageHash, recursionDepth + 1, childLogOverride);
+      else
+        readSection(settings, "var-" + section, storageHash,
+                    recursionDepth + 1, childLogOverride);
+    }
   }
 
   settings->beginGroup(section);
   if (settings->group() != section)
     return;
 
+  QStringList locals;
+  if (settings->contains("local"))
+    locals = settings->value("local").toStringList();
+
   QStringList keys = settings->allKeys();
   foreach (const QString &key, keys){
+    // local variable
+    if (key.startsWith("_"))
+        continue;
+
+    if (locals.contains(key))
+      continue;
+
+    if (storageHash->contains(key) && logOverride){
+      SsuLog::instance()->print(LOG_DEBUG,
+                                QString("Variable %1 overwritten from %2::%3")
+                                .arg(key)
+                                .arg(settings->fileName())
+                                .arg(section));
+    }
     storageHash->insert(key, settings->value(key).toString());
   }
   settings->endGroup();

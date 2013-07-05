@@ -57,9 +57,12 @@ int SsuCoreConfig::deviceMode(){
     return value("deviceMode").toInt();
 }
 
-QString SsuCoreConfig::domain(){
+QString SsuCoreConfig::domain(bool pretty){
   if (contains("domain"))
-    return value("domain").toString();
+    if (pretty)
+      return value("domain").toString().replace(":", "-");
+    else
+      return value("domain").toString();
   else
     return "";
 }
@@ -117,7 +120,9 @@ void SsuCoreConfig::setRelease(QString release, bool rnd){
 }
 
 void SsuCoreConfig::setDomain(QString domain){
-  setValue("domain", domain);
+  // - in domain messes with default section autodetection,
+  // so change it to :
+  setValue("domain", domain.replace("-", ":"));
   sync();
 }
 

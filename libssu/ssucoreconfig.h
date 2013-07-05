@@ -58,9 +58,11 @@ class SsuCoreConfig: public SsuSettings {
     Q_INVOKABLE int deviceMode();
     /**
      * Get the current domain used in registration
+     * Internally - in the domain is replaced by :, if you need
+     * to print the domain name set pretty to true
      * @return domain, or "" if not set
      */
-    Q_INVOKABLE QString domain();
+    Q_INVOKABLE QString domain(bool pretty=false);
     /**
      * Return devices RND registration status
      * @retval true device is registered

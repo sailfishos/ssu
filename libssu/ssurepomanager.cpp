@@ -199,7 +199,7 @@ QStringList SsuRepoManager::repoVariables(QHash<QString, QString> *storageHash, 
   SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
 
   // fill in all arbitrary variables from ssu.ini
-  var.resolveSection(settings, "repository-url-variables", storageHash);
+  var.variableSection(settings, "repository-url-variables", storageHash);
 
   // add/overwrite some of the variables with sane ones
   if (rnd){
@@ -214,7 +214,7 @@ QStringList SsuRepoManager::repoVariables(QHash<QString, QString> *storageHash, 
 
     // Make it possible to give any values with the flavour as well.
     // These values can be overridden later with domain if needed.
-    var.resolveSection(&repoSettings, settings->flavour()+"-flavour", storageHash);
+    var.variableSection(&repoSettings, settings->flavour()+"-flavour", storageHash);
   } else {
     configSections << "release" << "all";
   }
@@ -260,17 +260,17 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
 
   repoName = deviceInfo.adaptationVariables(repoName, &repoParameters);
 
-  // Domain variables
-  // first read all variables from default-domain
-  var.resolveSection(&repoSettings, "default-domain", &repoParameters);
 
-  // then overwrite with domain specific things if that block is available,
-  // taking into account override parameters
-  if (parametersOverride.contains("domain"))
-    var.resolveSection(&repoSettings,
-                       parametersOverride.value("domain")+"-domain", &repoParameters);
-  else
-    var.resolveSection(&repoSettings, settings->domain()+"-domain", &repoParameters);
+  QString domain;
+  if (parametersOverride.contains("domain")){
+    domain = parametersOverride.value("domain");
+    domain.replace("-", ":");
+  } else
+    domain = settings->domain();
+
+  // variableSection does autodetection for the domain default section
+  var.variableSection(&repoSettings,
+                      domain + "-domain", &repoParameters);
 
   // override arbitrary variables, mostly useful for generating mic URLs
   QHash<QString, QString>::const_iterator i = parametersOverride.constBegin();

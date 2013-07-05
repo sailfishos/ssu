@@ -80,7 +80,7 @@ class Ssu: public QObject {
     Q_INVOKABLE QString flavour();
     /// See SsuCoreConfig::deviceMode
     Q_INVOKABLE int deviceMode();
-    /// See SsuCoreConfig::domain
+    /// See SsuCoreConfig::domain; returns printable version
     Q_INVOKABLE QString domain();
     /// See SsuCoreConfig::isRegistered
     Q_INVOKABLE bool isRegistered();
