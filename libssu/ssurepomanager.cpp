@@ -238,7 +238,6 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
   QString r;
   QStringList configSections;
   SsuVariables var;
-  SsuLog *ssuLog = SsuLog::instance();
   SsuCoreConfig *settings = SsuCoreConfig::instance();
   SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
   SsuDeviceInfo deviceInfo;

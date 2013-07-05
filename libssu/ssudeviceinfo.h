@@ -11,18 +11,12 @@
 #include <QObject>
 
 #include "ssusettings.h"
+#include "ssurepomanager.h"
 
 class SsuDeviceInfo: public QObject {
     Q_OBJECT
 
   public:
-    enum RepoFilter {
-      NoFilter,
-      UserFilter,
-      BoardFilter,
-      BoardFilterUserBlacklist
-    };
-
     /**
      * Initialize with device to override autodetection
      */
@@ -74,7 +68,7 @@ class SsuDeviceInfo: public QObject {
      * only board-specific, or only user-specific are returned.
      * Disabled repositories are excluded depending on filter settings.
      */
-    QStringList repos(bool rnd=false, int filter=NoFilter);
+    QStringList repos(bool rnd=false, int filter=SsuRepoManager::NoFilter);
     /**
      * Override device model autodetection
      */
