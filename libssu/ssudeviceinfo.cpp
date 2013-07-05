@@ -18,6 +18,7 @@ extern "C" {
 #include "ssudeviceinfo.h"
 #include "ssucoreconfig.h"
 #include "ssulog.h"
+#include "ssuvariables.h"
 
 #include "../constants.h"
 
@@ -365,45 +366,11 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
 }
 
 QVariant SsuDeviceInfo::variable(QString section, const QString &key){
-  if (!section.startsWith("var-"))
-    section = "var-" + section;
-
-  if (boardMappings->contains(section + "/" + key)){
-    return boardMappings->value(section + "/" + key);
-  }
-
-  if (boardMappings->contains(section + "/variables")){
-    QStringList sections = boardMappings->value(section + "/variables").toStringList();
-    foreach(const QString &section, sections){
-      QVariant value = variable(section, key);
-      if (value.type() != QMetaType::UnknownType)
-        return value;
-    }
-  }
-
-  return QVariant();
+  return SsuVariables::variable(boardMappings, section, key);
 }
 
 void SsuDeviceInfo::variableSection(QString section, QHash<QString, QString> *storageHash){
-  if (!section.startsWith("var-"))
-    section = "var-" + section;
-
-  if (boardMappings->contains(section + "/variables")){
-    QStringList sections = boardMappings->value(section + "/variables").toStringList();
-    foreach(const QString &section, sections)
-      variableSection(section, storageHash);
-    return;
-  }
-
-  boardMappings->beginGroup(section);
-  if (boardMappings->group() != section)
-    return;
-
-  QStringList keys = boardMappings->allKeys();
-  foreach (const QString &key, keys){
-    storageHash->insert(key, boardMappings->value(key).toString());
-  }
-  boardMappings->endGroup();
+  SsuVariables::variableSection(boardMappings, section, storageHash);
 }
 
 void SsuDeviceInfo::setDeviceModel(QString model){

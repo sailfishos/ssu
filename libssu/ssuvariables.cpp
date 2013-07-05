@@ -17,6 +17,10 @@ SsuVariables::SsuVariables(): QObject() {
 
 }
 
+void SsuVariables::resolveSection(QString section, QHash<QString, QString> *storageHash){
+  resolveSection(m_settings, section, storageHash);
+}
+
 void SsuVariables::resolveSection(SsuSettings *settings, QString section, QHash<QString, QString> *storageHash){
   QStringList repoVariables;
 
@@ -120,4 +124,66 @@ QString SsuVariables::resolveVariable(QString variable, QHash<QString, QString> 
 
   // no proper substitution found -> return default value
   return variableValue;
+}
+
+void SsuVariables::setSettings(SsuSettings *settings){
+  m_settings = settings;
+}
+
+SsuSettings *SsuVariables::settings(){
+  return m_settings;
+}
+
+QVariant SsuVariables::variable(QString section, const QString &key){
+  if (m_settings != NULL)
+    return variable(m_settings, section, key);
+  else
+    return QVariant();
+}
+
+QVariant SsuVariables::variable(SsuSettings *settings, QString section, const QString &key){
+  if (!section.startsWith("var-"))
+    section = "var-" + section;
+
+  if (settings->contains(section + "/" + key)){
+    return settings->value(section + "/" + key);
+  }
+
+  if (settings->contains(section + "/variables")){
+    QStringList sections = settings->value(section + "/variables").toStringList();
+    foreach(const QString &section, sections){
+      QVariant value = variable(settings, section, key);
+      if (value.type() != QMetaType::UnknownType)
+        return value;
+    }
+  }
+
+  return QVariant();
+}
+
+void SsuVariables::variableSection(QString section, QHash<QString, QString> *storageHash){
+  if (m_settings != NULL)
+    variableSection(m_settings, section, storageHash);
+}
+
+void SsuVariables::variableSection(SsuSettings *settings, QString section, QHash<QString, QString> *storageHash){
+  if (!section.startsWith("var-"))
+    section = "var-" + section;
+
+  if (settings->contains(section + "/variables")){
+    QStringList sections = settings->value(section + "/variables").toStringList();
+    foreach(const QString &section, sections)
+      variableSection(settings, section, storageHash);
+    return;
+  }
+
+  settings->beginGroup(section);
+  if (settings->group() != section)
+    return;
+
+  QStringList keys = settings->allKeys();
+  foreach (const QString &key, keys){
+    storageHash->insert(key, settings->value(key).toString());
+  }
+  settings->endGroup();
 }
