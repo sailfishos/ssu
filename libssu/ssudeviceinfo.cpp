@@ -371,6 +371,11 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
 }
 
 QVariant SsuDeviceInfo::variable(QString section, const QString &key){
+  /// @todo compat-setting as ssudeviceinfo guaranteed to prepend sections with var-;
+  ///       SsuVariables does not have this guarantee. Remove from here as well.
+  if (!section.startsWith("var-"))
+    section = "var-" + section;
+
   return SsuVariables::variable(boardMappings, section, key);
 }
 

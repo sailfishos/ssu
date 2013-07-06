@@ -136,6 +136,7 @@ SsuSettings *SsuVariables::settings(){
   return m_settings;
 }
 
+/// @todo add override capability with an override-section in ssu.ini
 QVariant SsuVariables::variable(QString section, const QString &key){
   if (m_settings != NULL)
     return variable(m_settings, section, key);
@@ -144,23 +145,19 @@ QVariant SsuVariables::variable(QString section, const QString &key){
 }
 
 QVariant SsuVariables::variable(SsuSettings *settings, QString section, const QString &key){
-  if (!section.startsWith("var-"))
-    section = "var-" + section;
+  QVariant value;
 
-  if (settings->contains(section + "/" + key)){
-    return settings->value(section + "/" + key);
+  value = readVariable(settings, section, key, 0);
+
+  // first check if the value is defined in the main section, and fall back
+  // to default sections
+  if (value.type() == QMetaType::UnknownType){
+    QString dSection = defaultSection(settings, section);
+    if (!dSection.isEmpty())
+      value = readVariable(settings, dSection, key, 0, false);
   }
 
-  if (settings->contains(section + "/variables")){
-    QStringList sections = settings->value(section + "/variables").toStringList();
-    foreach(const QString &section, sections){
-      QVariant value = variable(settings, section, key);
-      if (value.type() != QMetaType::UnknownType)
-        return value;
-    }
-  }
-
-  return QVariant();
+  return value;
 }
 
 void SsuVariables::variableSection(QString section, QHash<QString, QString> *storageHash){
@@ -178,7 +175,6 @@ void SsuVariables::variableSection(SsuSettings *settings, QString section, QHash
     readSection(settings, section, storageHash, 0, false);
   }
 }
-
 
 // resolve a configuration section, recursively following all 'variables' sections.
 // variables which exist in more than one section will get overwritten when discovered
@@ -238,4 +234,42 @@ void SsuVariables::readSection(SsuSettings *settings, QString section,
     storageHash->insert(key, settings->value(key).toString());
   }
   settings->endGroup();
+}
+
+QVariant SsuVariables::readVariable(SsuSettings *settings, QString section, const QString &key,
+                                    int recursionDepth, bool logOverride){
+  QVariant value;
+
+  if (recursionDepth >= SSU_MAX_RECURSION){
+    SsuLog::instance()->print(LOG_WARNING,
+                              QString("Maximum recursion depth for resolving %1 from %2::%3")
+                                      .arg(key)
+                                      .arg(settings->fileName())
+                                      .arg(section));
+    return value;
+  }
+
+  // variables directly in the section take precedence
+  if (settings->contains(section + "/" + key)){
+    return settings->value(section + "/" + key);
+  }
+
+  /// @todo add logging for overrides
+  if (settings->contains(section + "/variables")){
+    // child should log unless the parent is a default section
+    bool childLogOverride = true;
+    if (section.startsWith("default-") || section.startsWith("var-default-"))
+      childLogOverride = false;
+
+    QStringList sections = settings->value(section + "/variables").toStringList();
+    foreach(const QString &section, sections){
+      if (section.startsWith("var-"))
+        value = readVariable(settings, section, key, recursionDepth + 1, childLogOverride);
+      else
+        value = readVariable(settings, "var-" + section, key,
+                    recursionDepth + 1, childLogOverride);
+    }
+  }
+
+  return value;
 }

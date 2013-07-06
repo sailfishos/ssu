@@ -46,7 +46,7 @@ class SsuVariables: public QObject {
      * Return a variable from the given variable section. 'var'- is automatically
      * prepended to the section name if not specified already. Recursive search
      * through several variable sections (specified in the section) is supported,
-     * returned will be the first occurence of the variable.
+     * returned will be the last occurence of the variable.
      */
     QVariant variable(QString section, const QString &key);
     static QVariant variable(SsuSettings *settings, QString section, const QString &key);
@@ -64,10 +64,15 @@ class SsuVariables: public QObject {
      * the default section with the requested section.
      */
     void variableSection(QString section, QHash<QString, QString> *storageHash);
-    static void variableSection(SsuSettings *settings, QString section, QHash<QString, QString> *storageHash);
+    static void variableSection(SsuSettings *settings, QString section,
+                                QHash<QString, QString> *storageHash);
 
   private:
-    static void readSection(SsuSettings *settings, QString section, QHash<QString, QString> *storageHash, int recursionDepth, bool logOverride=true);
+    static void readSection(SsuSettings *settings, QString section,
+                            QHash<QString, QString> *storageHash, int recursionDepth,
+                            bool logOverride=true);
+    static QVariant readVariable(SsuSettings *settings, QString section, const QString &key,
+                                int recursionDepth, bool logOverride=true);
     SsuSettings *m_settings;
 };
 
