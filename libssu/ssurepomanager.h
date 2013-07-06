@@ -34,6 +34,11 @@ class SsuRepoManager: public QObject {
      */
     void add(QString repo, QString repoUrl="");
     /**
+     * Return the path to the CA certificate to be used for the given domain,
+     * or default domain, if omitted
+     */
+    static QString caCertificatePath(QString domain="");
+    /**
      * Disable a repository
      */
     void disable(QString repo);

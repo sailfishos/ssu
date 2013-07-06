@@ -41,6 +41,25 @@ void SsuRepoManager::add(QString repo, QString repoUrl){
   ssuSettings->sync();
 }
 
+QString SsuRepoManager::caCertificatePath(QString domain){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+
+  if (domain.isEmpty())
+    domain = settings->domain();
+
+  QString ca = SsuVariables::variable(&repoSettings, domain + "-domain",
+                                      "_ca-certificate").toString();
+  if (!ca.isEmpty())
+    return ca;
+
+  // compat setting, can go away after some time
+  if (settings->contains("ca-certificate"))
+    return settings->value("ca-certificate").toString();
+
+  return "";
+}
+
 void SsuRepoManager::disable(QString repo){
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
   QStringList disabledRepos;
