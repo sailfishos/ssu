@@ -224,6 +224,9 @@ void SsuVariables::readSection(SsuSettings *settings, QString section,
     if (locals.contains(key))
       continue;
 
+    if (key == "variables" || key == "local")
+      continue;
+
     if (storageHash->contains(key) && logOverride){
       SsuLog::instance()->print(LOG_DEBUG,
                                 QString("Variable %1 overwritten from %2::%3")
