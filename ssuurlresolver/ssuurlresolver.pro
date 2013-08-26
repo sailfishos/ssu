@@ -6,6 +6,8 @@ include(ssuurlresolver_dependencies.pri)
 DESTDIR = $$DESTDIR_LIB/zypp/plugins/urlresolver
 target.path = /usr/lib/zypp/plugins/urlresolver
 
+QT += network
+
 HEADERS = ssuurlresolver.h
 SOURCES = main.cpp \
         ssuurlresolver.cpp

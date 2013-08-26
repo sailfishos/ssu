@@ -10,6 +10,7 @@
 #include <QLocale>
 #include <QLibraryInfo>
 #include <QTimer>
+#include <QNetworkProxyFactory>
 #include "ssuurlresolver.h"
 
 int main(int argc, char** argv){
@@ -22,6 +23,8 @@ int main(int argc, char** argv){
   qtTranslator.load("qt_" + QLocale::system().name(),
                     QLibraryInfo::location(QLibraryInfo::TranslationsPath));
   app.installTranslator(&qtTranslator);
+
+  QNetworkProxyFactory::setUseSystemConfiguration(true);
 
   SsuUrlResolver mw;
   QTimer::singleShot(0, &mw, SLOT(run()));
