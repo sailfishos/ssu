@@ -181,7 +181,7 @@ void RndSsuCli::optModifyRepo(int action, QStringList opt){
   }
 }
 
-void RndSsuCli::optRegister(){
+void RndSsuCli::optRegister(QStringList opt){
   /*
    * register a new device
    */
@@ -189,6 +189,7 @@ void RndSsuCli::optRegister(){
   QString username, password;
   QTextStream qin(stdin);
   QTextStream qout(stdout);
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
 
   struct termios termNew, termOld;
 
@@ -205,6 +206,9 @@ void RndSsuCli::optRegister(){
   password = qin.readLine();
 
   tcsetattr(STDIN_FILENO, TCSANOW, &termOld);
+
+  if (opt.count() == 3 && opt.at(2) == "-h")
+    ssuSettings->setValue("repository-url-variables/user", username);
 
   ssu.sendRegistration(username, password);
   state = Busy;
@@ -456,9 +460,7 @@ void RndSsuCli::run(){
   // everything without additional arguments gets handled here
   // functions with arguments need to take care of argument validation themselves
   if (arguments.count() == 2){
-    if (arguments.at(1) == "register" || arguments.at(1) == "r")
-      optRegister();
-    else if (arguments.at(1) == "status" || arguments.at(1) == "s")
+    if (arguments.at(1) == "status" || arguments.at(1) == "s")
       optStatus();
     else if (arguments.at(1) == "updaterepos" || arguments.at(1) == "ur")
       optUpdateRepos();
@@ -480,7 +482,9 @@ void RndSsuCli::run(){
 
   // functions accepting 0 or more arguments; those need to set state to Idle
   // on success
-  if (arguments.at(1) == "repos" || arguments.at(1) == "lr")
+  if (arguments.at(1) == "register" || arguments.at(1) == "r")
+    optRegister(arguments);
+  else if (arguments.at(1) == "repos" || arguments.at(1) == "lr")
     optRepos(arguments);
   else if (arguments.at(1) == "flavour" || arguments.at(1) == "fl")
     optFlavour(arguments);
@@ -539,6 +543,7 @@ void RndSsuCli::usage(){
        << "Device management:" << endl
        << "\tstatus, s     \tprint registration status and device information" << endl
        << "\tregister, r   \tregister this device" << endl
+       << "\t      [-h]    \tconfigure user for OBS home" << endl
        << "\tupdate, up    \tupdate repository credentials" << endl
        << "\t      [-f]    \tforce update" << endl
        << "\tmodel, mo     \tprint name of device model (like N9)" << endl
