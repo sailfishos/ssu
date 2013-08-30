@@ -127,18 +127,23 @@ QStringList SsuKickstarter::repos(){
   return result;
 }
 
-QStringList SsuKickstarter::packages(){
+QStringList SsuKickstarter::packagesSection(QString name){
   QStringList result;
 
-  // insert @vendor configuration device
-  QString configuration = QString("@%1 Configuration %2")
-    .arg(repoOverride.value("brand"))
-    .arg(deviceModel);
-  result.append(configuration);
+  if (name == "packages") {
+    // insert @vendor configuration device
+    QString configuration = QString("@%1 Configuration %2")
+      .arg(repoOverride.value("brand"))
+      .arg(deviceModel);
+    result.append(configuration);
 
-  result.sort();
-  result.removeDuplicates();
-  result.prepend("%packages");
+    result.sort();
+    result.removeDuplicates();
+  } else {
+    result = commandSection(name);
+  }
+
+  result.prepend("%" + name);
   result.append("%end");
   return result;
 }
@@ -324,7 +329,8 @@ bool SsuKickstarter::write(QString kickstart){
     kout << commandSection(section).join("\n") << endl << endl;
   }
   kout << repos().join("\n") << endl << endl;
-  kout << packages().join("\n") << endl << endl;
+  kout << packagesSection("packages").join("\n") << endl << endl;
+  kout << packagesSection("attachment").join("\n") << endl << endl;
   // TODO: now that extending scriptlet section is might make sense to make it configurable
   kout << scriptletSection("pre", Chroot).join("\n") << endl << endl;
   kout << scriptletSection("post", Chroot).join("\n") << endl << endl;

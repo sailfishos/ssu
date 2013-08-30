@@ -36,7 +36,7 @@ class SsuKickstarter {
     QStringList commands();
     /// read a command section from file system
     QStringList commandSection(const QString &section, const QString &description="");
-    QStringList packages();
+    QStringList packagesSection(QString name);
     QString replaceSpaces(const QString &value);
     QStringList repos();
     QStringList scriptletSection(QString name, int flags=Chroot);
