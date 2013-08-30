@@ -21,6 +21,13 @@ class SsuKickstarter {
     void setRepoParameters(QHash<QString, QString> parameters);
     bool write(QString kickstart="");
 
+    enum ScriptletFlags {
+      /// Chroot is not useful, but helps in making the code more readable
+      Chroot         = 0,
+      NoChroot       = 0x1,
+      DeviceSpecific = 0x2,
+    };
+
   private:
     QHash<QString, QString> repoOverride;
     Ssu ssu;
@@ -32,7 +39,7 @@ class SsuKickstarter {
     QStringList packages();
     QString replaceSpaces(const QString &value);
     QStringList repos();
-    QStringList scriptletSection(QString name, bool chroot=true);
+    QStringList scriptletSection(QString name, int flags=Chroot);
 };
 
 #endif

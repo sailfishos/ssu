@@ -144,19 +144,26 @@ QStringList SsuKickstarter::packages(){
 }
 
 // we intentionally don't support device-specific post scriptlets
-QStringList SsuKickstarter::scriptletSection(QString name, bool chroot){
+QStringList SsuKickstarter::scriptletSection(QString name, int flags){
   QStringList result;
   QString path;
   QDir dir;
 
-  if (chroot)
-    path = Sandbox::map(QString("/%1/kickstart/%2/")
-      .arg(SSU_DATA_DIR)
-      .arg(name));
-  else
+  if ((flags & NoChroot) == NoChroot)
     path = Sandbox::map(QString("/%1/kickstart/%2_nochroot/")
       .arg(SSU_DATA_DIR)
       .arg(name));
+  else
+    path = Sandbox::map(QString("/%1/kickstart/%2/")
+      .arg(SSU_DATA_DIR)
+      .arg(name));
+
+  if ((flags & DeviceSpecific) == DeviceSpecific){
+    if (dir.exists(path + "/" + replaceSpaces(deviceModel.toLower())))
+      path = path + "/" + replaceSpaces(deviceModel.toLower());
+    else
+      path = path + "/default";
+  }
 
   dir.setPath(path);
   QStringList scriptlets = dir.entryList(QDir::AllEntries|QDir::NoDot|QDir::NoDotDot,
@@ -177,10 +184,11 @@ QStringList SsuKickstarter::scriptletSection(QString name, bool chroot){
     result.prepend(QString("export SSU_RELEASE_TYPE=%1")
                    .arg(rndMode ? "rnd" : "release"));
 
-    if (chroot)
-      result.prepend("%" + name);
-    else
+    if ((flags & NoChroot) == NoChroot)
       result.prepend("%" + name + " --nochroot");
+    else
+      result.prepend("%" + name);
+
     result.append("%end");
   }
 
@@ -317,10 +325,11 @@ bool SsuKickstarter::write(QString kickstart){
   }
   kout << repos().join("\n") << endl << endl;
   kout << packages().join("\n") << endl << endl;
-  kout << scriptletSection("pre", true).join("\n") << endl << endl;
-  kout << scriptletSection("post", true).join("\n") << endl << endl;
-  kout << scriptletSection("post", false).join("\n") << endl << endl;
-  // add flags as bitmask?
+  // TODO: now that extending scriptlet section is might make sense to make it configurable
+  kout << scriptletSection("pre", Chroot).join("\n") << endl << endl;
+  kout << scriptletSection("post", Chroot).join("\n") << endl << endl;
+  kout << scriptletSection("post", NoChroot).join("\n") << endl << endl;
+  kout << scriptletSection("pack", DeviceSpecific).join("\n") << endl << endl;
   // POST, die-on-error
 
   return true;
