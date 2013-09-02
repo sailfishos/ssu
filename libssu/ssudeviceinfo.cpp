@@ -22,10 +22,7 @@ extern "C" {
 
 #include "../constants.h"
 
-#include "mobility-booty/qsysteminfo_linux_common_p.h"
-
-//#include <QSystemDeviceInfo>
-//QTM_USE_NAMESPACE
+#include <QDeviceInfo>
 
 SsuDeviceInfo::SsuDeviceInfo(QString model): QObject(){
 
@@ -285,10 +282,10 @@ QString SsuDeviceInfo::deviceModel(){
 
 QString SsuDeviceInfo::deviceUid(){
   QString IMEI;
-  //QSystemDeviceInfo devInfo;
-  QSystemDeviceInfoLinuxCommonPrivate devInfo;
+  QDeviceInfo devInfo;
 
-  IMEI = devInfo.imei();
+  /// @todo properly check number of imeis, ...
+  IMEI = devInfo.imei(0);
 
   // this might not be completely unique (or might change on reflash), but works for now
   if (IMEI == ""){
