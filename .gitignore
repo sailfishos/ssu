@@ -5,3 +5,7 @@ doc/latex
 *.pro.user
 *.list
 /tests/testutils/Makefile.sandboxhook
+/ssud/ssuadaptor.cpp
+/ssud/ssuadaptor.h
+/rndssucli/ssuproxy.cpp
+/rndssucli/ssuproxy.h

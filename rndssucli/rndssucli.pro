@@ -2,9 +2,10 @@ TARGET = ssu
 include(../ssuapplication.pri)
 include(rndssucli_dependencies.pri)
 
-QT += network
+QT += network dbus
 
-HEADERS = rndssucli.h
+HEADERS = rndssucli.h \
+        ssuproxy.h
 SOURCES = main.cpp \
-        rndssucli.cpp
-#RESOURCES = rndregister.qrc
+        rndssucli.cpp \
+        ssuproxy.cpp

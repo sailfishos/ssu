@@ -23,6 +23,12 @@ RndSsuCli::RndSsuCli(): QObject(){
           QCoreApplication::instance(),SLOT(quit()), Qt::DirectConnection);
   connect(&ssu, SIGNAL(done()),
           this, SLOT(handleResponse()));
+
+  ssuProxy = new SsuProxy("org.nemo.ssu", "/org/nemo/ssu", QDBusConnection::systemBus(), 0);
+
+  connect(ssuProxy, SIGNAL(done()),
+          this, SLOT(handleDBusResponse()));
+
   state = Idle;
 }
 
@@ -31,6 +37,18 @@ void RndSsuCli::handleResponse(){
 
   if (ssu.error()){
     qout << "Last operation failed: \n" << ssu.lastError() << endl;
+    QCoreApplication::exit(1);
+  } else {
+    qout << "Operation successful (direct)" << endl;
+    QCoreApplication::exit(0);
+  }
+}
+
+void RndSsuCli::handleDBusResponse(){
+  QTextStream qout(stdout);
+
+  if (ssuProxy->error()){
+    qout << "Last operation failed: \n" << ssuProxy->lastError() << endl;
     QCoreApplication::exit(1);
   } else {
     qout << "Operation successful" << endl;
@@ -122,6 +140,7 @@ void RndSsuCli::optMode(QStringList opt){
 
 void RndSsuCli::optModel(QStringList opt){
   QTextStream qout(stdout);
+  QTextStream qerr(stderr);
   SsuDeviceInfo deviceInfo;
 
   if (opt.count() == 3 && opt.at(2) == "-s"){
@@ -189,6 +208,7 @@ void RndSsuCli::optRegister(QStringList opt){
   QString username, password;
   QTextStream qin(stdin);
   QTextStream qout(stdout);
+  QTextStream qerr(stderr);
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
 
   struct termios termNew, termOld;
@@ -204,13 +224,21 @@ void RndSsuCli::optRegister(QStringList opt){
 
   qout << "Password: " << flush;
   password = qin.readLine();
+  qout << endl;
 
   tcsetattr(STDIN_FILENO, TCSANOW, &termOld);
 
   if (opt.count() == 3 && opt.at(2) == "-h")
     ssuSettings->setValue("repository-url-variables/user", username);
 
-  ssu.sendRegistration(username, password);
+  QDBusPendingReply<> reply = ssuProxy->registerDevice(username, password);
+  reply.waitForFinished();
+  if (reply.isError()){
+    qerr << "DBus call failed, falling back to libssu" << endl;
+    qerr << reply.error().message() << endl;
+    ssu.sendRegistration(username, password);
+  }
+
   state = Busy;
 }
 
@@ -400,17 +428,29 @@ void RndSsuCli::optRepos(QStringList opt){
 
 void RndSsuCli::optStatus(){
   QTextStream qout(stdout);
+  QTextStream qerr(stderr);
   SsuDeviceInfo deviceInfo;
 
   /*
    * print device information and registration status
    */
+
+  QString deviceUid;
+
+  QDBusPendingReply<QString> reply = ssuProxy->deviceUid();
+  reply.waitForFinished();
+  if (reply.isError()){
+    qerr << "DBus unavailable, UUID not necessarily connected to reality." << endl;
+    deviceUid = deviceInfo.deviceUid();
+  } else
+    deviceUid = reply.value();
+
   qout << "Device registration status: "
        << (ssu.isRegistered() ? "registered" : "not registered") << endl;
   qout << "Device model: " << deviceInfo.deviceModel() << endl;
   if (deviceInfo.deviceVariant() != "")
     qout << "Device variant: " << deviceInfo.deviceVariant() << endl;
-  qout << "Device UID: " << deviceInfo.deviceUid() << endl;
+  qout << "Device UID: " << deviceUid << endl;
   if ((ssu.deviceMode() & Ssu::RndMode) == Ssu::RndMode)
     qout << "Release (rnd): " << ssu.release(true) << " (" << ssu.flavour() << ")" << endl;
   else

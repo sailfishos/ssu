@@ -35,7 +35,9 @@ Requires: ssu-vendor-data
 # ssu itself does not use the package-update triggers, but provides
 # them for the vendor data packages to use
 %attr(0755, -, -) %{_oneshotdir}/*
-
+%{_bindir}/ssud
+%{_datadir}/dbus-1/system-services/*.service
+%{_sysconfdir}/dbus-1/system.d/*.conf
 
 %package vendor-data-example
 Summary: Sample vendor configuration data

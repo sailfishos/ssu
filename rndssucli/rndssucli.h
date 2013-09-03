@@ -14,6 +14,7 @@
 #include <QDebug>
 
 #include "libssu/ssu.h"
+#include "ssuproxy.h"
 
 class RndSsuCli: public QObject {
     Q_OBJECT
@@ -26,6 +27,7 @@ class RndSsuCli: public QObject {
 
   private:
     Ssu ssu;
+    SsuProxy *ssuProxy;
     QSettings settings;
     int state;
     void usage();
@@ -57,6 +59,7 @@ class RndSsuCli: public QObject {
 
   private slots:
     void handleResponse();
+    void handleDBusResponse();
 
   signals:
     void done();

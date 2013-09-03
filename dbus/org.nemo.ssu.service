@@ -1,0 +1,5 @@
+[D-BUS Service]
+Interface=org.nemo.ssu
+Name=org.nemo.ssu
+Exec=/usr/bin/ssud
+User=root
