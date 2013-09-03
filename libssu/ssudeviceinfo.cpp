@@ -290,6 +290,7 @@ QString SsuDeviceInfo::deviceUid(){
   // this might not be completely unique (or might change on reflash), but works for now
   if (IMEI == ""){
       IMEI = devInfo.uniqueDeviceID();
+      IMEI.replace("-", "");
   }
 
   return IMEI;
