@@ -21,6 +21,7 @@ class RndSsuCli: public QObject {
 
   public:
     RndSsuCli();
+    ~RndSsuCli();
 
   public slots:
     void run();
@@ -45,10 +46,10 @@ class RndSsuCli: public QObject {
     void optUpdateRepos();
 
     enum Actions {
-      Remove,
-      Add,
-      Disable,
-      Enable
+      Remove  = 0,
+      Add     = 1,
+      Disable = 2,
+      Enable  = 3,
     };
 
     enum State {

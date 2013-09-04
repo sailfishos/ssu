@@ -25,6 +25,7 @@
 
 <node name="/org/nemo/ssu">
   <interface name="org.nemo.ssu">
+    <!-- credential management -->
     <method name="registerDevice">
       <arg direction="in" type="s" name="username"/>
       <arg direction="in" type="s" name="password"/>
@@ -34,12 +35,54 @@
     <method name="isRegistered">
       <arg direction="out" type="b" name="status"/>
     </method>
+
+    <!-- deviceInfo related methods -->
     <method name="deviceModel">
+      <arg direction="out" type="s" name="model"/>
+    </method>
+    <method name="deviceFamily">
       <arg direction="out" type="s" name="model"/>
     </method>
     <method name="deviceUid">
       <arg direction="out" type="s" name="model"/>
     </method>
+    <method name="deviceVariant">
+      <arg direction="out" type="s" name="model"/>
+    </method>
+
+    <!-- repository management -->
+    <method name="deviceMode">
+      <arg direction="out" type="i" name="mode"/>
+    </method>
+    <method name="setDeviceMode">
+      <arg direction="in" type="i" name="mode"/>
+    </method>
+    <method name="flavour">
+      <arg direction="out" type="s" name="flavour"/>
+    </method>
+    <method name="setFlavour">
+      <arg direction="in" type="s" name="flavour"/>
+    </method>
+    <method name="release">
+      <arg direction="out" type="s" name="release"/>
+      <arg direction="in" type="b" name="rnd" />
+    </method>
+    <method name="setRelease">
+      <arg direction="in" type="s" name="release"/>
+      <arg direction="in" type="b" name="rnd" />
+    </method>
+    <!-- actions are remove(0), add(1), disable(2) and enable(3) -->
+    <method name="modifyRepo">
+      <arg direction="in" type="i" name="action"/>
+      <arg direction="in" type="s" name="repo" />
+    </method>
+    <method name="addRepo">
+      <arg direction="in" type="s" name="repo" />
+      <arg direction="in" type="s" name="url" />
+    </method>
+    <method name="updateRepos">
+    </method>
+
     <method name="error">
       <arg direction="out" type="b" name="status"/>
     </method>

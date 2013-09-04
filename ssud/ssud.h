@@ -21,14 +21,31 @@ class Ssud: public QObject {
     virtual ~Ssud();
 
   public slots:
+    /* device info */
     QString deviceModel();
+    QString deviceFamily();
     QString deviceUid();
-    bool error();
-    QString lastError();
+    QString deviceVariant();
+    /* credential management */
     bool isRegistered();
-    void quit();
     void registerDevice(const QString &username, const QString &password);
     void unregisterDevice();
+    /* repository management */
+    int deviceMode();
+    void setDeviceMode(int mode);
+    QString flavour();
+    void setFlavour(const QString &release);
+    QString release(bool rnd);
+    void setRelease(const QString &release, bool rnd);
+    void modifyRepo(int action, const QString &repo);
+    void addRepo(const QString &repo, const QString &url);
+    void updateRepos();
+
+    bool error();
+    QString lastError();
+
+    void quit();
+
 
   signals:
     void done();
@@ -39,6 +56,13 @@ class Ssud: public QObject {
     Ssu ssu;
     static const char *SERVICE_NAME;
     static const char *OBJECT_PATH;
+
+    enum Actions {
+      Remove  = 0,
+      Add     = 1,
+      Disable = 2,
+      Enable  = 3,
+    };
 };
 
 #endif

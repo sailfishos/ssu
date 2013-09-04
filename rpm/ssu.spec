@@ -126,7 +126,7 @@ Group: Documentation
 
 %build
 mkdir -p build && cd build
-qmake -qt=5 DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive ..
+%qmake5 DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive ..
 make %{?_smp_mflags}
 cd .. && doxygen doc/Doxyfile
 

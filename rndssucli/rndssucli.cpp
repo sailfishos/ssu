@@ -32,6 +32,10 @@ RndSsuCli::RndSsuCli(): QObject(){
   state = Idle;
 }
 
+RndSsuCli::~RndSsuCli(){
+  ssuProxy->quit();
+}
+
 void RndSsuCli::handleResponse(){
   QTextStream qout(stdout);
 
@@ -76,6 +80,7 @@ void RndSsuCli::optDomain(QStringList opt){
 
 void RndSsuCli::optFlavour(QStringList opt){
   QTextStream qout(stdout);
+  QTextStream qerr(stderr);
 
   if (opt.count() == 3 && opt.at(2) == "-s"){
     qout << ssu.flavour();
@@ -83,11 +88,17 @@ void RndSsuCli::optFlavour(QStringList opt){
   } else if (opt.count() == 3){
     qout << "Changing flavour from " << ssu.flavour()
          << " to " << opt.at(2) << endl;
-    ssu.setFlavour(opt.at(2));
 
-    SsuRepoManager repoManager;
-    repoManager.update();
-    uidWarning();
+    QDBusPendingReply<> reply = ssuProxy->setFlavour(opt.at(2));
+    reply.waitForFinished();
+    if (reply.isError()){
+      qerr << "DBus call failed, falling back to libssu" << endl;
+      ssu.setFlavour(opt.at(2));
+
+      SsuRepoManager repoManager;
+      repoManager.update();
+      uidWarning();
+    }
 
     state = Idle;
   } else if (opt.count() == 2) {
@@ -98,6 +109,7 @@ void RndSsuCli::optFlavour(QStringList opt){
 
 void RndSsuCli::optMode(QStringList opt){
   QTextStream qout(stdout);
+  QTextStream qerr(stderr);
 
   // TODO: allow setting meaningful names instead of numbers
 
@@ -128,11 +140,17 @@ void RndSsuCli::optMode(QStringList opt){
   } else if (opt.count() == 3){
     qout << "Setting device mode from " << ssu.deviceMode()
          << " to " << opt.at(2) << endl;
-    ssu.setDeviceMode(opt.at(2).toInt());
 
-    SsuRepoManager repoManager;
-    repoManager.update();
-    uidWarning();
+    QDBusPendingReply<> reply = ssuProxy->setDeviceMode(opt.at(2).toInt());
+    reply.waitForFinished();
+    if (reply.isError()){
+      qerr << "DBus call failed, falling back to libssu" << endl;
+      ssu.setDeviceMode(opt.at(2).toInt());
+
+      SsuRepoManager repoManager;
+      repoManager.update();
+      uidWarning();
+    }
 
     state = Idle;
   }
@@ -158,27 +176,33 @@ void RndSsuCli::optModifyRepo(int action, QStringList opt){
   QTextStream qerr(stderr);
 
   if (opt.count() == 3){
-    switch(action){
-      case Add:
-        repoManager.add(opt.at(2));
-        repoManager.update();
-        uidWarning();
-        break;
-      case Remove:
-        repoManager.remove(opt.at(2));
-        repoManager.update();
-        uidWarning();
-        break;
-      case Disable:
-        repoManager.disable(opt.at(2));
-        repoManager.update();
-        uidWarning();
-        break;
-      case Enable:
-        repoManager.enable(opt.at(2));
-        repoManager.update();
-        uidWarning();
-        break;
+    QDBusPendingReply<> reply = ssuProxy->modifyRepo(action, opt.at(2));
+    reply.waitForFinished();
+    if (reply.isError()){
+      qerr << "DBus call failed, falling back to libssu" << endl;
+
+      switch(action){
+        case Add:
+          repoManager.add(opt.at(2));
+          repoManager.update();
+          uidWarning();
+          break;
+        case Remove:
+          repoManager.remove(opt.at(2));
+          repoManager.update();
+          uidWarning();
+          break;
+        case Disable:
+          repoManager.disable(opt.at(2));
+          repoManager.update();
+          uidWarning();
+          break;
+        case Enable:
+          repoManager.enable(opt.at(2));
+          repoManager.update();
+          uidWarning();
+          break;
+      }
     }
   } else if (opt.count() == 4 && action == Add){
     QString url, repo;
@@ -194,9 +218,14 @@ void RndSsuCli::optModifyRepo(int action, QStringList opt){
       return;
     }
 
-    repoManager.add(repo, url);
-    repoManager.update();
-    uidWarning();
+    QDBusPendingReply<> reply = ssuProxy->addRepo(repo, url);
+    reply.waitForFinished();
+    if (reply.isError()){
+      qerr << "DBus call failed, falling back to libssu" << endl;
+      repoManager.add(repo, url);
+      repoManager.update();
+      uidWarning();
+    }
   }
 }
 
@@ -244,6 +273,7 @@ void RndSsuCli::optRegister(QStringList opt){
 
 void RndSsuCli::optRelease(QStringList opt){
   QTextStream qout(stdout);
+  QTextStream qerr(stderr);
 
   if (opt.count() == 3){
     if (opt.at(2) == "-r"){
@@ -253,11 +283,17 @@ void RndSsuCli::optRelease(QStringList opt){
       qout << "Changing release from " << ssu.release()
            << " to " << opt.at(2) << endl;
       qout << "Your device is now in release mode!" << endl;
-      ssu.setRelease(opt.at(2));
 
-      SsuRepoManager repoManager;
-      repoManager.update();
-      uidWarning();
+      QDBusPendingReply<> reply = ssuProxy->setRelease(opt.at(2), false);
+      reply.waitForFinished();
+      if (reply.isError()){
+        qerr << "DBus call failed, falling back to libssu" << endl;
+        ssu.setRelease(opt.at(2));
+
+        SsuRepoManager repoManager;
+        repoManager.update();
+        uidWarning();
+      }
 
       state = Idle;
     }
@@ -268,11 +304,17 @@ void RndSsuCli::optRelease(QStringList opt){
     qout << "Changing release (RnD) from " << ssu.release(true)
          << " to " << opt.at(3) << endl;
     qout << "Your device is now in RnD mode!" << endl;
-    ssu.setRelease(opt.at(3), true);
 
-    SsuRepoManager repoManager;
-    repoManager.update();
-    uidWarning();
+    QDBusPendingReply<> reply = ssuProxy->setRelease(opt.at(3), true);
+    reply.waitForFinished();
+    if (reply.isError()){
+      qerr << "DBus call failed, falling back to libssu" << endl;
+      ssu.setRelease(opt.at(3), true);
+
+      SsuRepoManager repoManager;
+      repoManager.update();
+      uidWarning();
+    }
 
     state = Idle;
   }
@@ -478,15 +520,27 @@ void RndSsuCli::optUpdateCredentials(QStringList opt){
 }
 
 void RndSsuCli::optUpdateRepos(){
-  SsuRepoManager repoManager;
-  repoManager.update();
-  uidWarning();
+  QTextStream qerr(stdout);
+
+  QDBusPendingReply<> reply = ssuProxy->updateRepos();
+  reply.waitForFinished();
+  if (reply.isError()){
+    qerr << "DBus call failed, falling back to libssu" << endl;
+    SsuRepoManager repoManager;
+    repoManager.update();
+    uidWarning();
+  }
 }
 
 void RndSsuCli::run(){
   QTextStream qout(stdout);
+  QTextStream qerr(stderr);
 
   QStringList arguments = QCoreApplication::arguments();
+
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+  if (!ssuSettings->isWritable())
+    qerr << "WARNING: ssu.ini does not seem to be writable. Setting values might not work." << endl;
 
   if (arguments.at(0).endsWith("rndssu"))
     qout << "NOTE: this binary is now called ssu. The rndssu symlink will go away after some time" << endl;
