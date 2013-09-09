@@ -12,6 +12,9 @@
 #include <QUrlQuery>
 #endif
 
+#include <getdef.h>
+#include <pwd.h>
+
 #include "ssu.h"
 #include "ssulog.h"
 #include "ssuvariables.h"
@@ -425,26 +428,62 @@ void Ssu::setError(QString errorMessage){
 
 void Ssu::storeAuthorizedKeys(QByteArray data){
   QDir dir;
+  SsuLog *ssuLog = SsuLog::instance();
 
-  // only set the key for unprivileged users
-  if (getuid() < 1000) return;
+  int uid_min = getdef_num("UID_MIN", -1);
+  QString homePath;
 
-  if (dir.exists(dir.homePath() + "/.ssh/authorized_keys"))
+  if (getuid() >= uid_min){
+    homePath = dir.homePath();
+  } else if (getuid() == 0){
+    // place authorized_keys in the default users home when run with uid0
+    struct passwd *pw = getpwuid(uid_min);
+    if (pw == NULL){
+      ssuLog->print(LOG_DEBUG, QString("Unable to find password entry for uid %1")
+                    .arg(uid_min));
+      return;
+    }
+
+    //homePath = QString(pw->pw_dir);
+    homePath = pw->pw_dir;
+
+    // use users uid/gid for creating the directories and files
+    setegid(pw->pw_gid);
+    seteuid(uid_min);
+    ssuLog->print(LOG_DEBUG, QString("Dropping to %1/%2 for writing authorized keys")
+                  .arg(uid_min)
+                  .arg(pw->pw_gid));
+  } else
     return;
 
-  if (!dir.exists(dir.homePath() + "/.ssh"))
-    if (!dir.mkdir(dir.homePath() + "/.ssh")) return;
+  if (dir.exists(homePath + "/.ssh/authorized_keys")){
+    ssuLog->print(LOG_DEBUG, QString(".ssh/authorized_keys already exists in %1")
+                  .arg(homePath));
+    return;
+  }
 
-  QFile::setPermissions(dir.homePath() + "/.ssh",
+  if (!dir.exists(homePath + "/.ssh"))
+    if (!dir.mkdir(homePath + "/.ssh")){
+      ssuLog->print(LOG_DEBUG, QString("Unable to create .ssh in %1")
+                    .arg(homePath));
+      return;
+    }
+
+  QFile::setPermissions(homePath + "/.ssh",
                         QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
 
-  QFile authorizedKeys(dir.homePath() + "/.ssh/authorized_keys");
+  QFile authorizedKeys(homePath + "/.ssh/authorized_keys");
   authorizedKeys.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
   authorizedKeys.setPermissions(QFile::ReadOwner | QFile::WriteOwner);
   QTextStream out(&authorizedKeys);
   out << data;
   out.flush();
   authorizedKeys.close();
+
+  if (getuid() == 0){
+    seteuid(0);
+    setegid(0);
+  }
 }
 
 void Ssu::updateCredentials(bool force){

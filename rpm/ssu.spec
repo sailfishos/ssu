@@ -15,6 +15,7 @@ BuildRequires: pkgconfig(Qt5Test)
 BuildRequires: pkgconfig(Qt5SystemInfo)
 BuildRequires: pkgconfig(libzypp)
 BuildRequires: pkgconfig(libsystemd-journal)
+BuildRequires: pkgconfig(libshadowutils)
 BuildRequires: oneshot
 BuildRequires: doxygen
 Requires(pre): shadow-utils

@@ -27,7 +27,7 @@ SOURCES = \
 
 CONFIG += link_pkgconfig
 QT += network xml dbus
-PKGCONFIG += libsystemd-journal boardname Qt5SystemInfo
+PKGCONFIG += libsystemd-journal boardname Qt5SystemInfo libshadowutils
 
 install_headers.files = $${public_headers}
 
