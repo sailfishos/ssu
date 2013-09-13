@@ -23,6 +23,13 @@
 
 #include "../constants.h"
 
+static void restoreUid(){
+  if (getuid() == 0){
+    seteuid(0);
+    setegid(0);
+  }
+}
+
 Ssu::Ssu(): QObject(){
   errorFlag = false;
   pendingRequests = 0;
@@ -175,6 +182,12 @@ bool Ssu::registerDevice(QDomDocument *response){
   // if we came that far everything required for device registration is done
   settings->setValue("registered", true);
   settings->sync();
+
+  if (!settings->isWritable()){
+    setError("Configuration is not writable, device registration failed.");
+    return false;
+  }
+
   emit registrationStatusChanged();
   return true;
 }
@@ -234,7 +247,8 @@ void Ssu::requestFinished(QNetworkReply *reply){
       return;
     } else {
       QByteArray data = reply->readAll();
-      qDebug() << "RequestOutput" << data;
+      ssuLog->print(LOG_DEBUG, QString("RequestOutput %1")
+                    .arg(data.data()));
 
       QDomDocument doc;
       QString xmlError;
@@ -248,6 +262,8 @@ void Ssu::requestFinished(QNetworkReply *reply){
 
       if (!verifyResponse(&doc)) break;
 
+      ssuLog->print(LOG_DEBUG, QString("Handling request of type %1")
+                    .arg(action));
       if (action == "register"){
         if (!registerDevice(&doc)) break;
       } else if (action == "credentials"){
@@ -344,8 +360,8 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
   }
 #endif
 
-  qDebug() << "Sending request to " << request.url();
-  //qDebug() << form.encodedQueryItems();
+  ssuLog->print(LOG_DEBUG, QString("Sending request to %1")
+                .arg(request.url().url()));
 
   QNetworkReply *reply;
 
@@ -459,6 +475,7 @@ void Ssu::storeAuthorizedKeys(QByteArray data){
   if (dir.exists(homePath + "/.ssh/authorized_keys")){
     ssuLog->print(LOG_DEBUG, QString(".ssh/authorized_keys already exists in %1")
                   .arg(homePath));
+    restoreUid();
     return;
   }
 
@@ -466,6 +483,7 @@ void Ssu::storeAuthorizedKeys(QByteArray data){
     if (!dir.mkdir(homePath + "/.ssh")){
       ssuLog->print(LOG_DEBUG, QString("Unable to create .ssh in %1")
                     .arg(homePath));
+      restoreUid();
       return;
     }
 
@@ -480,10 +498,7 @@ void Ssu::storeAuthorizedKeys(QByteArray data){
   out.flush();
   authorizedKeys.close();
 
-  if (getuid() == 0){
-    seteuid(0);
-    setegid(0);
-  }
+  restoreUid();
 }
 
 void Ssu::updateCredentials(bool force){
