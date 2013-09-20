@@ -107,19 +107,23 @@ QStringList SsuKickstarter::repos(){
     // Adaptation repos need to have separate naming so that when images are done
     // the repository caches will not be mixed with each other.
     if (repo.startsWith("adaptation")) {
-      result.append(QString("repo --name=%1-%2-%3 --baseurl=%4")
+      result.append(QString("repo --name=%1-%2-%3%4 --baseurl=%5")
                     .arg(repo)
                     .arg(replaceSpaces(deviceModel))
                     .arg((rndMode ? repoOverride.value("rndRelease")
                           : repoOverride.value("release")))
+                    .arg((rndMode ? "-" + repoOverride.value("flavourName")
+                          : ""))
                     .arg(repoUrl)
         );
     }
     else
-      result.append(QString("repo --name=%1-%2 --baseurl=%3")
+      result.append(QString("repo --name=%1-%2%3 --baseurl=%4")
                     .arg(repo)
                     .arg((rndMode ? repoOverride.value("rndRelease")
                           : repoOverride.value("release")))
+                    .arg((rndMode ? "-" + repoOverride.value("flavourName")
+                          : ""))
                     .arg(repoUrl)
         );
   }
