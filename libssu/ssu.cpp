@@ -20,6 +20,7 @@
 #include "ssuvariables.h"
 #include "ssucoreconfig.h"
 #include "ssurepomanager.h"
+#include "ssudeviceinfo.h"
 
 #include "../constants.h"
 
@@ -291,6 +292,7 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
 
   SsuLog *ssuLog = SsuLog::instance();
   SsuCoreConfig *settings = SsuCoreConfig::instance();
+  SsuDeviceInfo deviceInfo;
 
   // Username can include also domain, (user@domain), separate those
   if (usernameDomain.contains('@')) {
@@ -503,6 +505,7 @@ void Ssu::storeAuthorizedKeys(QByteArray data){
 
 void Ssu::updateCredentials(bool force){
   SsuCoreConfig *settings = SsuCoreConfig::instance();
+  SsuDeviceInfo deviceInfo;
   errorFlag = false;
 
   SsuLog *ssuLog = SsuLog::instance();

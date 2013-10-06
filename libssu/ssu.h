@@ -14,8 +14,6 @@
 
 #include <QtXml/QDomDocument>
 
-#include "ssudeviceinfo.h"
-
 class QNetworkAccessManager;
 class QNetworkReply;
 
@@ -123,21 +121,11 @@ class Ssu: public QObject {
       Remove  = 0x4  ///< Make sure the given value is not set in the bitmask
     };
 
-
-    // compat stuff, might go away when refactoring is finished
-    /// See SsuDeviceInfo::deviceFamily
-    Q_INVOKABLE QString deviceFamily(){ return deviceInfo.deviceFamily(); };
-    /// See SsuDeviceInfo::deviceModel
-    Q_INVOKABLE QString deviceModel(){ return deviceInfo.deviceModel(); };
-    /// See SsuDeviceInfo::deviceUid
-    Q_INVOKABLE QString deviceUid(){ return deviceInfo.deviceUid(); };
-
   private:
     QString errorString;
     bool errorFlag;
     QNetworkAccessManager *manager;
     int pendingRequests;
-    SsuDeviceInfo deviceInfo;
     bool registerDevice(QDomDocument *response);
     bool setCredentials(QDomDocument *response);
     bool verifyResponse(QDomDocument *response);
