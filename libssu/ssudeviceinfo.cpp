@@ -314,9 +314,9 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
   int adaptationCount = adaptationRepos().size();
   QStringList result;
 
-  if (filter == SsuRepoManager::NoFilter ||
-      filter == SsuRepoManager::BoardFilter ||
-      filter == SsuRepoManager::BoardFilterUserBlacklist){
+  if (filter == Ssu::NoFilter ||
+      filter == Ssu::BoardFilter ||
+      filter == Ssu::BoardFilterUserBlacklist){
     // for repo names we have adaptation0, adaptation1, ..., adaptationN
     for (int i=0; i<adaptationCount; i++)
       result.append(QString("adaptation%1").arg(i));
@@ -343,8 +343,8 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
   // TODO: in strict mode, filter the repository list from there
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
 
-  if (filter == SsuRepoManager::NoFilter ||
-      filter == SsuRepoManager::UserFilter){
+  if (filter == Ssu::NoFilter ||
+      filter == Ssu::UserFilter){
     ssuSettings->beginGroup("repository-urls");
     result.append(ssuSettings->allKeys());
     ssuSettings->endGroup();
@@ -354,9 +354,9 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
       result.append(ssuSettings->value("enabled-repos").toStringList());
   }
 
-  if (filter == SsuRepoManager::NoFilter ||
-      filter == SsuRepoManager::UserFilter ||
-      filter == SsuRepoManager::BoardFilterUserBlacklist){
+  if (filter == Ssu::NoFilter ||
+      filter == Ssu::UserFilter ||
+      filter == Ssu::BoardFilterUserBlacklist){
     // read the disabled repositories from user configuration
     if (ssuSettings->contains("disabled-repos")){
       foreach (const QString &key, ssuSettings->value("disabled-repos").toStringList())

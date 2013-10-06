@@ -100,7 +100,7 @@ QStringList SsuKickstarter::repos(){
   QStringList result;
   SsuDeviceInfo deviceInfo(deviceModel);
 
-  QStringList repos = deviceInfo.repos(rndMode, SsuRepoManager::BoardFilter);
+  QStringList repos = deviceInfo.repos(rndMode, Ssu::BoardFilter);
 
   foreach (const QString &repo, repos){
     QString repoUrl = ssu.repoUrl(repo, rndMode, QHash<QString, QString>(), repoOverride);

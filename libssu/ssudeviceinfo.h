@@ -11,7 +11,7 @@
 #include <QObject>
 
 #include "ssusettings.h"
-#include "ssurepomanager.h"
+#include "ssu.h"
 
 class SsuDeviceInfo: public QObject {
     Q_OBJECT
@@ -68,7 +68,7 @@ class SsuDeviceInfo: public QObject {
      * only board-specific, or only user-specific are returned.
      * Disabled repositories are excluded depending on filter settings.
      */
-    QStringList repos(bool rnd=false, int filter=SsuRepoManager::NoFilter);
+    QStringList repos(bool rnd=false, int filter=Ssu::NoFilter);
     /**
      * Override device model autodetection
      */

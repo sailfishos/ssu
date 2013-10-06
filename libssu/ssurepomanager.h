@@ -11,19 +11,11 @@
 #include <QObject>
 #include <QHash>
 
+#include "ssu.h"
 class SsuRepoManager: public QObject {
     Q_OBJECT
 
   public:
-    /**
-     * Filters to control the output of the repository lookup methods
-     */
-    enum RepoFilter {
-      NoFilter,                 ///< All repositories (global + user)
-      UserFilter,               ///< Only user configured repositories
-      BoardFilter,              ///< Only global repositories, with user blacklist ignored
-      BoardFilterUserBlacklist  ///< Only global repositories, with user blacklist applied
-    };
 
     SsuRepoManager();
     /**

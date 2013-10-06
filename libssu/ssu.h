@@ -97,7 +97,15 @@ class Ssu: public QObject {
     /// See SsuCoreConfig::useSslVerify
     Q_INVOKABLE bool useSslVerify();
 
-
+    /**
+     * Filters to control the output of the repository lookup methods
+     */
+    enum RepoFilter {
+      NoFilter,                 ///< All repositories (global + user)
+      UserFilter,               ///< Only user configured repositories
+      BoardFilter,              ///< Only global repositories, with user blacklist ignored
+      BoardFilterUserBlacklist  ///< Only global repositories, with user blacklist applied
+    };
     /**
      * List of possible device modes
      *

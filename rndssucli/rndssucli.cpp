@@ -392,7 +392,7 @@ void RndSsuCli::optRepos(QStringList opt){
 
   // micMode? handle it and return, as it's a lot simpler than full mode
   if (micMode){
-    repos = deviceInfo.repos(rndRepo, SsuRepoManager::BoardFilter);
+    repos = deviceInfo.repos(rndRepo, Ssu::BoardFilter);
     foreach (const QString &repo, repos){
       QString repoName = repo;
       if (repo.endsWith("-debuginfo")){
@@ -412,10 +412,10 @@ void RndSsuCli::optRepos(QStringList opt){
   }
 
   if (device.isEmpty())
-    repos = deviceInfo.repos(rndRepo, SsuRepoManager::BoardFilterUserBlacklist);
+    repos = deviceInfo.repos(rndRepo, Ssu::BoardFilterUserBlacklist);
   else {
     qout << "Printing repository configuration for '" << device << "'" << endl << endl;
-    repos = deviceInfo.repos(rndRepo, SsuRepoManager::BoardFilter);
+    repos = deviceInfo.repos(rndRepo, Ssu::BoardFilter);
   }
 
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
@@ -447,7 +447,7 @@ void RndSsuCli::optRepos(QStringList opt){
         repos.clear();
         continue;
       }
-      repos = deviceInfo.repos(rndRepo, SsuRepoManager::UserFilter);
+      repos = deviceInfo.repos(rndRepo, Ssu::UserFilter);
       qout << endl << "Enabled repositories (user): " << endl;
     } else if (i==1){
       repos = deviceInfo.disabledRepos();
