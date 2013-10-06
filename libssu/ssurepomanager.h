@@ -12,11 +12,13 @@
 #include <QHash>
 
 #include "ssu.h"
+
+class SsuDeviceInfo;
+
 class SsuRepoManager: public QObject {
     Q_OBJECT
 
   public:
-
     SsuRepoManager();
     /**
      * Add a repository. Note: Repositories ending with -debuginfo receive special
@@ -42,6 +44,16 @@ class SsuRepoManager: public QObject {
      * Remove a repository
      */
     void remove(QString repo);
+    /**
+     * Collect the list of repositories from different submodules
+     */
+    QStringList repos(bool rnd, int filter=Ssu::NoFilter);
+    /**
+     * Collect the list of repositories from different submodules.
+     * This form takes a reference to a custom device info instance
+     * to allow overrides.
+     */
+    QStringList repos(bool rnd, SsuDeviceInfo &deviceInfo, int filter=Ssu::NoFilter);
     /**
      * Resolve repository specific variables, and store them in storageHash. Does
      * not include adaptation specific variables, see SsuDeviceInfo::adaptationVariables

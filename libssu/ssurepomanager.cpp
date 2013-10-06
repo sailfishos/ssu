@@ -105,6 +105,22 @@ void SsuRepoManager::remove(QString repo){
   ssuSettings->sync();
 }
 
+QStringList SsuRepoManager::repos(bool rnd, int filter){
+  SsuDeviceInfo deviceInfo;
+
+  return repos(rnd, deviceInfo, filter);
+}
+
+QStringList SsuRepoManager::repos(bool rnd, SsuDeviceInfo &deviceInfo, int filter){
+  QStringList result;
+  result = deviceInfo.repos(rnd, filter);
+
+  result.sort();
+  result.removeDuplicates();
+
+  return result;
+}
+
 void SsuRepoManager::update(){
   // - delete all non-ssu managed repositories (missing ssu_ prefix)
   // - create list of ssu-repositories for current adaptation

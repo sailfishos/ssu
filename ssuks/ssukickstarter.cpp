@@ -99,8 +99,9 @@ QString SsuKickstarter::replaceSpaces(const QString &value){
 QStringList SsuKickstarter::repos(){
   QStringList result;
   SsuDeviceInfo deviceInfo(deviceModel);
+  SsuRepoManager repoManager;
 
-  QStringList repos = deviceInfo.repos(rndMode, Ssu::BoardFilter);
+  QStringList repos = repoManager.repos(rndMode, deviceInfo, Ssu::BoardFilter);
 
   foreach (const QString &repo, repos){
     QString repoUrl = ssu.repoUrl(repo, rndMode, QHash<QString, QString>(), repoOverride);
