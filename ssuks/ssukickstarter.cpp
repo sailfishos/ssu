@@ -100,11 +100,18 @@ QStringList SsuKickstarter::repos(){
   QStringList result;
   SsuDeviceInfo deviceInfo(deviceModel);
   SsuRepoManager repoManager;
+  QTextStream qerr(stderr);
 
   QStringList repos = repoManager.repos(rndMode, deviceInfo, Ssu::BoardFilter);
 
   foreach (const QString &repo, repos){
     QString repoUrl = ssu.repoUrl(repo, rndMode, QHash<QString, QString>(), repoOverride);
+
+    if (repoUrl == ""){
+      qerr << "Repository " << repo << " does not have an URL, ignoring" << endl;
+      continue;
+    }
+
     // Adaptation repos need to have separate naming so that when images are done
     // the repository caches will not be mixed with each other.
     if (repo.startsWith("adaptation")) {
