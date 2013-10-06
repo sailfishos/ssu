@@ -333,6 +333,11 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
     if (boardMappings->contains(deviceVariant(true) + "/repos"))
       result.append(boardMappings->value(deviceVariant(true) + "/repos").toStringList());
 
+    // add device configured repos only valid for rnd and/or release
+    repoKey = (rnd ? "/repos-rnd" : "/repos-release");
+    if (boardMappings->contains(deviceVariant(true) + repoKey))
+      result.append(boardMappings->value(deviceVariant(true) + repoKey).toStringList());
+
     // read the disabled repositories for this device
     // user can override repositories disabled here in the user configuration
     foreach (const QString &key, disabledRepos())
