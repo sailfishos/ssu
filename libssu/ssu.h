@@ -12,10 +12,9 @@
 #include <QObject>
 #include <QDebug>
 
-#include <QtXml/QDomDocument>
-
 class QNetworkAccessManager;
 class QNetworkReply;
+class QDomDocument;
 
 class Ssu: public QObject {
     Q_OBJECT

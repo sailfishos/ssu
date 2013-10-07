@@ -6,6 +6,9 @@
  */
 
 #include "urlresolvertest.h"
+
+#include <QtXml/QDomDocument>
+
 #include "constants.h"
 #include "testutils/process.h"
 
