@@ -7,6 +7,8 @@ DESTDIR = $$DESTDIR_LIB/zypp/plugins/urlresolver
 target.path = /usr/lib/zypp/plugins/urlresolver
 
 QT += network
+CONFIG += link_pkgconfig
+PKGCONFIG += connman-qt5
 
 HEADERS = ssuurlresolver.h
 SOURCES = main.cpp \

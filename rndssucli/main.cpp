@@ -10,7 +10,7 @@
 #include <QLocale>
 #include <QLibraryInfo>
 #include <QTimer>
-#include <QNetworkProxyFactory>
+#include <connman-qt5/connmannetworkproxyfactory.h>
 #include "rndssucli.h"
 
 int main(int argc, char** argv){
@@ -24,7 +24,7 @@ int main(int argc, char** argv){
                     QLibraryInfo::location(QLibraryInfo::TranslationsPath));
   app.installTranslator(&qtTranslator);
 
-  QNetworkProxyFactory::setUseSystemConfiguration(true);
+  QNetworkProxyFactory::setApplicationProxyFactory(new ConnmanNetworkProxyFactory);
 
   RndSsuCli mw;
   QTimer::singleShot(0, &mw, SLOT(run()));

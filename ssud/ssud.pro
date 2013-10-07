@@ -3,6 +3,8 @@ include(../ssuapplication.pri)
 include(ssud_dependencies.pri)
 
 QT += network dbus
+CONFIG += link_pkgconfig
+PKGCONFIG += connman-qt5
 
 HEADERS = ssuadaptor.h \
         ssud.h
