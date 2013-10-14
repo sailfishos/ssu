@@ -9,6 +9,7 @@
 #include <QRegExp>
 #include <QDirIterator>
 
+#include "sandbox_p.h"
 #include "ssudeviceinfo.h"
 #include "ssurepomanager.h"
 #include "ssucoreconfig.h"
@@ -152,7 +153,7 @@ void SsuRepoManager::update(){
   // assume configuration error if there are no device repos, and don't delete
   // anything, even in strict mode
   if ((deviceMode & Ssu::LenientMode) != Ssu::LenientMode && !repos.isEmpty()){
-    QDirIterator it(ZYPP_REPO_PATH, QDir::AllEntries|QDir::NoDot|QDir::NoDotDot);
+    QDirIterator it(Sandbox::map(ZYPP_REPO_PATH), QDir::AllEntries|QDir::NoDot|QDir::NoDotDot);
     while (it.hasNext()){
       it.next();
       if (it.fileName().left(4) != "ssu_"){
@@ -164,7 +165,7 @@ void SsuRepoManager::update(){
 
   // ... delete all ssu-managed repositories not valid for this device ...
   ssuFilters.append("ssu_*");
-  QDirIterator it(ZYPP_REPO_PATH, ssuFilters);
+  QDirIterator it(Sandbox::map(ZYPP_REPO_PATH), ssuFilters);
   while (it.hasNext()){
     QString f = it.next();
 
@@ -190,7 +191,7 @@ void SsuRepoManager::update(){
     }
 
     QString repoFilePath = QString("%1/ssu_%2_%3.repo")
-      .arg(ZYPP_REPO_PATH)
+      .arg(Sandbox::map(ZYPP_REPO_PATH))
       .arg(repo)
       .arg(rndMode ? "rnd" : "release");
 

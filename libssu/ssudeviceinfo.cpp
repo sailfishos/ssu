@@ -15,6 +15,7 @@ extern "C" {
 #include <boardname.h>
 }
 
+#include "sandbox_p.h"
 #include "ssudeviceinfo.h"
 #include "ssucoreconfig.h"
 #include "ssulog.h"
@@ -165,7 +166,7 @@ QString SsuDeviceInfo::deviceModel(){
   // check if the device can be identified by testing for a file
   foreach (const QString &key, keys){
     QString value = boardMappings->value(key).toString();
-    if (dir.exists(value)){
+    if (dir.exists(Sandbox::map(value))){
       cachedModel = key;
       break;
     }
@@ -224,7 +225,7 @@ QString SsuDeviceInfo::deviceModel(){
   */
 
   // check if the device can be identified by a string in /proc/cpuinfo
-  procCpuinfo.setFileName("/proc/cpuinfo");
+  procCpuinfo.setFileName(Sandbox::map("/proc/cpuinfo"));
   procCpuinfo.open(QIODevice::ReadOnly | QIODevice::Text);
   if (procCpuinfo.isOpen()){
     QTextStream in(&procCpuinfo);

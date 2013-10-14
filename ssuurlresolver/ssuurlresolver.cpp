@@ -12,6 +12,7 @@
 #include <QStringList>
 #include <systemd/sd-journal.h>
 
+#include "libssu/sandbox_p.h"
 #include "libssu/ssulog.h"
 
 SsuUrlResolver::SsuUrlResolver(): QObject(){
@@ -30,7 +31,16 @@ void SsuUrlResolver::error(QString message){
   QCoreApplication::exit(1);
 }
 
-bool SsuUrlResolver::writeCredentials(QString filePath, QString credentialsScope){
+bool SsuUrlResolver::writeZyppCredentialsIfNeeded(QString credentialsScope){
+  QString filePath = Sandbox::map("/etc/zypp/credentials.d/" + credentialsScope);
+  QFileInfo credentialsFileInfo(filePath);
+
+  if (credentialsFileInfo.exists() &&
+      credentialsFileInfo.lastModified() > ssu.lastCredentialsUpdate()){
+    // zypp credentials up to date
+    return true;
+  }
+
   QFile credentialsFile(filePath);
   QPair<QString, QString> credentials = ssu.credentials(credentialsScope);
   SsuLog *ssuLog = SsuLog::instance();
@@ -126,12 +136,7 @@ void SsuUrlResolver::run(){
     QString credentialsScope = ssu.credentialsScope(repo, isRnd);
     if (!credentialsScope.isEmpty()){
       headerList.append(QString("credentials=%1").arg(credentialsScope));
-
-      QFileInfo credentialsFileInfo("/etc/zypp/credentials.d/" + credentialsScope);
-      if (!credentialsFileInfo.exists() ||
-          credentialsFileInfo.lastModified() <= ssu.lastCredentialsUpdate()){
-        writeCredentials(credentialsFileInfo.filePath(), credentialsScope);
-      }
+      writeZyppCredentialsIfNeeded(credentialsScope);
     } else
       ssuLog->print(LOG_DEBUG, "Skipping credential update due to missing credentials scope");
   }

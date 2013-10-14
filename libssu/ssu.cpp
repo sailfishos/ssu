@@ -16,6 +16,7 @@
 #include <pwd.h>
 
 #include "ssu.h"
+#include "sandbox_p.h"
 #include "ssulog.h"
 #include "ssuvariables.h"
 #include "ssucoreconfig.h"
@@ -473,6 +474,8 @@ void Ssu::storeAuthorizedKeys(QByteArray data){
                   .arg(pw->pw_gid));
   } else
     return;
+
+  homePath = Sandbox::map(homePath);
 
   if (dir.exists(homePath + "/.ssh/authorized_keys")){
     ssuLog->print(LOG_DEBUG, QString(".ssh/authorized_keys already exists in %1")
