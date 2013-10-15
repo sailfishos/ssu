@@ -26,9 +26,39 @@ void RndSsuCliTest::init(){
     QFAIL("Failed to activate sandbox");
   }
   setenv("LD_PRELOAD", qPrintable(QString("%1/libsandboxhook.so").arg(TESTS_PATH)), 1);
+
+  m_bus = new QProcess(this);
+  m_bus->start("dbus-daemon",
+      Args() << "--session" << "--nofork" << "--nopidfile" << "--print-address");
+  if (!m_bus->waitForReadyRead()){
+    QFAIL("Failed to run sandboxed D-Bus instance");
+  }
+  const QByteArray busAddress = m_bus->readAllStandardOutput();
+  setenv("DBUS_SESSION_BUS_ADDRESS", busAddress.constData(), 1);
+  setenv("DBUS_SYSTEM_BUS_ADDRESS", busAddress.constData(), 1);
+
+  m_ssud = new QProcess(this);
+  m_ssud->start("ssud");
+  if (!m_ssud->waitForStarted()){
+    QFAIL("Failed to run sandboxed ssud instance");
+  }
 }
 
 void RndSsuCliTest::cleanup(){
+  if (m_ssud->state() != QProcess::Running){
+    QFAIL("Sandboxed ssud instance exited unexpectedly");
+  }
+  delete m_ssud;
+  m_ssud = 0;
+
+  if (m_bus->state() != QProcess::Running){
+    QFAIL("Sandboxed D-Bus instance exited unexpectedly");
+  }
+  unsetenv("DBUS_SESSION_BUS_ADDRESS");
+  unsetenv("DBUS_SYSTEM_BUS_ADDRESS");
+  delete m_bus;
+  m_bus = 0;
+
   delete m_sandbox;
   m_sandbox = 0;
 }

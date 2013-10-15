@@ -10,6 +10,8 @@
 
 #include <QObject>
 
+class QProcess;
+
 class Sandbox;
 
 class RndSsuCliTest: public QObject {
@@ -28,6 +30,8 @@ class RndSsuCliTest: public QObject {
 
   private:
     Sandbox *m_sandbox;
+    QProcess *m_bus;
+    QProcess *m_ssud;
 };
 
 #endif
