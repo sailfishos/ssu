@@ -15,6 +15,7 @@
 #include "ssusettings.h"
 #include "ssulog.h"
 #include "ssuvariables.h"
+#include "ssufeaturemanager.h"
 #include "ssu.h"
 
 #include "../constants.h"
@@ -111,6 +112,7 @@ QStringList SsuRepoManager::repos(bool rnd, int filter){
   return repos(rnd, deviceInfo, filter);
 }
 
+// @todo the non-device specific repository resolving should move from deviceInfo to repomanager
 QStringList SsuRepoManager::repos(bool rnd, SsuDeviceInfo &deviceInfo, int filter){
   QStringList result;
   result = deviceInfo.repos(rnd, filter);
@@ -314,8 +316,17 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
     i++;
   }
 
+  // search for URLs for repositories. Lookup order is:
+  // 1. overrides in ssu.ini
+  // 2. URLs from features
+  // 3. URLs from repos.ini
+
+  SsuFeatureManager featureManager;
+
   if (settings->contains("repository-urls/" + repoName))
     r = settings->value("repository-urls/" + repoName).toString();
+  else if (featureManager.url(repoName) != "")
+    r = featureManager.url(repoName);
   else {
     foreach (const QString &section, configSections){
       repoSettings.beginGroup(section);

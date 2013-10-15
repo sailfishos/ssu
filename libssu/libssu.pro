@@ -13,7 +13,8 @@ public_headers = \
 HEADERS = \
         $${public_headers} \
         sandbox_p.h \
-        ssucoreconfig.h
+        ssucoreconfig.h \
+        ssufeaturemanager.h
 
 SOURCES = \
         sandbox.cpp \
