@@ -10,6 +10,7 @@
 #include <QtXml/QDomDocument>
 
 #include "constants.h"
+#include "libssu/sandbox_p.h"
 #include "testutils/process.h"
 
 void UrlResolverTest::initTestCase(){
@@ -243,45 +244,12 @@ void UrlResolverTest::checkSetCredentials(){
 }
 
 void UrlResolverTest::checkStoreAuthorizedKeys(){
-  struct Cleanup {
-    ~Cleanup(){
-      if (!tempHomePath.isEmpty()){
-        Process rmtemp;
-        rmtemp.execute("rm", QStringList() << "-rf" << tempHomePath);
-        if (rmtemp.hasError()){
-          qWarning("%s: Failed to remove temporary directory '%s': %s", Q_FUNC_INFO,
-              tempHomePath.constData(), qPrintable(rmtemp.fmtErrorMessage()));
-        }
+  QVERIFY(QDir().mkpath(Sandbox::map(QDir::homePath())));
 
-        if (!qputenv("HOME", originalHomePath)){
-          qFatal("%s: Failed to restore HOME environment variable", Q_FUNC_INFO);
-        }
-      }
-    }
-
-    QByteArray originalHomePath;
-    QByteArray tempHomePath;
-  } cleanup;
-
-  // Temporarily change HOME path so Ssu::storeAuthorizedKeys() does not touch
-  // real home directory
-  cleanup.originalHomePath = qgetenv("HOME");
-  QVERIFY(!cleanup.originalHomePath.isEmpty());
-
-  Process mktemp;
-  cleanup.tempHomePath = mktemp.execute("mktemp",
-      QStringList() << "-t" << "-d" << "ut_urlresolver.temp-home.XXX").trimmed().toLocal8Bit();
-  QVERIFY2(!mktemp.hasError(), qPrintable(mktemp.fmtErrorMessage()));
-
-  QVERIFY(qputenv("HOME", cleanup.tempHomePath));
-  QVERIFY2(QDir::homePath() == QString(cleanup.tempHomePath),
-      "QDir::homePath() does not change after qputenv(\"HOME\", \"...\")");
-
-  // Here starts the test itself
   QByteArray testData("# test data\n");
   ssu.storeAuthorizedKeys(testData);
 
-  QFile authorizedKeys(QDir::home().filePath(".ssh/authorized_keys"));
+  QFile authorizedKeys(Sandbox::map(QDir::home().filePath(".ssh/authorized_keys")));
   QVERIFY(authorizedKeys.open(QIODevice::ReadOnly));
 
   QVERIFY(authorizedKeys.readAll().split('\n').contains(testData.trimmed()));
@@ -296,7 +264,7 @@ void UrlResolverTest::checkStoreAuthorizedKeys(){
   const QFile::Permissions go_rwx =
     QFile::ReadGroup | QFile::WriteGroup | QFile::ExeGroup |
     QFile::ReadOther | QFile::WriteOther | QFile::ExeOther;
-  QVERIFY((QFileInfo(QDir::home().filePath(".ssh")).permissions() & go_rwx) == 0);
+  QVERIFY((QFileInfo(Sandbox::map(QDir::home().filePath(".ssh"))).permissions() & go_rwx) == 0);
 }
 
 void UrlResolverTest::checkVerifyResponse(){
