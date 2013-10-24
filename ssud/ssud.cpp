@@ -26,6 +26,15 @@ Ssud::Ssud(QObject *parent): QObject(parent){
     qFatal("Cannot register object at %s", OBJECT_PATH);
   }
 
+  // prepare for controlled suicide on boredom
+  const int AUTOCLOSE_TIMEOUT_MS = 180 * 1000;
+
+  autoclose.setSingleShot(true);
+  autoclose.setInterval(AUTOCLOSE_TIMEOUT_MS);
+
+  connect(&autoclose, SIGNAL(timeout()),
+          this, SLOT(quit()));
+
   new SsuAdaptor(this);
 
   connect(&ssu, SIGNAL(done()),
@@ -34,6 +43,9 @@ Ssud::Ssud(QObject *parent): QObject(parent){
           this, SIGNAL(credentialsChanged()));
   connect(&ssu, SIGNAL(registrationStatusChanged()),
           this, SIGNAL(registrationStatusChanged()));
+
+  // a cry for help everytime we do something to prevent suicide
+  autoclose.start();
 }
 
 Ssud::~Ssud(){
@@ -42,32 +54,38 @@ Ssud::~Ssud(){
 QString Ssud::deviceModel(){
   SsuDeviceInfo deviceInfo;
 
+  autoclose.start();
   return deviceInfo.deviceModel();
 }
 
 QString Ssud::deviceFamily(){
   SsuDeviceInfo deviceInfo;
 
+  autoclose.start();
   return deviceInfo.deviceFamily();
 }
 
 QString Ssud::deviceUid(){
   SsuDeviceInfo deviceInfo;
 
+  autoclose.start();
   return deviceInfo.deviceUid();
 }
 
 QString Ssud::deviceVariant(){
   SsuDeviceInfo deviceInfo;
 
+  autoclose.start();
   return deviceInfo.deviceVariant();
 }
 
 bool Ssud::error(){
+  autoclose.start();
   return ssu.error();
 }
 
 QString Ssud::lastError(){
+  autoclose.start();
   return ssu.lastError();
 }
 
@@ -76,19 +94,24 @@ void Ssud::quit(){
 }
 
 bool Ssud::isRegistered(){
+  autoclose.start();
   return ssu.isRegistered();
 }
 
 void Ssud::registerDevice(const QString &username, const QString &password){
+  autoclose.stop();
   ssu.sendRegistration(username, password);
+  autoclose.start();
 }
 
 void Ssud::unregisterDevice(){
+  autoclose.start();
   ssu.unregister();
 };
 
 
 int Ssud::deviceMode(){
+  autoclose.start();
   return ssu.deviceMode();
 }
 
@@ -97,9 +120,11 @@ void Ssud::setDeviceMode(int mode){
 
   SsuRepoManager repoManager;
   repoManager.update();
+  autoclose.start();
 }
 
 QString Ssud::flavour(){
+  autoclose.start();
   return ssu.flavour();
 }
 
@@ -108,10 +133,12 @@ void Ssud::setFlavour(const QString &flavour){
 
   SsuRepoManager repoManager;
   repoManager.update();
+  autoclose.start();
 }
 
 
 QString Ssud::release(bool rnd){
+  autoclose.start();
   return ssu.release(rnd);
 }
 
@@ -120,10 +147,13 @@ void Ssud::setRelease(const QString &release, bool rnd){
 
   SsuRepoManager repoManager;
   repoManager.update();
+  autoclose.start();
 }
 
 void Ssud::modifyRepo(int action, const QString &repo){
   SsuRepoManager repoManager;
+
+  autoclose.stop();
 
   switch(action){
     case Add:
@@ -141,15 +171,19 @@ void Ssud::modifyRepo(int action, const QString &repo){
   }
 
   repoManager.update();
+  autoclose.start();
 }
 
 void Ssud::addRepo(const QString &repo, const QString &url){
   SsuRepoManager repoManager;
   repoManager.add(repo, url);
   repoManager.update();
+  autoclose.start();
 }
 
 void Ssud::updateRepos(){
   SsuRepoManager repoManager;
+  autoclose.stop();
   repoManager.update();
+  autoclose.start();
 }

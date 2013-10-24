@@ -10,6 +10,7 @@
 
 #include <QObject>
 #include <QString>
+#include <QTimer>
 
 #include "libssu/ssu.h"
 
@@ -56,6 +57,7 @@ class Ssud: public QObject {
     Ssu ssu;
     static const char *SERVICE_NAME;
     static const char *OBJECT_PATH;
+    QTimer autoclose;
 
     enum Actions {
       Remove  = 0,
