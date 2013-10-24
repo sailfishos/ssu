@@ -49,6 +49,12 @@
     <method name="deviceVariant">
       <arg direction="out" type="s" name="model"/>
     </method>
+    <!-- return a model-specific string suitable for displaying -->
+    <!-- see documentation of Ssu::DisplayType for supported types -->
+    <method name="displayName">
+      <arg direction="out" type="s" name="label"/>
+      <arg direction="in" type="i" name="type" />
+    </method>
 
     <!-- repository management -->
     <method name="deviceMode">

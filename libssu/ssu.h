@@ -118,6 +118,14 @@ class Ssu: public QObject {
       ReleaseMode        = 0x4,   ///< Enable Release mode
       LenientMode        = 0x8    ///< Disable strict mode (i.e., keep unmanaged repositories)
     };
+    /**
+     * A list of types ssu provides shiny values suitable for displaying
+     */
+    enum DisplayType {
+      DeviceManufacturer = 0,     ///< Manufacturer, like ACME Corp. Board mappings key "deviceManufacturer"
+      DeviceModel,                ///< Marketed device name, like Pogoblaster 3000. Board mappings key "prettyModel"
+      DeviceDesignation,          ///< Type designation, like NCC-1701. Beard mappings key "deviceDesignation"
+    };
 
     /**
      * Edit modes for variables containing bitmasks

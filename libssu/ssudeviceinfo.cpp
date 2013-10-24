@@ -308,6 +308,48 @@ QStringList SsuDeviceInfo::disabledRepos(){
   return result;
 }
 
+QString SsuDeviceInfo::displayName(const int type){
+  QString model = deviceModel();
+  QString variant = deviceVariant(false);
+  QString value, key;
+
+
+  switch (type){
+    case Ssu::DeviceManufacturer:
+      key = "/deviceManufacturer";
+      break;
+    case Ssu::DeviceModel:
+      key = "/prettyModel";
+      break;
+    case Ssu::DeviceDesignation:
+      key = "/deviceDesignation";
+      break;
+    default:
+      return "";
+  }
+
+  /*
+   * Go through different levels of fallbacks:
+   * 1. model specific setting
+   * 2. variant specific setting
+   * 3. global setting
+   * 4. return model name, or "UNKNOWN" in case query was for manufacturer
+   */
+
+  if (boardMappings->contains(model + key))
+    value = boardMappings->value(model + key).toString();
+  else if (variant != "" && boardMappings->contains(variant + key))
+    value = boardMappings->value(variant + key).toString();
+  else if (boardMappings->contains(key))
+    value = boardMappings->value(key).toString();
+  else if (type != Ssu::DeviceManufacturer)
+    value = model;
+  else
+    value = "UNKNOWN";
+
+  return value;
+}
+
 // this half belongs into repo-manager, as it not only handles board-specific
 // repositories. Right now this one looks like the better place due to the
 // connection to board specific stuff, though

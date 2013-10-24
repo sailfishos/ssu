@@ -63,6 +63,17 @@ class SsuDeviceInfo: public QObject {
      */
     QStringList disabledRepos();
     /**
+     * Return a string suitable for display in dialogs, ...
+     *
+     * See Ssu::DeviceTypes for supported types.
+     *
+     * If not configured the model name used by SSU will be returned instead
+     * for product and type.
+     * If no manufacturer is found UNKNOWN is returned.
+     * For an invalid type an empty string is returned.
+     */
+    Q_INVOKABLE QString displayName(const int type);
+    /**
      * Return the complete list of repositories configured for a device.
      * Depending on the filter options, all repostories (user and board),
      * only board-specific, or only user-specific are returned.

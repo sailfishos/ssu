@@ -489,7 +489,9 @@ void RndSsuCli::optStatus(){
 
   qout << "Device registration status: "
        << (ssu.isRegistered() ? "registered" : "not registered") << endl;
-  qout << "Device model: " << deviceInfo.deviceModel() << endl;
+  qout << "Device model: " << deviceInfo.displayName(Ssu::DeviceModel) << " ("
+       << deviceInfo.deviceModel() << " / "
+       << deviceInfo.displayName(Ssu::DeviceDesignation) << ")" << endl;
   if (deviceInfo.deviceVariant() != "")
     qout << "Device variant: " << deviceInfo.deviceVariant() << endl;
   qout << "Device UID: " << deviceUid << endl;

@@ -27,6 +27,7 @@ class Ssud: public QObject {
     QString deviceFamily();
     QString deviceUid();
     QString deviceVariant();
+    QString displayName(int type);
     /* credential management */
     bool isRegistered();
     void registerDevice(const QString &username, const QString &password);

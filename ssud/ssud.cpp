@@ -79,6 +79,13 @@ QString Ssud::deviceVariant(){
   return deviceInfo.deviceVariant();
 }
 
+QString Ssud::displayName(int type){
+  SsuDeviceInfo deviceInfo;
+
+  autoclose.start();
+  return deviceInfo.displayName(type);
+}
+
 bool Ssud::error(){
   autoclose.start();
   return ssu.error();
