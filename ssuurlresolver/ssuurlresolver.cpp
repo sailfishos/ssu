@@ -125,6 +125,12 @@ void SsuUrlResolver::run(){
   } else
     ssuLog->print(LOG_DEBUG, "Device not registered -- skipping credential update");
 
+  if (repo == "store" || repo.startsWith("store-c-")){
+    ssu.updateStoreCredentials();
+    if (ssu.error())
+      error (ssu.lastError());
+  }
+
   // resolve base url
   resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
 
@@ -155,7 +161,7 @@ void SsuUrlResolver::run(){
   if (resolvedUrl.isEmpty()){
     error("URL for repository is not set.");
   } else if (resolvedUrl.indexOf(QRegExp("[a-z]*://", Qt::CaseInsensitive)) != 0) {
-    error ("URL for repository is invalid.");
+    error("URL for repository is invalid.");
   } else {
     PluginFrame out("RESOLVEDURL");
     out.setBody(resolvedUrl.toStdString());

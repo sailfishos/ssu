@@ -177,6 +177,10 @@ class Ssu: public QObject {
      * error message.
      */
     void updateCredentials(bool force=false);
+    /**
+     * Try to update credentials for (Jolla) store
+     */
+    void updateStoreCredentials();
 
   signals:
     /**

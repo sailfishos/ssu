@@ -76,6 +76,11 @@ QPair<QString, QString> Ssu::credentials(QString scope){
 
 QString Ssu::credentialsScope(QString repoName, bool rndRepo){
   SsuCoreConfig *settings = SsuCoreConfig::instance();
+
+  // hardcoded magic for doing special privileges store repositories
+  if (repoName == "store" || repoName.startsWith("store-c-"))
+    return "store";
+
   return settings->credentialsScope(repoName, rndRepo);
 }
 
@@ -580,6 +585,20 @@ void Ssu::updateCredentials(bool force){
   manager->get(request);
 }
 
+void Ssu::updateStoreCredentials(){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  QString username, password;
+
+  // TODO:
+  // - get values for username/password from store
+  // - use setError() to set error state if credentials can't be received
+
+  settings->beginGroup("credentials-store");
+  settings->setValue("username", username);
+  settings->setValue("password", password);
+  settings->endGroup();
+  settings->sync();
+}
 
 void Ssu::unregister(){
   SsuCoreConfig *settings = SsuCoreConfig::instance();
