@@ -312,6 +312,8 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
   } else {
       // No domain defined
       username = usernameDomain;
+      if (settings->contains("default-rnd-domain"))
+        setDomain(settings->value("default-rnd-domain").toString());
   }
 
   ssuCaCertificate = SsuRepoManager::caCertificatePath();
