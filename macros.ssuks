@@ -1,6 +1,11 @@
 # copy all the relevant files for kickstart generation both from system and
 # newly installed into sandbox for ssuks; then create rnd and release kickstarts
 # for all devices listed.
+#
+# Some variables can control the macros behaviour:
+# KS_LEVELS true for rnd kickstarts, false for release kickstarts.
+#           default is "true false"
+
 %gen_ks() \
     mkdir -p /tmp/sandbox/%{_datadir} \
     [ -d %{_datadir}/ssu ] && cp -Rf %{_datadir}/ssu /tmp/sandbox/%{_datadir}/ \
@@ -9,8 +14,11 @@
     rm -f %{buildroot}/%{_datadir}/ssu/board-mappings.ini \
     mkdir -p %{buildroot}/%{_datadir}/kickstarts \
     sleep 1 \
+    if [ -z "$KS_LEVELS" ]; then \
+        KS_LEVELS="true false" \
+    fi \
     for M in %{?*}; do \
-        for B in true false; do  \
+        for B in $KS_LEVELS; do  \
             ssuks %{?ssu_override} model="$M" sandbox=/tmp/sandbox outputdir=%{buildroot}/%{_datadir}/kickstarts/ rnd=$B version=%{version} \
         done \
     done \
