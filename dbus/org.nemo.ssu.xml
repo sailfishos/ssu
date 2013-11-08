@@ -88,6 +88,10 @@
     </method>
     <method name="updateRepos">
     </method>
+    <method name="updateStoreCredentials">
+      <arg direction="in" type="s" name="userName" />
+      <arg direction="in" type="s" name="accessToken" />
+    </method>
 
     <method name="error">
       <arg direction="out" type="b" name="status"/>

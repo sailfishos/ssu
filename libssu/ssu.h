@@ -180,7 +180,7 @@ class Ssu: public QObject {
     /**
      * Try to update credentials for (Jolla) store
      */
-    void updateStoreCredentials();
+    void updateStoreCredentials(const QString &userName, const QString &accessToken);
 
   signals:
     /**
