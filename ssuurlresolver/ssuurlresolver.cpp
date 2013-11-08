@@ -125,12 +125,6 @@ void SsuUrlResolver::run(){
   } else
     ssuLog->print(LOG_DEBUG, "Device not registered -- skipping credential update");
 
-  if (repo == "store" || repo.startsWith("store-c-")){
-    ssu.updateStoreCredentials();
-    if (ssu.error())
-      error (ssu.lastError());
-  }
-
   // resolve base url
   resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
 
@@ -141,6 +135,15 @@ void SsuUrlResolver::run(){
     ssuLog->print(LOG_DEBUG, QString("Requesting credentials for '%1' with RND status %2...").arg(repo).arg(isRnd));
     QString credentialsScope = ssu.credentialsScope(repo, isRnd);
     if (!credentialsScope.isEmpty()){
+      // personal store repositories as well as the ones listed in the
+      // store-auth-repos domain setting use store credentials. Refresh
+      // here, as we only know after checking scope if we need to have
+      // store credentials at all
+      if (credentialsScope == "store"){
+        ssu.updateStoreCredentials();
+        if (ssu.error())
+          error (ssu.lastError());
+      }
       headerList.append(QString("credentials=%1").arg(credentialsScope));
       writeZyppCredentialsIfNeeded(credentialsScope);
     } else

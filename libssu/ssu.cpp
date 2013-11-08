@@ -79,9 +79,28 @@ QPair<QString, QString> Ssu::credentials(QString scope){
 
 QString Ssu::credentialsScope(QString repoName, bool rndRepo){
   SsuCoreConfig *settings = SsuCoreConfig::instance();
+  SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
 
   // hardcoded magic for doing special privileges store repositories
   if (repoName == "store" || repoName.startsWith("store-c-"))
+    return "store";
+
+  // check if some repos are marked for using store-credentials
+  // in current domain, checking first for rnd/release specific
+  // settings, and if not found in generic settings
+  QString storeAuthReposKey = QString("store-auth-repos-%1")
+    .arg(rndRepo ? "rnd" : "release");
+  QStringList storeAuthRepos =
+    SsuVariables::variable(&repoSettings,
+                           domain() + "-domain",
+                           storeAuthReposKey).toStringList();
+  if (storeAuthRepos.empty())
+    storeAuthRepos =
+      SsuVariables::variable(&repoSettings,
+                             domain() + "-domain",
+                             "store-auth-repos").toStringList();
+
+  if (storeAuthRepos.contains(repoName))
     return "store";
 
   return settings->credentialsScope(repoName, rndRepo);
