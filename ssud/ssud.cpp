@@ -194,8 +194,3 @@ void Ssud::updateRepos(){
   repoManager.update();
   autoclose.start();
 }
-
-void Ssud::updateStoreCredentials(const QString &userName, const QString &accessToken){
-  ssu.updateStoreCredentials(userName, accessToken);
-  autoclose.start();
-}

@@ -42,7 +42,6 @@ class Ssud: public QObject {
     void modifyRepo(int action, const QString &repo);
     void addRepo(const QString &repo, const QString &url);
     void updateRepos();
-    void updateStoreCredentials(const QString &userName, const QString &accessToken);
 
     bool error();
     QString lastError();

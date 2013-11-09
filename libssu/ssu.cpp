@@ -609,13 +609,23 @@ void Ssu::updateCredentials(bool force){
   manager->get(request);
 }
 
-void Ssu::updateStoreCredentials(const QString &userName, const QString &accessToken){
-  SsuCoreConfig *settings = SsuCoreConfig::instance();
-  settings->beginGroup("credentials-store");
-  settings->setValue("username", userName);
-  settings->setValue("password", accessToken);
-  settings->endGroup();
-  settings->sync();
+void Ssu::updateStoreCredentials(){
+  QDBusMessage message = QDBusMessage::createMethodCall("com.jolla.jollastore",
+                                                        "/StoreClient",
+                                                        "com.jolla.jollastore",
+                                                        "storeCredentials");
+  QDBusPendingReply<QString, QString> reply = QDBusConnection::sessionBus().asyncCall(message);
+  reply.waitForFinished();
+  if (reply.isError()) {
+    setError(QString("Store credentials not received. %1").arg(reply.error().message()));
+  } else {
+    SsuCoreConfig *settings = SsuCoreConfig::instance();
+    settings->beginGroup("credentials-store");
+    settings->setValue("username", reply.argumentAt<0>());
+    settings->setValue("password", reply.argumentAt<1>());
+    settings->endGroup();
+    settings->sync();
+  }
 }
 
 void Ssu::unregister(){

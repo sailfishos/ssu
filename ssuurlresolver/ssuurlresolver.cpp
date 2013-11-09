@@ -139,12 +139,11 @@ void SsuUrlResolver::run(){
       // store-auth-repos domain setting use store credentials. Refresh
       // here, as we only know after checking scope if we need to have
       // store credentials at all
-
-      // store-client updates the store credentials via dbus call on
-      // every startup (or sign in to be precise).
-      // TODO: Is there need to check that the credentials were really
-      //       set by store-client?
-
+      if (credentialsScope == "store"){
+        ssu.updateStoreCredentials();
+        if (ssu.error())
+          error (ssu.lastError());
+      }
       headerList.append(QString("credentials=%1").arg(credentialsScope));
       writeZyppCredentialsIfNeeded(credentialsScope);
     } else
