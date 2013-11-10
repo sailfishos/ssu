@@ -614,7 +614,7 @@ void Ssu::updateStoreCredentials(){
                                                         "/StoreClient",
                                                         "com.jolla.jollastore",
                                                         "storeCredentials");
-  QDBusPendingReply<QString, QString> reply = QDBusConnection::sessionBus().asyncCall(message);
+  QDBusPendingReply<QString, QString> reply = SsuCoreConfig::userSessionBus().asyncCall(message);
   reply.waitForFinished();
   if (reply.isError()) {
     setError(QString("Store credentials not received. %1").arg(reply.error().message()));

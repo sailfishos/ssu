@@ -7,6 +7,9 @@
 
 #include <QFile>
 #include <QTextStream>
+#include <QDBusConnection>
+
+#include <getdef.h>
 
 #include "ssucoreconfig.h"
 #include "ssulog.h"
@@ -142,4 +145,23 @@ bool SsuCoreConfig::useSslVerify(){
     return value("ssl-verify").toBool();
   else
     return true;
+}
+
+QDBusConnection SsuCoreConfig::userSessionBus(){
+  int uid_min = getdef_num("UID_MIN", -1);
+
+  // For calls from valid UID we assume that they are properly logged in users.
+  // If they are not the call will fail, but it's their fault.
+  if (getuid() >= uid_min){
+    return QDBusConnection::sessionBus();
+  } else {
+    // DBus security policy will prevent this beeing used by callers other
+    // than root at the moment. Still do it generic in case DBus policy will
+    // be extended later, and just use the usual 'DBus: THOU SHALL NOT PASS!'
+    // @TODO the uid to be used should be determined using the logind API from
+    //       systemd package to support multiuser systems in the future
+    QString sessionBusAddress=QString("unix:path=/run/user/%1/dbus/user_bus_socket")
+      .arg(uid_min);
+    return QDBusConnection::connectToBus(sessionBusAddress, "userSessionBus");
+  }
 }

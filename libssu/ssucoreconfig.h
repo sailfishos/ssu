@@ -9,7 +9,6 @@
 #define _SSUCORECONFIG_H
 
 #include <QObject>
-
 #include "ssusettings.h"
 #include "ssu.h"
 
@@ -22,6 +21,8 @@
 /// Path to the main SSU configuration file
 #define SSU_DEFAULT_CONFIGURATION "/usr/share/ssu/ssu-defaults.ini"
 #endif
+
+class QDBusConnection;
 
 class SsuCoreConfig: public SsuSettings {
     Q_OBJECT
@@ -100,6 +101,10 @@ class SsuCoreConfig: public SsuSettings {
      * @retval false SSL verification should be disabled
      */
     Q_INVOKABLE bool useSslVerify();
+    /**
+     * Return a DBus connection object connected to the session bus of the active user
+     */
+    static QDBusConnection userSessionBus();
 
 
   private:
