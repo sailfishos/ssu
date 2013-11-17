@@ -118,6 +118,9 @@ QStringList SsuRepoManager::repos(bool rnd, SsuDeviceInfo &deviceInfo, int filte
   QStringList result;
   result = deviceInfo.repos(rnd, filter);
 
+  SsuFeatureManager featureManager;
+  result.append(featureManager.repos(rnd, filter));
+
   result.sort();
   result.removeDuplicates();
 
@@ -149,12 +152,12 @@ void SsuRepoManager::update(){
     rndMode = true;
 
   // get list of device-specific repositories...
-  QStringList repos = deviceInfo.repos(rndMode);
+  QStringList repositoryList = repos(rndMode);
 
   // strict mode enabled -> delete all repositories not prefixed by ssu
   // assume configuration error if there are no device repos, and don't delete
   // anything, even in strict mode
-  if ((deviceMode & Ssu::LenientMode) != Ssu::LenientMode && !repos.isEmpty()){
+  if ((deviceMode & Ssu::LenientMode) != Ssu::LenientMode && !repositoryList.isEmpty()){
     QDirIterator it(Sandbox::map(ZYPP_REPO_PATH), QDir::AllEntries|QDir::NoDot|QDir::NoDotDot);
     while (it.hasNext()){
       it.next();
@@ -174,7 +177,7 @@ void SsuRepoManager::update(){
     QStringList parts = it.fileName().split("_");
     // repo file structure is ssu_<reponame>_<rnd|release>.repo -> splits to 3 parts
     if (parts.count() == 3){
-      if (!repos.contains(parts.at(1)) ||
+      if (!repositoryList.contains(parts.at(1)) ||
           parts.at(2) != (rndMode ? "rnd.repo" : "release.repo" ))
         QFile(it.filePath()).remove();
     } else
@@ -182,7 +185,7 @@ void SsuRepoManager::update(){
   }
 
   // ... and create all repositories required for this device
-  foreach (const QString &repo, repos){
+  foreach (const QString &repo, repositoryList){
     // repo should be used where a unique identifier for silly human brains, or
     // zypper is required. repoName contains the shortened form for ssu use
     QString repoName = repo;
@@ -326,8 +329,8 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
 
   if (settings->contains("repository-urls/" + repoName))
     r = settings->value("repository-urls/" + repoName).toString();
-  else if (featureManager.url(repoName) != "")
-    r = featureManager.url(repoName);
+  else if (featureManager.url(repoName, rndRepo) != "")
+    r = featureManager.url(repoName, rndRepo);
   else {
     foreach (const QString &section, configSections){
       repoSettings.beginGroup(section);

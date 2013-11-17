@@ -12,16 +12,16 @@
 #include <QHash>
 #include <QStringList>
 
+#include "ssu.h"
 #include "ssusettings.h"
 
 class SsuFeatureManager: public QObject {
     Q_OBJECT
 
   public:
-    SsuFeatureManager(){};
-    // add rnd-flag?
-    QStringList repos(){};
-    QString url(QString repo){ return ""; };
+    SsuFeatureManager();
+    QStringList repos(bool rndRepo, int filter=Ssu::NoFilter);
+    QString url(QString repo, bool rndRepo);
 
   private:
     SsuSettings *featureSettings;

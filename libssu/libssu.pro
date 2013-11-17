@@ -22,6 +22,7 @@ SOURCES = \
         ssucoreconfig.cpp \
         ssudeviceinfo.cpp \
         ssulog.cpp \
+        ssufeaturemanager.cpp \
         ssuvariables.cpp \
         ssurepomanager.cpp \
         ssusettings.cpp
