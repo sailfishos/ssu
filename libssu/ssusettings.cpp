@@ -59,7 +59,8 @@ void SsuSettings::merge(bool keepOld){
   }
 
   if (skipMerge){
-    ssuLog->print(LOG_DEBUG, QString("Configuration file is newer than all config.d files, skipping merge"));
+    // systemd journal does not seem to allow selective loglevels for different services, disabling for now
+    //ssuLog->print(LOG_DEBUG, QString("Configuration file is newer than all config.d files, skipping merge"));
     return;
   }
 
