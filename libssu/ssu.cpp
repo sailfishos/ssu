@@ -28,6 +28,8 @@
 
 #include "../constants.h"
 
+#define SSU_NETWORK_REQUEST_DOMAIN_DATA (static_cast<QNetworkRequest::Attribute>(QNetworkRequest::User + 1))
+
 static void restoreUid(){
   if (getuid() == 0){
     seteuid(0);
@@ -234,6 +236,8 @@ void Ssu::requestFinished(QNetworkReply *reply){
   QSslConfiguration sslConfiguration = reply->sslConfiguration();
   SsuLog *ssuLog = SsuLog::instance();
   SsuCoreConfig *settings = SsuCoreConfig::instance();
+  QNetworkRequest request = reply->request();
+  QVariant originalDomainVariant = request.attribute(SSU_NETWORK_REQUEST_DOMAIN_DATA);
 
 #if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
   ssuLog->print(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
@@ -253,63 +257,77 @@ void Ssu::requestFinished(QNetworkReply *reply){
   }
 #endif
 
-  /// @TODO: indicate that the device is not registered if there's a 404 on credentials update url
-  // what sucks more, this or goto?
-  do {
-    if (settings->contains("home-url")){
-      QString homeUrl = settings->value("home-url").toString().arg("");
-      homeUrl.remove(QRegExp("//+$"));
-      QNetworkRequest request = reply->request();
-
-      if (request.url().toString().startsWith(homeUrl, Qt::CaseInsensitive)){
-        // we don't care about errors on download request
-        if (reply->error() > 0) break;
-        QByteArray data = reply->readAll();
-        storeAuthorizedKeys(data);
-        break;
-      }
-    }
-
-    if (reply->error() > 0){
-      pendingRequests--;
-      setError(reply->errorString());
-      return;
-    } else {
-      QByteArray data = reply->readAll();
-      ssuLog->print(LOG_DEBUG, QString("RequestOutput %1")
-                    .arg(data.data()));
-
-      QDomDocument doc;
-      QString xmlError;
-      if (!doc.setContent(data, &xmlError)){
-        pendingRequests--;
-        setError(tr("Unable to parse server response (%1)").arg(xmlError));
-        return;
-      }
-
-      QString action = doc.elementsByTagName("action").at(0).toElement().text();
-
-      if (!verifyResponse(&doc)) break;
-
-      ssuLog->print(LOG_DEBUG, QString("Handling request of type %1")
-                    .arg(action));
-      if (action == "register"){
-        if (!registerDevice(&doc)) break;
-      } else if (action == "credentials"){
-        if (!setCredentials(&doc)) break;
-      } else {
-        pendingRequests--;
-        setError(tr("Response to unknown action encountered: %1").arg(action));
-        return;
-      }
-    }
-  } while (false);
-
   pendingRequests--;
 
+  QString action;
+  QByteArray data;
+  QDomDocument doc;
+  QString xmlError;
+
+  /// @TODO: indicate that the device is not registered if there's a 404 on credentials update url
+  if (settings->contains("home-url")){
+    QString homeUrl = settings->value("home-url").toString().arg("");
+    homeUrl.remove(QRegExp("//+$"));
+
+    if (request.url().toString().startsWith(homeUrl, Qt::CaseInsensitive)){
+      // we don't care about errors on download request
+      if (reply->error() == 0) {
+          QByteArray data = reply->readAll();
+          storeAuthorizedKeys(data);
+      }
+
+      goto success;
+    }
+  }
+
+  if (reply->error() > 0){
+    setError(reply->errorString());
+    goto failure;
+  }
+
+  data = reply->readAll();
+  ssuLog->print(LOG_DEBUG, QString("RequestOutput %1")
+                .arg(data.data()));
+
+  if (!doc.setContent(data, &xmlError)){
+    setError(tr("Unable to parse server response (%1)").arg(xmlError));
+    goto failure;
+  }
+
+  action = doc.elementsByTagName("action").at(0).toElement().text();
+
+  if (!verifyResponse(&doc)) {
+    goto failure;
+  }
+
+  ssuLog->print(LOG_DEBUG, QString("Handling request of type %1")
+                .arg(action));
+  if (action == "register") {
+    if (registerDevice(&doc)) {
+      goto success;
+    }
+  } else if (action == "credentials") {
+    if (setCredentials(&doc)) {
+      goto success;
+    }
+  } else {
+    setError(tr("Response to unknown action encountered: %1").arg(action));
+  }
+
+failure:
+  // Restore the original domain in case of failures with the registration
+  if (!originalDomainVariant.isNull()) {
+    QString originalDomain = originalDomainVariant.toString();
+    ssuLog->print(LOG_DEBUG, QString("Restoring domain on error: '%1'").arg(originalDomain));
+    setDomain(originalDomain);
+  }
+
+  // Fall through to cleanup handling in success from failure label
+success:
   ssuLog->print(LOG_DEBUG, QString("Request finished, pending requests: %1").arg(pendingRequests));
-  if (pendingRequests == 0)
+  if (pendingRequests == 0) {
     emit done();
+  }
 }
 
 void Ssu::sendRegistration(QString usernameDomain, QString password){
@@ -321,6 +339,10 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
   SsuLog *ssuLog = SsuLog::instance();
   SsuCoreConfig *settings = SsuCoreConfig::instance();
   SsuDeviceInfo deviceInfo;
+
+  QNetworkRequest request;
+  request.setAttribute(SSU_NETWORK_REQUEST_DOMAIN_DATA, domain());
+  ssuLog->print(LOG_DEBUG, QString("Saving current domain before request: '%1'").arg(domain()));
 
   // Username can include also domain, (user@domain), separate those
   if (usernameDomain.contains('@')) {
@@ -362,7 +384,6 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
 
   sslConfiguration.setCaCertificates(QSslCertificate::fromPath(ssuCaCertificate));
 
-  QNetworkRequest request;
   request.setUrl(QUrl(QString(ssuRegisterUrl)
                       .arg(IMEI)
                    ));
