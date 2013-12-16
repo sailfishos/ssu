@@ -35,8 +35,11 @@ bool SsuUrlResolver::writeZyppCredentialsIfNeeded(QString credentialsScope){
   QString filePath = Sandbox::map("/etc/zypp/credentials.d/" + credentialsScope);
   QFileInfo credentialsFileInfo(filePath);
 
+  /// @TODO: add scope to lastCredentialsUpdate() to allow scope specific update
+  ///        tracking
   if (credentialsFileInfo.exists() &&
-      credentialsFileInfo.lastModified() > ssu.lastCredentialsUpdate()){
+      credentialsFileInfo.lastModified() > ssu.lastCredentialsUpdate() &&
+      credentialsScope != "store"){
     // zypp credentials up to date
     return true;
   }
