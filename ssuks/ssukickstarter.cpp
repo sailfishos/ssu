@@ -334,8 +334,36 @@ bool SsuKickstarter::write(QString kickstart){
                                               : "release"))
                                 .arg(repoOverride.value("version"));
 
+  QStringList featuresList = deviceInfo.value("img-features").toStringList();
+
+  QString suggestedFeatures;
+
+  // work around some idiotic JS list parsing on our side by terminating one-element list by comma
+  if (featuresList.count() == 1)
+    suggestedFeatures = QString("# SuggestedFeatures: %1,")
+      .arg(deviceInfo.value("img-features").toStringList().join(", "));
+  else if (featuresList.count() > 1)
+    suggestedFeatures = QString("# SuggestedFeatures: %1")
+      .arg(deviceInfo.value("img-features").toStringList().join(", "));
+
+  QString imageType = "fs";
+  if (!deviceInfo.value("img-type").toString().isEmpty())
+    imageType = deviceInfo.value("img-type").toString();
+
+  QString imageArchitecture = "armv7hl";
+  if (!deviceInfo.value("img-arch").toString().isEmpty())
+    imageArchitecture = deviceInfo.value("img-arch").toString();
+
+  QString kickstartType = QString("# KickstartType: %1")
+    .arg((rndMode ? "rnd" : "release"));
+
   kout.setDevice(&ks);
-  kout << displayName << endl << endl;
+  kout << displayName << endl;
+  kout << kickstartType << endl;
+  if (!suggestedFeatures.isEmpty())
+    kout << suggestedFeatures << endl;
+  kout << "# SuggestedImageType: " << imageType << endl;
+  kout << "# SuggestedArchitecture: " << imageArchitecture << endl << endl;
   kout << commands().join("\n") << endl << endl;
   foreach (const QString &section, commandSections){
     kout << commandSection(section).join("\n") << endl << endl;
