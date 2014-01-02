@@ -99,6 +99,10 @@ class SsuDeviceInfo: public QObject {
     /**
      * Return a value from an adaptation section. Returns an empty string
      * or a given default value if key does not exist.
+     *
+     * If a device is marked as variant, and the requested key exists in a
+     * dedicated device section the key from the device section will get
+     * returned, otherwise the one from the variant.
      */
     QVariant value(const QString &key, const QVariant &value=QVariant());
 

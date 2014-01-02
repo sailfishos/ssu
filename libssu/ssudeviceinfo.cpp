@@ -443,10 +443,10 @@ void SsuDeviceInfo::setDeviceModel(QString model){
 }
 
 QVariant SsuDeviceInfo::value(const QString &key, const QVariant &value){
-  if (boardMappings->contains(deviceVariant()+"/"+key)){
-    return boardMappings->value(deviceVariant()+"/"+key);
-  } else if (boardMappings->contains(deviceModel()+"/"+key)){
+  if (boardMappings->contains(deviceModel()+"/"+key)){
     return boardMappings->value(deviceModel()+"/"+key);
+  } else if (boardMappings->contains(deviceVariant()+"/"+key)){
+    return boardMappings->value(deviceVariant()+"/"+key);
   }
 
   return value;
