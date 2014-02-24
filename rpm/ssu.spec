@@ -23,6 +23,7 @@ Requires(pre): shadow-utils
 Requires(pre): /usr/bin/groupadd-user
 Requires(postun): shadow-utils
 Requires: ssu-vendor-data
+Requires: ssu-network-proxy
 
 %description
 %{summary}.
@@ -32,7 +33,7 @@ Requires: ssu-vendor-data
 %{_libdir}/zypp/plugins/urlresolver/*
 %{_bindir}/rndssu
 %{_bindir}/ssu
-%{_libdir}/*.so.*
+%{_libdir}/libssu.so.*
 %dir %{_sysconfdir}/zypp/credentials.d
 # ssu itself does not use the package-update triggers, but provides
 # them for the vendor data packages to use
@@ -40,6 +41,18 @@ Requires: ssu-vendor-data
 %{_bindir}/ssud
 %{_datadir}/dbus-1/system-services/*.service
 %{_sysconfdir}/dbus-1/system.d/*.conf
+
+%package network-proxy-plugin
+Summary: Network Proxy support for ssu
+Group: System/Base
+Provides: ssu-network-proxy
+
+%description network-proxy-plugin
+%{summary}.
+
+%files network-proxy-plugin
+%defattr(-,root,root,-)
+%{_libdir}/libssunetworkproxy.so
 
 %package vendor-data-example
 Summary: Sample vendor configuration data
