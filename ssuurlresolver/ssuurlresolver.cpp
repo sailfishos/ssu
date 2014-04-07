@@ -10,6 +10,7 @@
 #include <QCoreApplication>
 #include <QFileInfo>
 #include <QStringList>
+#include <QUrl>
 #include <systemd/sd-journal.h>
 
 #include "libssu/sandbox_p.h"
@@ -154,9 +155,14 @@ void SsuUrlResolver::run(){
     ssuLog->print(LOG_DEBUG, QString("Skipping credential for %1 with scope %2").arg(repo).arg(credentialsScope));
 
   if (!headerList.isEmpty() && !resolvedUrl.isEmpty()){
-    resolvedUrl = QString("%1?%2")
-      .arg(resolvedUrl)
-      .arg(headerList.join("&"));
+    QUrl url(resolvedUrl);
+
+    if (url.hasQuery()){
+      url.setQuery(url.query() + "&" + headerList.join("&"));
+    } else
+      url.setQuery(headerList.join("&"));
+
+    resolvedUrl = url.toString();
   }
 
   // TODO, we should bail out here if the configuration specifies that the repo
