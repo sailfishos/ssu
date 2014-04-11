@@ -9,6 +9,7 @@
 #include <QTextStream>
 
 #include "ssulog.h"
+#include "ssucoreconfig.h"
 
 SsuLog *SsuLog::ssuLog = 0;
 
@@ -16,6 +17,7 @@ SsuLog *SsuLog::instance(){
   if (!ssuLog){
     ssuLog = new SsuLog();
     ssuLog->fallbackLogPath = "/tmp/ssu.log";
+    ssuLog->ssuLogLevel = -1;
   }
 
   return ssuLog;
@@ -24,6 +26,20 @@ SsuLog *SsuLog::instance(){
 void SsuLog::print(int priority, QString message){
   QByteArray ba = message.toUtf8();
   const char *ca = ba.constData();
+
+  if (ssuLogLevel == -1){
+    SsuCoreConfig *settings = SsuCoreConfig::instance();
+
+    if (settings->contains("loglevel"))
+      ssuLog->ssuLogLevel = settings->value("loglevel").toInt();
+    else
+      ssuLog->ssuLogLevel = LOG_ERR;
+  }
+
+  // this is rather dirty, but since systemd does not seem to allow to enable debug
+  // logging only for specific services probably best way for now
+  if (priority > ssuLogLevel)
+    return;
 
   if (sd_journal_print(priority, "ssu: %s", ca) < 0 && fallbackLogPath != ""){
     QFile logfile;

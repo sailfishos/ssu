@@ -26,6 +26,7 @@ class SsuLog {
     SsuLog(const SsuLog &); // hide copy constructor
 
     static SsuLog *ssuLog;
+    int ssuLogLevel;
     QString fallbackLogPath;
 };
 
