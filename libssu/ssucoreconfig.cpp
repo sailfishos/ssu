@@ -12,7 +12,6 @@
 #include <getdef.h>
 
 #include "ssucoreconfig.h"
-#include "ssulog.h"
 
 SsuCoreConfig *SsuCoreConfig::ssuCoreConfig = 0;
 

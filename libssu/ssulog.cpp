@@ -27,11 +27,13 @@ void SsuLog::print(int priority, QString message){
   QByteArray ba = message.toUtf8();
   const char *ca = ba.constData();
 
+  // directly go through qsettings here to avoid recursive invocation
+  // of coreconfig / ssulog
   if (ssuLogLevel == -1){
-    SsuCoreConfig *settings = SsuCoreConfig::instance();
+    QSettings settings(SSU_CONFIGURATION, QSettings::IniFormat);
 
-    if (settings->contains("loglevel"))
-      ssuLog->ssuLogLevel = settings->value("loglevel").toInt();
+    if (settings.contains("loglevel"))
+      ssuLog->ssuLogLevel = settings.value("loglevel").toInt();
     else
       ssuLog->ssuLogLevel = LOG_ERR;
   }
