@@ -112,5 +112,10 @@ class SsuDeviceInfo: public QObject {
     QString cachedFamily, cachedModel, cachedVariant;
 
     void clearCache();
+
+    /**
+     * Return a map of key, value pairs parsed from /etc/hw-release
+     */
+    QMap<QString, QString> hwRelease();
 };
 #endif
