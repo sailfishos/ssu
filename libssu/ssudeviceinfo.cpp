@@ -201,29 +201,6 @@ QString SsuDeviceInfo::deviceModel(){
   }
   if (!cachedModel.isEmpty()) return cachedModel;
 
-  // check if the QSystemInfo model is useful
-  //QSystemDeviceInfo devInfo;
-  // TODO Current Mer SystemDeviceInfo only returns cpuinfo stuff,
-  //      which is what we can do with cpuinfo matching in a more
-  //      flexible way, so there's not really any need to pull in the
-  //      whole X11 stack just for this. Can be enabled once systeminfo
-  //      is less insane
-  /*
-  QSystemDeviceInfoLinuxCommonPrivate devInfo;
-  QString model = devInfo.model();
-  boardMappings->beginGroup("systeminfo.equals");
-  keys = boardMappings->allKeys();
-  foreach (const QString &key, keys){
-    QString value = boardMappings->value(key).toString();
-    if (model == value){
-      cachedModel = key;
-      break;
-    }
-  }
-  boardMappings->endGroup();
-  if (!cachedModel.isEmpty()) return cachedModel;
-  */
-
   // check if the device can be identified by a string in /proc/cpuinfo
   procCpuinfo.setFileName(Sandbox::map("/proc/cpuinfo"));
   procCpuinfo.open(QIODevice::ReadOnly | QIODevice::Text);
