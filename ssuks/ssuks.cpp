@@ -28,7 +28,10 @@ void SsuKs::run(){
   QTextStream qerr(stderr);
   QHash<QString, QString> repoParameters;
 
-  if (arguments.count() == 1 && arguments.at(0) == "help"){
+  if (arguments.count() == 1 &&
+          (arguments.at(0) == "help" ||
+           arguments.at(0) == "--help" ||
+           arguments.at(0) == "-h")) {
     usage();
     return;
   }
