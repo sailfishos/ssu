@@ -54,11 +54,11 @@ QString SsuCoreConfig::flavour(){
     return "release";
 }
 
-int SsuCoreConfig::deviceMode(){
+Ssu::DeviceModeFlags SsuCoreConfig::deviceMode(){
   if (!contains("deviceMode"))
     return Ssu::ReleaseMode;
   else
-    return value("deviceMode").toInt();
+    return Ssu::DeviceModeFlags(value("deviceMode").toInt());
 }
 
 QString SsuCoreConfig::domain(bool pretty){
@@ -90,7 +90,7 @@ QString SsuCoreConfig::release(bool rnd){
     return value("release").toString();
 }
 
-void SsuCoreConfig::setDeviceMode(int mode, int editMode){
+void SsuCoreConfig::setDeviceMode(Ssu::DeviceModeFlags mode, enum Ssu::EditMode editMode){
   int oldMode = value("deviceMode").toInt();
 
   if ((editMode & Ssu::Add) == Ssu::Add){

@@ -56,7 +56,7 @@ class SsuCoreConfig: public SsuSettings {
     /**
      * Get the current mode bits for the device
      */
-    Q_INVOKABLE int deviceMode();
+    Q_INVOKABLE Ssu::DeviceModeFlags deviceMode();
     /**
      * Get the current domain used in registration
      * Internally - in the domain is replaced by :, if you need
@@ -82,7 +82,7 @@ class SsuCoreConfig: public SsuSettings {
     /**
      * Set mode bits for the device
      */
-    Q_INVOKABLE void setDeviceMode(int mode, int editMode=Ssu::Replace);
+    Q_INVOKABLE void setDeviceMode(Ssu::DeviceModeFlags mode, enum Ssu::EditMode editMode=Ssu::Replace);
     /**
      * Set the flavour used when resolving RND repositories
      */

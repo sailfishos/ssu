@@ -22,6 +22,59 @@ class Ssu: public QObject {
     friend class UrlResolverTest;
 
   public:
+    /**
+     * Filters to control the output of the repository lookup methods
+     */
+    enum RepoFilter {
+      NoFilter,                 ///< All repositories (global + user)
+      UserFilter,               ///< Only user configured repositories
+      BoardFilter,              ///< Only global repositories, with user blacklist ignored
+      BoardFilterUserBlacklist, ///< Only global repositories, with user blacklist applied
+    };
+
+    /**
+     * List of possible device modes
+     *
+     * ReleaseMode is defined to make a switch to allowing RnD and Release
+     * repositories on a device at the same time easy, if ever needed. Right
+     * now any mode where RndMode is not set is treated as ReleaseMode.
+     */
+    enum DeviceMode {
+      DisableRepoManager = 0x1,   ///< Disable automagic repository management
+      RndMode            = 0x2,   ///< Enable RnD mode for device
+      ReleaseMode        = 0x4,   ///< Enable Release mode
+      LenientMode        = 0x8,   ///< Disable strict mode (i.e., keep unmanaged repositories)
+      UpdateMode         = 0x10,  ///< Do repo isolation and similar bits important for updating devices
+    };
+
+    Q_DECLARE_FLAGS(DeviceModeFlags, DeviceMode)
+
+    /**
+     * A list of types ssu provides shiny values suitable for displaying
+     */
+    enum DisplayType {
+      DeviceManufacturer = 0,     ///< Manufacturer, like ACME Corp. Board mappings key "deviceManufacturer"
+      DeviceModel,                ///< Marketed device name, like Pogoblaster 3000. Board mappings key "prettyModel"
+      DeviceDesignation,          ///< Type designation, like NCC-1701. Beard mappings key "deviceDesignation"
+    };
+
+    /**
+     * Edit modes for variables containing bitmasks
+     */
+    enum EditMode {
+      Replace = 0x1, ///< Replace the old value with the new one
+      Add     = 0x2, ///< Make sure the given value is set in the bitmask
+      Remove  = 0x4, ///< Make sure the given value is not set in the bitmask
+    };
+
+    /**
+     * Return codes to signal success or error conditions
+     */
+    enum ReturnValue {
+      Success = 0,
+      ErrUpdateMode = -10,
+    };
+
     Ssu();
     /**
      * Find a username/password pair for the given scope
@@ -76,7 +129,7 @@ class Ssu: public QObject {
     /// See SsuCoreConfig::flavour
     Q_INVOKABLE QString flavour();
     /// See SsuCoreConfig::deviceMode
-    Q_INVOKABLE int deviceMode();
+    Q_INVOKABLE DeviceModeFlags deviceMode();
     /// See SsuCoreConfig::domain; returns printable version
     Q_INVOKABLE QString domain();
     /// See SsuCoreConfig::isRegistered
@@ -86,7 +139,7 @@ class Ssu: public QObject {
     /// See SsuCoreConfig::release
     Q_INVOKABLE QString release(bool rnd=false);
     /// See SsuCoreConfig::setDeviceMode
-    Q_INVOKABLE void setDeviceMode(int mode, int editMode=Replace);
+    Q_INVOKABLE void setDeviceMode(DeviceModeFlags mode, enum EditMode editMode=Replace);
     /// See SsuCoreConfig::setFlavour
     Q_INVOKABLE void setFlavour(QString flavour);
     /// See SsuCoreConfig::setRelease
@@ -95,55 +148,6 @@ class Ssu: public QObject {
     Q_INVOKABLE void setDomain(QString domain);
     /// See SsuCoreConfig::useSslVerify
     Q_INVOKABLE bool useSslVerify();
-
-    /**
-     * Filters to control the output of the repository lookup methods
-     */
-    enum RepoFilter {
-      NoFilter,                 ///< All repositories (global + user)
-      UserFilter,               ///< Only user configured repositories
-      BoardFilter,              ///< Only global repositories, with user blacklist ignored
-      BoardFilterUserBlacklist  ///< Only global repositories, with user blacklist applied
-    };
-    /**
-     * List of possible device modes
-     *
-     * ReleaseMode is defined to make a switch to allowing RnD and Release
-     * repositories on a device at the same time easy, if ever needed. Right
-     * now any mode where RndMode is not set is treated as ReleaseMode.
-     */
-    enum DeviceMode {
-      DisableRepoManager = 0x1,   ///< Disable automagic repository management
-      RndMode            = 0x2,   ///< Enable RnD mode for device
-      ReleaseMode        = 0x4,   ///< Enable Release mode
-      LenientMode        = 0x8,   ///< Disable strict mode (i.e., keep unmanaged repositories)
-      UpdateMode         = 0x10   ///< Do repo isolation and similar bits important for updating devices
-    };
-    /**
-     * A list of types ssu provides shiny values suitable for displaying
-     */
-    enum DisplayType {
-      DeviceManufacturer = 0,     ///< Manufacturer, like ACME Corp. Board mappings key "deviceManufacturer"
-      DeviceModel,                ///< Marketed device name, like Pogoblaster 3000. Board mappings key "prettyModel"
-      DeviceDesignation,          ///< Type designation, like NCC-1701. Beard mappings key "deviceDesignation"
-    };
-
-    /**
-     * Edit modes for variables containing bitmasks
-     */
-    enum EditMode {
-      Replace = 0x1, ///< Replace the old value with the new one
-      Add     = 0x2, ///< Make sure the given value is set in the bitmask
-      Remove  = 0x4  ///< Make sure the given value is not set in the bitmask
-    };
-
-    /**
-     * Return codes to signal success or error conditions
-     */
-    enum ReturnValue {
-      Success = 0,
-      ErrUpdateMode = -10,
-    };
 
   private:
     QString errorString;
@@ -202,5 +206,7 @@ class Ssu: public QObject {
     void registrationStatusChanged();
     void credentialsChanged();
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Ssu::DeviceModeFlags)
 
 #endif

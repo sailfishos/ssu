@@ -117,12 +117,12 @@ void Ssud::unregisterDevice(){
 };
 
 
-int Ssud::deviceMode(){
+Ssu::DeviceModeFlags Ssud::deviceMode(){
   autoclose.start();
   return ssu.deviceMode();
 }
 
-void Ssud::setDeviceMode(int mode){
+void Ssud::setDeviceMode(enum Ssu::DeviceMode mode){
   ssu.setDeviceMode(mode);
 
   SsuRepoManager repoManager;
