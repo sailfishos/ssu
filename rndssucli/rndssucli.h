@@ -31,19 +31,18 @@ class RndSsuCli: public QObject {
     SsuProxy *ssuProxy;
     QSettings settings;
     int state;
-    void usage();
+    void usage(QString message="");
     void uidWarning(QString message="");
     void optDomain(QStringList opt);
     void optFlavour(QStringList opt);
     void optMode(QStringList opt);
     void optModel(QStringList opt);
-    void optModifyRepo(int action, QStringList opt);
     void optRegister(QStringList opt);
     void optRelease(QStringList opt);
     void optRepos(QStringList opt);
-    void optStatus();
+    void optStatus(QStringList opt);
     void optUpdateCredentials(QStringList opt);
-    void optUpdateRepos();
+    void optUpdateRepos(QStringList opt);
 
     enum Actions {
       Remove  = 0,
@@ -51,6 +50,13 @@ class RndSsuCli: public QObject {
       Disable = 2,
       Enable  = 3,
     };
+
+    void optModifyRepo(enum Actions action, QStringList opt);
+
+    void optAddRepo(QStringList opt) { optModifyRepo(Add, opt); }
+    void optRemoveRepo(QStringList opt) { optModifyRepo(Remove, opt); }
+    void optEnableRepo(QStringList opt) { optModifyRepo(Enable, opt); }
+    void optDisableRepo(QStringList opt) { optModifyRepo(Disable, opt); }
 
     enum State {
       Idle,

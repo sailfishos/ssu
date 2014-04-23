@@ -170,7 +170,7 @@ void RndSsuCli::optModel(QStringList opt){
   }
 }
 
-void RndSsuCli::optModifyRepo(int action, QStringList opt){
+void RndSsuCli::optModifyRepo(enum Actions action, QStringList opt){
   SsuRepoManager repoManager;
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
@@ -468,7 +468,7 @@ void RndSsuCli::optRepos(QStringList opt){
   state = Idle;
 }
 
-void RndSsuCli::optStatus(){
+void RndSsuCli::optStatus(QStringList opt){
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
   SsuDeviceInfo deviceInfo;
@@ -521,7 +521,7 @@ void RndSsuCli::optUpdateCredentials(QStringList opt){
   }
 }
 
-void RndSsuCli::optUpdateRepos(){
+void RndSsuCli::optUpdateRepos(QStringList opt){
   QTextStream qerr(stdout);
 
   QDBusPendingReply<> reply = ssuProxy->updateRepos();
@@ -553,47 +553,64 @@ void RndSsuCli::run(){
     return;
   }
 
-  // everything without additional arguments gets handled here
-  // functions with arguments need to take care of argument validation themselves
-  if (arguments.count() == 2){
-    if (arguments.at(1) == "status" || arguments.at(1) == "s")
-      optStatus();
-    else if (arguments.at(1) == "updaterepos" || arguments.at(1) == "ur")
-      optUpdateRepos();
-    else
-      state = UserError;
-  } else if (arguments.count() >= 3){
-    if (arguments.at(1) == "addrepo" || arguments.at(1) == "ar")
-      optModifyRepo(Add, arguments);
-    else if (arguments.at(1) == "removerepo" || arguments.at(1) == "rr")
-      optModifyRepo(Remove, arguments);
-    else if (arguments.at(1) == "enablerepo" || arguments.at(1) == "er")
-      optModifyRepo(Enable, arguments);
-    else if (arguments.at(1) == "disablerepo" || arguments.at(1) == "dr")
-      optModifyRepo(Disable, arguments);
-    else
-      state = UserError;
-  } else
-    state = UserError;
+  struct {
+      const char *longopt; // long option name
+      const char *shortopt; // option shortcut name
+      int minargs; // minimum number of required args
+      int maxargs; // -1 for "function will handle max args"
+      void (RndSsuCli::*handler)(QStringList opt); // handler function
+  } handlers[] = {
+      // functions accepting no additional arguments
+      "status", "s", 0, 0, &RndSsuCli::optStatus,
+      "updaterepos", "ur", 0, 0, &RndSsuCli::optUpdateRepos,
 
-  // functions accepting 0 or more arguments; those need to set state to Idle
-  // on success
-  if (arguments.at(1) == "register" || arguments.at(1) == "r")
-    optRegister(arguments);
-  else if (arguments.at(1) == "repos" || arguments.at(1) == "lr")
-    optRepos(arguments);
-  else if (arguments.at(1) == "flavour" || arguments.at(1) == "fl")
-    optFlavour(arguments);
-  else if (arguments.at(1) == "mode" || arguments.at(1) == "m")
-    optMode(arguments);
-  else if (arguments.at(1) == "model" || arguments.at(1) == "mo")
-    optModel(arguments);
-  else if (arguments.at(1) == "release" || arguments.at(1) == "re")
-    optRelease(arguments);
-  else if (arguments.at(1) == "update" || arguments.at(1) == "up")
-    optUpdateCredentials(arguments);
-  else if (arguments.at(1) == "domain")
-    optDomain(arguments);
+      // functions requiring at least one argument
+      "addrepo", "ar", 1, 2, &RndSsuCli::optAddRepo,
+      "removerepo", "rr", 1, 1, &RndSsuCli::optRemoveRepo,
+      "enablerepo", "er", 1, 1, &RndSsuCli::optEnableRepo,
+      "disablerepo", "dr", 1, 1, &RndSsuCli::optDisableRepo,
+
+      // functions accepting 0 or more arguments
+      // those need to set state to Idle on success
+      "register", "r", 0, -1, &RndSsuCli::optRegister,
+      "repos", "lr", 0, -1, &RndSsuCli::optRepos,
+      "flavour", "fl", 0, -1, &RndSsuCli::optFlavour,
+      "mode", "m", 0, -1, &RndSsuCli::optMode,
+      "model", "mo", 0, -1, &RndSsuCli::optModel,
+      "release", "re", 0, -1, &RndSsuCli::optRelease,
+      "update", "up", 0, -1, &RndSsuCli::optUpdateCredentials,
+      "domain", "do", 0, -1, &RndSsuCli::optDomain,
+  };
+
+  bool found = false;
+  int argc = arguments.count() - 1;
+
+  for (int i=0; i<sizeof(handlers)/sizeof(handlers[0]); i++) {
+      if ((arguments.at(1) != handlers[i].longopt) &&
+          (arguments.at(1) != handlers[i].shortopt)) {
+          continue;
+      }
+
+      if (argc < handlers[i].minargs) {
+          usage(QString("%1: Too few arguments").arg(handlers[i].longopt));
+          return;
+      }
+
+      if (handlers[i].maxargs != -1 && argc > handlers[i].maxargs) {
+          usage(QString("%1: Too many arguments").arg(handlers[i].longopt));
+          return;
+      }
+
+      // Call option handler
+      (this->*(handlers[i].handler))(arguments);
+
+      found = true;
+      break;
+  }
+
+  if (!found)
+      state = UserError;
+
   // functions that need to wait for a response from ssu should set a flag so
   // we can do default exit catchall here
   if (state == Idle)
@@ -612,7 +629,7 @@ void RndSsuCli::uidWarning(QString message){
   }
 }
 
-void RndSsuCli::usage(){
+void RndSsuCli::usage(QString message){
   QTextStream qout(stderr);
   qout << "\nUsage: ssu <command> [-command-options] [arguments]" << endl
        << endl
@@ -644,6 +661,8 @@ void RndSsuCli::usage(){
        << "\t      [-f]    \tforce update" << endl
        << "\tmodel, mo     \tprint name of device model (like N9)" << endl
        << endl;
+  if (!message.isEmpty())
+      qout << message << endl;
   qout.flush();
   QCoreApplication::exit(1);
 }
