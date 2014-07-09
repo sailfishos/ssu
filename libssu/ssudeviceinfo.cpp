@@ -9,6 +9,10 @@
 #include <QTextStream>
 #include <QDir>
 
+#include <QDBusMessage>
+#include <QDBusConnection>
+#include <QDBusArgument>
+
 #include <sys/utsname.h>
 
 extern "C" {
@@ -22,8 +26,6 @@ extern "C" {
 #include "ssuvariables.h"
 
 #include "../constants.h"
-
-#include <QDeviceInfo>
 
 SsuDeviceInfo::SsuDeviceInfo(QString model): QObject(){
 
@@ -275,20 +277,70 @@ QString SsuDeviceInfo::deviceModel(){
   return cachedModel;
 }
 
+static QStringList
+ofonoGetImeis()
+{
+    QStringList result;
+
+    QDBusMessage reply = QDBusConnection::systemBus().call(
+            QDBusMessage::createMethodCall("org.ofono", "/",
+                "org.ofono.Manager", "GetModems"));
+
+    foreach (const QVariant &v, reply.arguments()) {
+        if (v.canConvert<QDBusArgument>()) {
+            const QDBusArgument arg = v.value<QDBusArgument>();
+            if (arg.currentType() == QDBusArgument::ArrayType) {
+                arg.beginArray();
+                while (!arg.atEnd()) {
+                    if (arg.currentType() == QDBusArgument::StructureType) {
+                        QString path;
+                        QVariantMap props;
+
+                        arg.beginStructure();
+                        arg >> path >> props;
+                        arg.endStructure();
+
+                        if (props.contains("Serial")) {
+                            result << props["Serial"].toString();
+                        }
+                    }
+                }
+                arg.endArray();
+            }
+        }
+    }
+
+    return result;
+}
+
 QString SsuDeviceInfo::deviceUid(){
-  QString IMEI;
-  QDeviceInfo devInfo;
+  QStringList imeis = ofonoGetImeis();
 
-  /// @todo properly check number of imeis, ...
-  IMEI = devInfo.imei(0);
+  if (imeis.size() == 0) {
+      qWarning() << "Could not get IMEI(s) from ofono, trying fallback";
 
-  // this might not be completely unique (or might change on reflash), but works for now
-  if (IMEI == ""){
-      IMEI = devInfo.uniqueDeviceID();
-      IMEI.replace("-", "");
+      // The fallback list is taken from QtSystems' qdeviceinfo_linux.cpp
+      QStringList fallbackFiles;
+      fallbackFiles << "/sys/devices/virtual/dmi/id/product_uuid";
+      fallbackFiles << "/etc/machine-id";
+      fallbackFiles << "/etc/unique-id";
+      fallbackFiles << "/var/lib/dbus/machine-id";
+
+      foreach (const QString &filename, fallbackFiles) {
+          QFile machineId(filename);
+          if (machineId.open(QFile::ReadOnly | QFile::Text)) {
+              QTextStream in(&machineId);
+
+              // Normalize by stripping colons, dashes and making it lowercase
+              return in.readAll().trimmed().replace(":", "").replace("-", "").toLower();
+          }
+      }
+
+      qCritical() << "Could not read fallback UID - returning empty string";
+      return "";
   }
 
-  return IMEI;
+  return imeis[0];
 }
 
 QStringList SsuDeviceInfo::disabledRepos(){
