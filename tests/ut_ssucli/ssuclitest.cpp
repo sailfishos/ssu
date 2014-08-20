@@ -1,11 +1,11 @@
 /**
- * @file rndssuclitest.cpp
+ * @file ssuclitest.cpp
  * @copyright 2013 Jolla Ltd.
  * @author Martin Kampas <martin.kampas@tieto.com>
  * @date 2013
  */
 
-#include "rndssuclitest.h"
+#include "ssuclitest.h"
 
 #include <stdlib.h>
 #include <zypp/media/UrlResolverPlugin.h>
@@ -17,7 +17,7 @@
 
 typedef QStringList Args; // improve readability
 
-void RndSsuCliTest::init(){
+void SsuCliTest::init(){
   Q_ASSERT(m_sandbox == 0);
 
   m_sandbox = new Sandbox(QString("%1/configroot").arg(TESTS_DATA_PATH),
@@ -44,7 +44,7 @@ void RndSsuCliTest::init(){
   }
 }
 
-void RndSsuCliTest::cleanup(){
+void SsuCliTest::cleanup(){
   if (m_ssud->state() != QProcess::Running){
     QFAIL("Sandboxed ssud instance exited unexpectedly");
   }
@@ -63,7 +63,7 @@ void RndSsuCliTest::cleanup(){
   m_sandbox = 0;
 }
 
-void RndSsuCliTest::testSubcommandFlavour(){
+void SsuCliTest::testSubcommandFlavour(){
   Process ssu;
   QString output;
 
@@ -86,7 +86,7 @@ void RndSsuCliTest::testSubcommandFlavour(){
   QCOMPARE(output, QString("Device flavour is currently: testing"));
 }
 
-void RndSsuCliTest::testSubcommandRelease(){
+void SsuCliTest::testSubcommandRelease(){
   Process ssu;
   QString output;
 
@@ -139,7 +139,7 @@ void RndSsuCliTest::testSubcommandRelease(){
   QCOMPARE(output, QString("Device mode is: 2 (RndMode)"));
 }
 
-void RndSsuCliTest::testSubcommandMode(){
+void SsuCliTest::testSubcommandMode(){
   Process ssu;
   QString output;
 

@@ -4,7 +4,7 @@ contains(QT_VERSION, ^4\\.[0-7]\\..*) {
 
 TEMPLATE = subdirs
 SUBDIRS = libssu libssunetworkproxy ssud
-SUBDIRS += rndssucli ssuurlresolver ssuks
+SUBDIRS += ssucli ssuurlresolver ssuks
 
 ssuconfhack {
     SUBDIRS += ssuconfperm
@@ -12,7 +12,7 @@ ssuconfhack {
 
 SUBDIRS += tests tools
 
-rndssucli.depends = libssu
+ssucli.depends = libssu
 rndregisterui.depends = libssu
 ssuurlresolver.depends = libssu
 tests.depends = libssu
@@ -40,5 +40,5 @@ system(qdbusxml2cpp \
 
 system(qdbusxml2cpp \
     -c SsuProxy \
-    -p rndssucli/ssuproxy.h:rndssucli/ssuproxy.cpp \
+    -p ssucli/ssuproxy.h:ssucli/ssuproxy.cpp \
     dbus/org.nemo.ssu.xml)

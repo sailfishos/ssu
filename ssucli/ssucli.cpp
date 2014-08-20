@@ -1,5 +1,5 @@
 /**
- * @file rndssucli.cpp
+ * @file ssucli.cpp
  * @copyright 2012 Jolla Ltd.
  * @author Bernd Wachter <bernd.wachter@jollamobile.com>
  * @date 2012
@@ -16,9 +16,9 @@
 
 #include <QDebug>
 
-#include "rndssucli.h"
+#include "ssucli.h"
 
-RndSsuCli::RndSsuCli(): QObject(){
+SsuCli::SsuCli(): QObject(){
   connect(this,SIGNAL(done()),
           QCoreApplication::instance(),SLOT(quit()), Qt::DirectConnection);
   connect(&ssu, SIGNAL(done()),
@@ -32,11 +32,11 @@ RndSsuCli::RndSsuCli(): QObject(){
   state = Idle;
 }
 
-RndSsuCli::~RndSsuCli(){
+SsuCli::~SsuCli(){
   ssuProxy->quit();
 }
 
-void RndSsuCli::handleResponse(){
+void SsuCli::handleResponse(){
   QTextStream qout(stdout);
 
   if (ssu.error()){
@@ -48,7 +48,7 @@ void RndSsuCli::handleResponse(){
   }
 }
 
-void RndSsuCli::handleDBusResponse(){
+void SsuCli::handleDBusResponse(){
   QTextStream qout(stdout);
 
   if (ssuProxy->error()){
@@ -60,7 +60,7 @@ void RndSsuCli::handleDBusResponse(){
   }
 }
 
-void RndSsuCli::optDomain(QStringList opt){
+void SsuCli::optDomain(QStringList opt){
   QTextStream qout(stdout);
 
   if (opt.count() == 3 && opt.at(2) == "-s"){
@@ -78,7 +78,7 @@ void RndSsuCli::optDomain(QStringList opt){
   }
 }
 
-void RndSsuCli::optFlavour(QStringList opt){
+void SsuCli::optFlavour(QStringList opt){
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
 
@@ -107,7 +107,7 @@ void RndSsuCli::optFlavour(QStringList opt){
   }
 }
 
-void RndSsuCli::optMode(QStringList opt){
+void SsuCli::optMode(QStringList opt){
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
 
@@ -156,7 +156,7 @@ void RndSsuCli::optMode(QStringList opt){
   }
 }
 
-void RndSsuCli::optModel(QStringList opt){
+void SsuCli::optModel(QStringList opt){
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
   SsuDeviceInfo deviceInfo;
@@ -170,7 +170,7 @@ void RndSsuCli::optModel(QStringList opt){
   }
 }
 
-void RndSsuCli::optModifyRepo(enum Actions action, QStringList opt){
+void SsuCli::optModifyRepo(enum Actions action, QStringList opt){
   SsuRepoManager repoManager;
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
@@ -229,7 +229,7 @@ void RndSsuCli::optModifyRepo(enum Actions action, QStringList opt){
   }
 }
 
-void RndSsuCli::optRegister(QStringList opt){
+void SsuCli::optRegister(QStringList opt){
   /*
    * register a new device
    */
@@ -271,7 +271,7 @@ void RndSsuCli::optRegister(QStringList opt){
   state = Busy;
 }
 
-void RndSsuCli::optRelease(QStringList opt){
+void SsuCli::optRelease(QStringList opt){
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
 
@@ -320,7 +320,7 @@ void RndSsuCli::optRelease(QStringList opt){
   }
 }
 
-void RndSsuCli::optRepos(QStringList opt){
+void SsuCli::optRepos(QStringList opt){
   QTextStream qout(stdout);
   SsuRepoManager repoManager;
   SsuDeviceInfo deviceInfo;
@@ -468,7 +468,7 @@ void RndSsuCli::optRepos(QStringList opt){
   state = Idle;
 }
 
-void RndSsuCli::optStatus(QStringList opt){
+void SsuCli::optStatus(QStringList opt){
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
   SsuDeviceInfo deviceInfo;
@@ -501,7 +501,7 @@ void RndSsuCli::optStatus(QStringList opt){
     qout << "Release: " << ssu.release() << endl;
 }
 
-void RndSsuCli::optUpdateCredentials(QStringList opt){
+void SsuCli::optUpdateCredentials(QStringList opt){
   QTextStream qout(stdout);
   /*
    * update the credentials
@@ -521,7 +521,7 @@ void RndSsuCli::optUpdateCredentials(QStringList opt){
   }
 }
 
-void RndSsuCli::optUpdateRepos(QStringList opt){
+void SsuCli::optUpdateRepos(QStringList opt){
   QTextStream qerr(stdout);
 
   QDBusPendingReply<> reply = ssuProxy->updateRepos();
@@ -534,7 +534,7 @@ void RndSsuCli::optUpdateRepos(QStringList opt){
   }
 }
 
-void RndSsuCli::run(){
+void SsuCli::run(){
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
 
@@ -543,9 +543,6 @@ void RndSsuCli::run(){
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
   if (!ssuSettings->isWritable())
     qerr << "WARNING: ssu.ini does not seem to be writable. Setting values might not work." << endl;
-
-  if (arguments.at(0).endsWith("rndssu"))
-    qout << "NOTE: this binary is now called ssu. The rndssu symlink will go away after some time" << endl;
 
   // make sure there's a first argument to parse
   if (arguments.count() < 2){
@@ -558,28 +555,28 @@ void RndSsuCli::run(){
       const char *shortopt; // option shortcut name
       int minargs; // minimum number of required args
       int maxargs; // -1 for "function will handle max args"
-      void (RndSsuCli::*handler)(QStringList opt); // handler function
+      void (SsuCli::*handler)(QStringList opt); // handler function
   } handlers[] = {
       // functions accepting no additional arguments
-      "status", "s", 0, 0, &RndSsuCli::optStatus,
-      "updaterepos", "ur", 0, 0, &RndSsuCli::optUpdateRepos,
+      "status", "s", 0, 0, &SsuCli::optStatus,
+      "updaterepos", "ur", 0, 0, &SsuCli::optUpdateRepos,
 
       // functions requiring at least one argument
-      "addrepo", "ar", 1, 2, &RndSsuCli::optAddRepo,
-      "removerepo", "rr", 1, 1, &RndSsuCli::optRemoveRepo,
-      "enablerepo", "er", 1, 1, &RndSsuCli::optEnableRepo,
-      "disablerepo", "dr", 1, 1, &RndSsuCli::optDisableRepo,
+      "addrepo", "ar", 1, 2, &SsuCli::optAddRepo,
+      "removerepo", "rr", 1, 1, &SsuCli::optRemoveRepo,
+      "enablerepo", "er", 1, 1, &SsuCli::optEnableRepo,
+      "disablerepo", "dr", 1, 1, &SsuCli::optDisableRepo,
 
       // functions accepting 0 or more arguments
       // those need to set state to Idle on success
-      "register", "r", 0, -1, &RndSsuCli::optRegister,
-      "repos", "lr", 0, -1, &RndSsuCli::optRepos,
-      "flavour", "fl", 0, -1, &RndSsuCli::optFlavour,
-      "mode", "m", 0, -1, &RndSsuCli::optMode,
-      "model", "mo", 0, -1, &RndSsuCli::optModel,
-      "release", "re", 0, -1, &RndSsuCli::optRelease,
-      "update", "up", 0, -1, &RndSsuCli::optUpdateCredentials,
-      "domain", "do", 0, -1, &RndSsuCli::optDomain,
+      "register", "r", 0, -1, &SsuCli::optRegister,
+      "repos", "lr", 0, -1, &SsuCli::optRepos,
+      "flavour", "fl", 0, -1, &SsuCli::optFlavour,
+      "mode", "m", 0, -1, &SsuCli::optMode,
+      "model", "mo", 0, -1, &SsuCli::optModel,
+      "release", "re", 0, -1, &SsuCli::optRelease,
+      "update", "up", 0, -1, &SsuCli::optUpdateCredentials,
+      "domain", "do", 0, -1, &SsuCli::optDomain,
   };
 
   bool found = false;
@@ -619,7 +616,7 @@ void RndSsuCli::run(){
     usage();
 }
 
-void RndSsuCli::uidWarning(QString message){
+void SsuCli::uidWarning(QString message){
   if (message.isEmpty())
     message = "Run 'ssu ur' as root to recreate repository files";
 
@@ -629,7 +626,7 @@ void RndSsuCli::uidWarning(QString message){
   }
 }
 
-void RndSsuCli::usage(QString message){
+void SsuCli::usage(QString message){
   QTextStream qout(stderr);
   qout << "\nUsage: ssu <command> [-command-options] [arguments]" << endl
        << endl

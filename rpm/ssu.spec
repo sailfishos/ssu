@@ -30,7 +30,6 @@ Requires: ssu-network-proxy
 %files
 %defattr(-,root,root,-)
 %{_libdir}/zypp/plugins/urlresolver/*
-%{_bindir}/rndssu
 %{_bindir}/ssu
 %{_libdir}/libssu.so.*
 %dir %{_sysconfdir}/zypp/credentials.d
@@ -148,7 +147,6 @@ cd .. && doxygen doc/Doxyfile
 %install
 cd build && make INSTALL_ROOT=%{buildroot} install
 mkdir -p %{buildroot}/%{_sysconfdir}/zypp/credentials.d
-ln -s %{_bindir}/ssu %{buildroot}/%{_bindir}/rndssu
 mkdir -p %{buildroot}/%{_docdir}/%{name}
 cd .. && cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
 

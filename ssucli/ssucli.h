@@ -1,12 +1,12 @@
 /**
- * @file rndssucli.h
+ * @file ssucli.h
  * @copyright 2012 Jolla Ltd.
  * @author Bernd Wachter <bernd.wachter@jollamobile.com>
  * @date 2012
  */
 
-#ifndef _RndSsuCli_H
-#define _RndSsuCli_H
+#ifndef _SsuCli_H
+#define _SsuCli_H
 
 #include <QObject>
 #include <QSettings>
@@ -16,12 +16,12 @@
 #include "libssu/ssu.h"
 #include "ssuproxy.h"
 
-class RndSsuCli: public QObject {
+class SsuCli: public QObject {
     Q_OBJECT
 
   public:
-    RndSsuCli();
-    ~RndSsuCli();
+    SsuCli();
+    ~SsuCli();
 
   public slots:
     void run();

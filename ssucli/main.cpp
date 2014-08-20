@@ -11,13 +11,13 @@
 #include <QLibraryInfo>
 #include <QTimer>
 #include "libssunetworkproxy/ssunetworkproxy.h"
-#include "rndssucli.h"
+#include "ssucli.h"
 
 int main(int argc, char** argv){
   QCoreApplication app(argc, argv);
   QCoreApplication::setOrganizationName("Jolla");
   QCoreApplication::setOrganizationDomain("http://www.jollamobile.com");
-  QCoreApplication::setApplicationName("rndssu");
+  QCoreApplication::setApplicationName("ssu");
 
   QTranslator qtTranslator;
   qtTranslator.load("qt_" + QLocale::system().name(),
@@ -26,7 +26,7 @@ int main(int argc, char** argv){
 
   set_application_proxy_factory();
 
-  RndSsuCli mw;
+  SsuCli mw;
   QTimer::singleShot(0, &mw, SLOT(run()));
 
   return app.exec();

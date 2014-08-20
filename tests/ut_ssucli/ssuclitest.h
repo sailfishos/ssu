@@ -1,12 +1,12 @@
 /**
- * @file rndssuclitest.h
+ * @file ssuclitest.h
  * @copyright 2013 Jolla Ltd.
  * @author Martin Kampas <martin.kampas@tieto.com>
  * @date 2013
  */
 
-#ifndef _RNDSSUCLITEST_H
-#define _RNDSSUCLITEST_H
+#ifndef _SSUCLITEST_H
+#define _SSUCLITEST_H
 
 #include <QObject>
 
@@ -14,11 +14,11 @@ class QProcess;
 
 class Sandbox;
 
-class RndSsuCliTest: public QObject {
+class SsuCliTest: public QObject {
     Q_OBJECT
 
   public:
-    RndSsuCliTest(): m_sandbox(0) {}
+    SsuCliTest(): m_sandbox(0) {}
 
   private slots:
     void init();

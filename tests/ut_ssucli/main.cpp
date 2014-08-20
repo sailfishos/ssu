@@ -7,12 +7,12 @@
 
 #include <QtTest/QtTest>
 
-#include "rndssuclitest.h"
+#include "ssuclitest.h"
 
 int main(int argc, char **argv){
-  RndSsuCliTest rndSsuCliTest;
+  SsuCliTest ssuCliTest;
 
-  if (QTest::qExec(&rndSsuCliTest, argc, argv))
+  if (QTest::qExec(&ssuCliTest, argc, argv))
     return 1;
 
   return 0;

@@ -1,12 +1,12 @@
 TARGET = ssu
 include(../ssuapplication.pri)
-include(rndssucli_dependencies.pri)
+include(ssucli_dependencies.pri)
 
 QT += network dbus
 CONFIG += link_pkgconfig
 
-HEADERS = rndssucli.h \
+HEADERS = ssucli.h \
         ssuproxy.h
 SOURCES = main.cpp \
-        rndssucli.cpp \
+        ssucli.cpp \
         ssuproxy.cpp
