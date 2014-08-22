@@ -580,7 +580,7 @@ void SsuCli::run(){
   };
 
   bool found = false;
-  int argc = arguments.count() - 1;
+  int argc = arguments.count() - 2;
 
   for (int i=0; i<sizeof(handlers)/sizeof(handlers[0]); i++) {
       if ((arguments.at(1) != handlers[i].longopt) &&
