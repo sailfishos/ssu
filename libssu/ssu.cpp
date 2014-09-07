@@ -17,6 +17,8 @@
 
 #include <getdef.h>
 #include <pwd.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "ssu.h"
 #include "sandbox_p.h"

@@ -10,6 +10,8 @@
 #include <QDBusConnection>
 
 #include <getdef.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "ssucoreconfig.h"
 
