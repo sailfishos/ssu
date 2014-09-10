@@ -403,6 +403,11 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
   int adaptationCount = adaptationRepos().size();
   QStringList result;
 
+
+  ///@TODO move this to a hash, containing repo and enabled|disabled
+  ///      write repos with enabled/disabled to disks
+  ///      for the compat functions providing a stringlist, do the filtering
+  ///      run only when creating the list, based on the enabled|disabled flags
   if (filter == Ssu::NoFilter ||
       filter == Ssu::BoardFilter ||
       filter == Ssu::BoardFilterUserBlacklist){
@@ -431,31 +436,6 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter){
     // user can override repositories disabled here in the user configuration
     foreach (const QString &key, disabledRepos())
       result.removeAll(key);
-  }
-
-  // read user-defined repositories from ssu.ini
-  // TODO: in strict mode, filter the repository list from there
-  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
-
-  if (filter == Ssu::NoFilter ||
-      filter == Ssu::UserFilter){
-    ssuSettings->beginGroup("repository-urls");
-    result.append(ssuSettings->allKeys());
-    ssuSettings->endGroup();
-
-    // read user-enabled repositories from ssu.ini
-    if (ssuSettings->contains("enabled-repos"))
-      result.append(ssuSettings->value("enabled-repos").toStringList());
-  }
-
-  if (filter == Ssu::NoFilter ||
-      filter == Ssu::UserFilter ||
-      filter == Ssu::BoardFilterUserBlacklist){
-    // read the disabled repositories from user configuration
-    if (ssuSettings->contains("disabled-repos")){
-      foreach (const QString &key, ssuSettings->value("disabled-repos").toStringList())
-        result.removeAll(key);
-    }
   }
 
   result.removeDuplicates();

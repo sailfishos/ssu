@@ -116,7 +116,8 @@ class Ssu: public QObject {
       DisableRepoManager = 0x1,   ///< Disable automagic repository management
       RndMode            = 0x2,   ///< Enable RnD mode for device
       ReleaseMode        = 0x4,   ///< Enable Release mode
-      LenientMode        = 0x8    ///< Disable strict mode (i.e., keep unmanaged repositories)
+      LenientMode        = 0x8,   ///< Disable strict mode (i.e., keep unmanaged repositories)
+      UpdateMode         = 0x10   ///< Do repo isolation and similar bits important for updating devices
     };
     /**
      * A list of types ssu provides shiny values suitable for displaying
@@ -134,6 +135,14 @@ class Ssu: public QObject {
       Replace = 0x1, ///< Replace the old value with the new one
       Add     = 0x2, ///< Make sure the given value is set in the bitmask
       Remove  = 0x4  ///< Make sure the given value is not set in the bitmask
+    };
+
+    /**
+     * Return codes to signal success or error conditions
+     */
+    enum ReturnValue {
+      Success = 0,
+      ErrUpdateMode = -10,
     };
 
   private:

@@ -25,8 +25,12 @@ SsuRepoManager::SsuRepoManager(): QObject() {
 
 }
 
-void SsuRepoManager::add(QString repo, QString repoUrl){
+int SsuRepoManager::add(QString repo, QString repoUrl){
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+
+  // adding a repo is a noop when device is in update mode
+  if ((ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode)
+    return -1;
 
   if (repoUrl == ""){
     // just enable a repository which has URL in repos.ini
@@ -41,6 +45,7 @@ void SsuRepoManager::add(QString repo, QString repoUrl){
     ssuSettings->setValue("repository-urls/" + repo, repoUrl);
 
   ssuSettings->sync();
+  return 0;
 }
 
 QString SsuRepoManager::caCertificatePath(QString domain){
@@ -62,7 +67,7 @@ QString SsuRepoManager::caCertificatePath(QString domain){
   return "";
 }
 
-void SsuRepoManager::disable(QString repo){
+int SsuRepoManager::disable(QString repo){
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
   QStringList disabledRepos;
 
@@ -74,9 +79,11 @@ void SsuRepoManager::disable(QString repo){
 
   ssuSettings->setValue("disabled-repos", disabledRepos);
   ssuSettings->sync();
+
+  return 0;
 }
 
-void SsuRepoManager::enable(QString repo){
+int SsuRepoManager::enable(QString repo){
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
   QStringList disabledRepos;
 
@@ -88,10 +95,17 @@ void SsuRepoManager::enable(QString repo){
 
   ssuSettings->setValue("disabled-repos", disabledRepos);
   ssuSettings->sync();
+
+  return 0;
 }
 
-void SsuRepoManager::remove(QString repo){
+int SsuRepoManager::remove(QString repo){
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+
+  // removing a repo is a noop when device is in update mode
+  if ((ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode)
+    return -1;
+
   if (ssuSettings->contains("repository-urls/" + repo))
     ssuSettings->remove("repository-urls/" + repo);
 
@@ -105,6 +119,8 @@ void SsuRepoManager::remove(QString repo){
   }
 
   ssuSettings->sync();
+
+  return 0;
 }
 
 QStringList SsuRepoManager::repos(bool rnd, int filter){
@@ -116,10 +132,62 @@ QStringList SsuRepoManager::repos(bool rnd, int filter){
 // @todo the non-device specific repository resolving should move from deviceInfo to repomanager
 QStringList SsuRepoManager::repos(bool rnd, SsuDeviceInfo &deviceInfo, int filter){
   QStringList result;
+
+  // read the adaptation specific repositories, as well as the default
+  // repositories; default repos are read through deviceInfo as an
+  // adaptation is allowed to disable core repositories
   result = deviceInfo.repos(rnd, filter);
 
+  // read the repositories of the available features. While devices have
+  // a default list of features to be installed those are only relevant
+  // for bootstrapping, so this code just operates on installed features
   SsuFeatureManager featureManager;
   result.append(featureManager.repos(rnd, filter));
+
+  // read user-defined repositories from ssu.ini. This step needs to
+  // happen at the end, after all other required repositories are
+  // added already
+
+  // TODO: in strict mode, filter the repository list from there
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+
+  bool updateMode = false;
+  if ((ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode)
+    updateMode = true;
+
+  if (filter == Ssu::NoFilter ||
+      filter == Ssu::UserFilter){
+    // user defined repositories, or ones overriding URLs for default ones
+    // -> in update mode we need to check for each of those if it already
+    //    exists. If it exists, keep it, if it does not, disable it
+    ssuSettings->beginGroup("repository-urls");
+    QStringList repoUrls = ssuSettings->allKeys();
+    ssuSettings->endGroup();
+
+    if (updateMode){
+      foreach(const QString &key, repoUrls){
+        if (result.contains(key))
+          result.append(key);
+      }
+    } else {
+      result.append(repoUrls);
+    }
+
+    // read user-enabled repositories from ssu.ini
+    if (ssuSettings->contains("enabled-repos") && !updateMode)
+      result.append(ssuSettings->value("enabled-repos").toStringList());
+  }
+
+  if (filter == Ssu::NoFilter ||
+      filter == Ssu::UserFilter ||
+      filter == Ssu::BoardFilterUserBlacklist){
+    // read the disabled repositories from user configuration
+    if (ssuSettings->contains("disabled-repos") && !updateMode){
+      foreach (const QString &key, ssuSettings->value("disabled-repos").toStringList())
+        result.removeAll(key);
+    }
+  }
+
 
   result.sort();
   result.removeDuplicates();
@@ -136,7 +204,7 @@ void SsuRepoManager::update(){
   QStringList ssuFilters;
 
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
-  int deviceMode = ssuSettings->value("deviceMode").toInt();
+  int deviceMode = ssuSettings->deviceMode();
 
   SsuLog *ssuLog = SsuLog::instance();
 

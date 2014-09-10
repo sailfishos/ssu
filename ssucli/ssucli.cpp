@@ -125,6 +125,8 @@ void SsuCli::optMode(QStringList opt){
       modeList.append("ReleaseMode");
     if ((deviceMode & Ssu::LenientMode) == Ssu::LenientMode)
       modeList.append("LenientMode");
+    if ((deviceMode & Ssu::UpdateMode) == Ssu::UpdateMode)
+      modeList.append("UpdateMode");
 
     qout << "Device mode is: " << ssu.deviceMode()
          << " (" << modeList.join(" | ") << ")" << endl;

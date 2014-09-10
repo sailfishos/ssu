@@ -25,25 +25,43 @@ class SsuRepoManager: public QObject {
      * treatment. They'll get saved with the full name to make zypper and the user
      * happy, but internally the -debuginfo will be stripped, and the debugSplit
      * parameter set to debug instead.
+     *
+     * If the device is in UpdateMode this function does nothing.
      */
-    void add(QString repo, QString repoUrl="");
+    int add(QString repo, QString repoUrl="");
     /**
      * Return the path to the CA certificate to be used for the given domain,
      * or default domain, if omitted
+     *
+     * @retval 0 Success
+     * @retval -1 Repository not added because device is in update mode
+     * @retval -2 Repository not added because third party repositories are disabled
      */
     static QString caCertificatePath(QString domain="");
     /**
      * Disable a repository
+     *
+     * @retval 0 Success
+     * @retval -1 Request ignored because device is in update mode
+     * @retval -2 Request ignored because 3rd party repositories are disabled
      */
-    void disable(QString repo);
+    int disable(QString repo);
     /**
      * Enable a repository, given it's not disabled by board configuration
+     *
+     * @retval 0 Success
+     * @retval -1 Request ignored because device is in update mode
+     * @retval -2 Request ignored because 3rd party repositories are disabled
      */
-    void enable(QString repo);
+    int enable(QString repo);
     /**
      * Remove a repository
+     *
+     * @retval 0 Success
+     * @retval -1 Request ignored because device is in update mode
+     * @retval -2 Request ignored because 3rd party repositories are disabled
      */
-    void remove(QString repo);
+    int remove(QString repo);
     /**
      * Collect the list of repositories from different submodules
      */
