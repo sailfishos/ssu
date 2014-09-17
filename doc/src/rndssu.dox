@@ -1,0 +1,54 @@
+/*! @page rndssu Overview of SSU RnD features
+
+@section intro Introduction
+
+SSU offers the ability to run in a special RnD mode for use during development. The main features are:
+
+- use a different set of repositories than for the published product
+- allow using private (password-protected) repositories
+
+The objectives for the the implementation are:
+
+- Encourage people to update their devices instead of reflashing them
+  - Penalties for (i.e., additional steps required after flashing) are fine
+  - Penalties for updating a device must be avoided (for example, user interaction to keep device credentials for update access updated are not OK)
+- Keep security impact on breach low without inconveniencing users
+  - If a device gets lost, allow excluding this device from receiving additional updates
+  - Do not store any part of the users credentials on the device, yet still keep track of individual devices and users they're associated with
+- Stay as close to the way repository management works for the published product as possible
+- Do the implementation without adding patches to upstream sources upstream would not accept
+
+@section rndssu_implementation_notes Implementation notes for repository protection
+
+See the \ref rndssu_clientprotocol client protocol definition for protocol details.
+
+@subsection rndssu_registration Device registration
+
+- The client sends a registration request with (LDAP) account credentials to the SSU backend; the client forgets about the credentials directly after sending the request
+- The SSU backend verifies the credentials, and on success, creates a client certificate which gets sent to the client
+- The client stores the certificate, and uses it for future requests for authentication. This allows for user specific per-device registrations which can be individually revoked on the SSU backend without keeping parts of the regular account credentials on the device
+
+The username may be sent together with a domain (like user\@example), with the SSU backend in charge of mapping that domain to a different LDAP organization, accounts database, or anything else useful for the given organization. The domain will be stored on both device and SSU backend, and allows for using different repository configurations for members of different organizations as well as limiting repository access for some domains.
+
+The client-side implementation for this is in libssu, available through the SSU CLI and the ssud DBUS API.
+
+@subsection rndssu_repo_protection Protecting RnD repositories
+
+Zypper only allows using user/password pairs for authentication. To avoid patching zypper this method of authentication is used, the device retrieves authentication tokens from the SSU server after successfully authenticating there with the client certificate.
+
+Additional benefits of this method are easier deployment of repositories -- maintaining a huge list of individual credentials on the repository server can be tricky, especially on CDNs. Authenticating against a list of client certificates in such a scenario would be even more problematic.
+
+The repository protection should change the passwords in regular intervals, and keep the passwords on the repository server and SSU backend in sync. Validity of old and new credentials should overlap slightly. As devices are sharing credentials for repository access this is the week point in this setup, so credentials should be changed often enough to make them useless before they are discovered/used on leaks.
+
+@subsection rndssu_credentialsupdate Updating on-device credentials
+
+Updating of on-device credentials happens within the URL resolver plugin for Zypper. On repository refresh,
+
+- before returning the URL SSU checks if this repository requires authentication
+- checks the time of last credentials update
+- if the stored credentials are too old, authenticate to the SSU backend with the client certificate, and request a new set of credentials
+- store the credentials on disk for Zypper to use
+- return the resolved URL, and hand over to Zypper
+
+The SSU backend checks if the user is still a valid (LDAP) user, and removes the registration for deleted/locked users. The device side removes on-device credentials if the SSU backend authentication fails.
+*/

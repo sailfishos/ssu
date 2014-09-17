@@ -1,0 +1,95 @@
+/*! @page rndssu_clientprotocol Client protocol definition for RnD SSU
+
+@section intro Introduction
+
+This page contains the protocol definition used between a SSU client on a device and a SSU server. The client-side of this protocol is implemented in libssu and the SSU CLI. The server side heavily depends on the available infrastructure, and is not available in public. See \ref rndssu_implementation_notes "the implementation notes for RnD SSU" for additional details required to implement a SSU server.
+
+$DEVICEID in the following examples is a variable filled by the SSU client before making the request, replaced by the devices IMEI (QSystemDeviceInfo::imei()), or a unique device ID (QSystemDeviceInfo::uniqueDeviceID()), if the IMEI is not available (netbooks, SDK, ...)
+
+@section registration Device registration
+
+- The client sends a POST request to  https://ssu.example.com/ssu/device/$DEVICEID/register.xml
+  - The client MUST verify the servers certificate against the configured CA for this SSU server
+  - The client MUST send HTTP basic auth information with the request, containing (LDAP) account credentials queried from the user
+  - The client MUST NOT save (LDAP) account credentials obtained from the user on the device
+  - The client MAY send additional parameters in the requests body as content type application/x-www-form-urlencoded. Valid parameters are:
+    - deviceModel, optional, a string specifying the device to be registered (e.g. "N9")
+    - versionId, optional, a number specifying the protocol version. If set, the server MUST respond either with the requested version, or with an HTTP error code
+    - domain, optional, a string specifying domain for registration (e.g. "example", "example-investor", "example-developer")
+- The server responds with HTTP status 200 on success, or an appropriate HTTP error code on error
+  - On success, the server MUST include and XML response, including
+     - certificate, mandatory, a string containing a PEM formatted SSL client certificate
+     - privateKey, mandatory, a string containing a PEM formatted SSL private key
+     - deviceId, mandatory, a string containing the devices IMEI or unique ID
+     - action, mandatory, a string containing the requested action
+     - protocolVersion, mandatory, a number specifying the protocol version used by the server. If the client requested a specific version the server MUST honour this request.
+  - On success, if the device ID has already been registered, the server MAY include a replaces element in the XML response, including
+     - user, mandatory, a string containing the username the device has been registered to before
+
+Examples for valid responses from the server are:
+
+@code
+<response>
+ <protocolVersion>1</protocolVersion>
+ <action>register</action>
+ <certificate>-----BEGIN CERTIFICATE-----
+MIIDkjCCAnoCCQD/t7yBlPR2azANBgkqhkiG9w0BAQUFADCBijESMBAGA1UEAxMJ
+bG[..]</certificate>
+ <privateKey>-----BEGIN RSA PRIVATE KEY-----
+Proc-Type: 4,ENCRYPTED
+DEK-Info: DES-EDE3-CBC,306FB5F5BEC695CC
+
+02UJRwd8euWrs/ZKMoTjFHedvQLYjbC7MTtdiOytAmLV5eGiP27WWg07E67FgUv2
+GEiTCDb2pXDmiTR[...]<privateKey>
+ <deviceId>da39a3ee5e6b4b0d3255bfef95601890afd80709</deviceId>
+</response>
+
+<response>
+ <protocolVersion>1</protocolVersion>
+ <action>register</action>
+ <certificate>-----BEGIN CERTIFICATE-----
+MIIDkjCCAnoCCQD/t7yBlPR2azANBgkqhkiG9w0BAQUFADCBijESMBAGA1UEAxMJ
+bG[..]</certificate>
+ <privateKey>-----BEGIN RSA PRIVATE KEY-----
+Proc-Type: 4,ENCRYPTED
+DEK-Info: DES-EDE3-CBC,306FB5F5BEC695CC
+
+02UJRwd8euWrs/ZKMoTjFHedvQLYjbC7MTtdiOytAmLV5eGiP27WWg07E67FgUv2
+GEiTCDb2pXDmiTR[...]<privateKey>
+ <deviceId>da39a3ee5e6b4b0d3255bfef95601890afd80709</deviceId>
+ <replaces>
+  <user>sampleuser</user>
+ </replaces>
+</response>
+@endcode
+
+@section credentials_update Credentials update
+
+- The client sends a GET request to  https://ssu.example.com/ssu/device/$DEVICEID/credentials.xml
+  - The client MUST send a certificate with the request
+  - The client MUST NOT send any kind of (LDAP) account credentials (which it should not know about anyway, at this point)
+  - The client MAY send additional parameters as URL parameters. Valid parameters are:
+    - versionId, optional, a number specifying the protocol version. If set, the server MUST respond either with the requested version, or with an HTTP error code
+- The server responds with HTTP status 200 on success, or an appropriate HTTP error code on error
+  - On success, the server MUST include and XML response, including
+    - credentials, mandatory, may be used several times, an element with attribute "scope", containing
+      - username, mandatory, a string specifying the new username
+      - password, mandatory, a string specifying the new password
+    - action, mandatory, a string containing the requested action
+    - protocolVersion, mandatory, a number specifying the protocol version used by the server. If the client requested a specific version the server MUST honour this request.
+    - deviceId, mandatory, a string containing the devices IMEI or unique ID
+
+Examples for valid responses from the server are:
+
+@code
+<response>
+ <protocolVersion>1</protocolVersion>
+ <action>credentials</action>
+ <credentials scope="example">
+  <username>uNaepiu9</username>
+  <password>Aeng5vah</password>
+ </credentials>
+ <deviceId>da39a3ee5e6b4b0d3255bfef95601890afd80709</deviceId>
+</response>
+@endcode
+*/
