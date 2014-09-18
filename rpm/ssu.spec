@@ -141,7 +141,11 @@ Group: Documentation
 mkdir -p build && cd build
 %qmake5 DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive ..
 make %{?_smp_mflags}
-cd .. && doxygen doc/Doxyfile
+if [ -f ../.nodocs ]; then
+    echo "Skip building documentation"
+else
+    cd .. && doxygen doc/Doxyfile
+fi
 
 
 %install
