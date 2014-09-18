@@ -6,16 +6,18 @@ CONFIG += link_pkgconfig
 PKGCONFIG += libzypp
 
 HEADERS = \
-	ssuurlresolvertest.h \
+        ssuurlresolvertest.h \
 
 SOURCES = \
         main.cpp \
-	ssuurlresolvertest.cpp \
+        ssuurlresolvertest.cpp \
 
 test_data_etc.files = \
-	testdata/ssu.ini \
+        testdata/ssu.ini \
 
 test_data_usr_share.files = \
-	testdata/ssu-defaults.ini \
-	testdata/repos.ini \
-	testdata/board-mappings.ini \
+        testdata/ssu-defaults.ini \
+        testdata/repos.ini \
+
+test_data_boardmappings_d.files = \
+        testdata/board-mappings.ini \

@@ -13,9 +13,11 @@ test_data.files = \
         testdata/mykey.key \
 
 test_data_etc.files = \
-	testdata/ssu.ini \
+        testdata/ssu.ini \
 
 test_data_usr_share.files = \
-	testdata/ssu-defaults.ini \
-	testdata/repos.ini \
-	testdata/board-mappings.ini \
+        testdata/ssu-defaults.ini \
+        testdata/repos.ini \
+
+test_data_boardmappings_d.files = \
+        testdata/board-mappings.ini \

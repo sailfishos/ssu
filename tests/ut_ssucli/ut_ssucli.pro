@@ -15,4 +15,6 @@ test_data_etc.files = \
 test_data_usr_share.files = \
         testdata/ssu-defaults.ini \
         testdata/repos.ini \
+
+test_data_boardmappings_d.files = \
         testdata/board-mappings.ini \
