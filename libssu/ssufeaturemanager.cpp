@@ -20,7 +20,7 @@
 
 #ifndef SSU_FEATURE_CONFIGURATION
 /// Path to the main SSU configuration file
-#define SSU_FEATURE_CONFIGURATION "/usr/share/ssu/features.ini"
+#define SSU_FEATURE_CONFIGURATION "/var/cache/ssu/features.ini"
 #endif
 
 #ifndef SSU_FEATURE_CONFIGURATION_DIR

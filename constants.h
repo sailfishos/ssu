@@ -13,7 +13,7 @@
 /// Path to the main SSU configuration file
 #define SSU_REPO_CONFIGURATION "/usr/share/ssu/repos.ini"
 /// Path to board / device family mappings file
-#define SSU_BOARD_MAPPING_CONFIGURATION "/usr/share/ssu/board-mappings.ini"
+#define SSU_BOARD_MAPPING_CONFIGURATION "/var/cache/ssu/board-mappings.ini"
 /// Path to config.d for board mappings
 #define SSU_BOARD_MAPPING_CONFIGURATION_DIR "/usr/share/ssu/board-mappings.d"
 /// Directory where all the non-user modifiable data sits
