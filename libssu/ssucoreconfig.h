@@ -13,12 +13,12 @@
 #include "ssu.h"
 
 #ifndef SSU_CONFIGURATION
-/// Path to the main SSU configuration file
+/// Path to the main ssu configuration file
 #define SSU_CONFIGURATION "/etc/ssu/ssu.ini"
 #endif
 
 #ifndef SSU_DEFAULT_CONFIGURATION
-/// Path to the main SSU configuration file
+/// Path to the main ssu configuration file
 #define SSU_DEFAULT_CONFIGURATION "/usr/share/ssu/ssu-defaults.ini"
 #endif
 
@@ -72,7 +72,7 @@ class SsuCoreConfig: public SsuSettings {
     Q_INVOKABLE bool isRegistered();
     /**
      * Return the date/time when the credentials to access internal
-     * SSU servers were updated the last time
+     * ssu servers were updated the last time
      */
     Q_INVOKABLE QDateTime lastCredentialsUpdate();
     /**

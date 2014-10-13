@@ -8,9 +8,9 @@
 #ifndef _CONSTANTS_H
 #define _CONSTANTS_H
 
-/// The group ID SSU expects to run as. This is usually the GID of the main phone user
+/// The group ID ssu expects to run as. This is usually the GID of the main phone user
 #define SSU_GROUP_ID 1000
-/// Path to the main SSU configuration file
+/// Path to the main ssu configuration file
 #define SSU_REPO_CONFIGURATION "/usr/share/ssu/repos.ini"
 /// Path to board / device family mappings file
 #define SSU_BOARD_MAPPING_CONFIGURATION "/var/cache/ssu/board-mappings.ini"
@@ -18,7 +18,7 @@
 #define SSU_BOARD_MAPPING_CONFIGURATION_DIR "/usr/share/ssu/board-mappings.d"
 /// Directory where all the non-user modifiable data sits
 #define SSU_DATA_DIR "/usr/share/ssu/"
-/// The SSU protocol version used by the ssu client libraries
+/// The ssu protocol version used by the ssu client libraries
 #define SSU_PROTOCOL_VERSION "1"
 /// Maximum recursion level for resolving variables
 #define SSU_MAX_RECURSION 1024

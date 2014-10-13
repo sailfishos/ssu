@@ -1,15 +1,15 @@
-/*! @page rndssu_clientprotocol Client protocol definition for RnD SSU
+/*! @page rndssu_clientprotocol Client protocol definition for RnD ssu
 
 @section intro Introduction
 
-This page contains the protocol definition used between a SSU client on a device and a SSU server. The client-side of this protocol is implemented in libssu and the SSU CLI. The server side heavily depends on the available infrastructure, and is not available in public. See \ref rndssu_implementation_notes "the implementation notes for RnD SSU" for additional details required to implement a SSU server.
+This page contains the protocol definition used between a ssu client on a device and a ssu server. The client-side of this protocol is implemented in libssu and the ssu CLI. The server side heavily depends on the available infrastructure, and is not available in public. See \ref rndssu_implementation_notes "the implementation notes for RnD ssu" for additional details required to implement a ssu server.
 
-$DEVICEID in the following examples is a variable filled by the SSU client before making the request, replaced by the devices IMEI (QSystemDeviceInfo::imei()), or a unique device ID (QSystemDeviceInfo::uniqueDeviceID()), if the IMEI is not available (netbooks, SDK, ...)
+$DEVICEID in the following examples is a variable filled by the ssu client before making the request, replaced by the devices IMEI (QSystemDeviceInfo::imei()), or a unique device ID (QSystemDeviceInfo::uniqueDeviceID()), if the IMEI is not available (netbooks, SDK, ...)
 
 @section registration Device registration
 
 - The client sends a POST request to  https://ssu.example.com/ssu/device/$DEVICEID/register.xml
-  - The client MUST verify the servers certificate against the configured CA for this SSU server
+  - The client MUST verify the servers certificate against the configured CA for this ssu server
   - The client MUST send HTTP basic auth information with the request, containing (LDAP) account credentials queried from the user
   - The client MUST NOT save (LDAP) account credentials obtained from the user on the device
   - The client MAY send additional parameters in the requests body as content type application/x-www-form-urlencoded. Valid parameters are:

@@ -1,9 +1,16 @@
-/*! @mainpage SSU
+/*! @mainpage ssu
 
 
 @section intro Introduction
 
+ssu provides low level glue to offer "Seamless Software Updates" (SSU)
+utilizing standard components (like Zypper and PackageKit). ssu provides
+the basic configuration and package selection hints, but is not directly
+involved in package handling.
 
-\ref rndssu "Using SSU in RnD setups"
+In documentation (and code) the all lowercase term "ssu" should be used
+when referring to this software, the all uppercase term "SSU" when
+referring to the update concept.
 
+- \ref rndssu "Using ssu in RnD setups"
 */

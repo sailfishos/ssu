@@ -53,7 +53,7 @@ class SsuDeviceInfo: public QObject {
      */
     Q_INVOKABLE QString deviceModel();
     /**
-     * Calculate the device ID used in SSU requests
+     * Calculate the device ID used in ssu requests
      * @return QSystemDeviceInfo::imei(), if available, or QSystemDeviceInfo::uniqueDeviceID()
      */
     Q_INVOKABLE QString deviceUid();
@@ -67,7 +67,7 @@ class SsuDeviceInfo: public QObject {
      *
      * See Ssu::DeviceTypes for supported types.
      *
-     * If not configured the model name used by SSU will be returned instead
+     * If not configured the model name used by ssu will be returned instead
      * for product and type.
      * If no manufacturer is found UNKNOWN is returned.
      * For an invalid type an empty string is returned.

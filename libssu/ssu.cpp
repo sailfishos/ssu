@@ -361,14 +361,14 @@ void Ssu::sendRegistration(QString usernameDomain, QString password){
 
   ssuCaCertificate = SsuRepoManager::caCertificatePath();
   if (ssuCaCertificate.isEmpty()){
-    setError("CA certificate for SSU not set ('_ca-certificate in domain')");
+    setError("CA certificate for ssu not set ('_ca-certificate in domain')");
     return;
   }
 
   if (!settings->contains("register-url")){
     ssuRegisterUrl = repoUrl("register-url");
     if (ssuRegisterUrl.isEmpty()){
-      setError("URL for SSU registration not set (config key 'register-url')");
+      setError("URL for ssu registration not set (config key 'register-url')");
       return;
     }
   } else
@@ -573,7 +573,7 @@ void Ssu::updateCredentials(bool force){
   QString ssuCaCertificate, ssuCredentialsUrl;
   ssuCaCertificate = SsuRepoManager::caCertificatePath();
   if (ssuCaCertificate.isEmpty()){
-    setError("CA certificate for SSU not set ('_ca-certificate in domain')");
+    setError("CA certificate for ssu not set ('_ca-certificate in domain')");
     return;
   }
 

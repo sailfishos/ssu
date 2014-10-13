@@ -19,12 +19,12 @@
 #include "../constants.h"
 
 #ifndef SSU_FEATURE_CONFIGURATION
-/// Path to the main SSU configuration file
+/// Path to the main ssu configuration file
 #define SSU_FEATURE_CONFIGURATION "/var/cache/ssu/features.ini"
 #endif
 
 #ifndef SSU_FEATURE_CONFIGURATION_DIR
-/// Path to the main SSU configuration file
+/// Path to the main ssu configuration file
 #define SSU_FEATURE_CONFIGURATION_DIR "/usr/share/ssu/features.d"
 #endif
 

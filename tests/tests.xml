@@ -14,12 +14,12 @@
       </case>
     </set>
     <set name="repomanager" description="Test to determine if ssu repository management works properly" feature="repomanager">
-      <case name="ut_repomanager" type="Functional" description="SSU repo management test" timeout="1000" subfeature="">
+      <case name="ut_repomanager" type="Functional" description="ssu repo management test" timeout="1000" subfeature="">
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_repomanager</step>
       </case>
     </set>
     <set name="ssucli" description="Test to determine if ssu command line tool works properly" feature="ssucli">
-      <case name="ut_ssucli" type="Functional" description="SSU command line utility test" timeout="1000" subfeature="">
+      <case name="ut_ssucli" type="Functional" description="ssu command line utility test" timeout="1000" subfeature="">
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_ssucli</step>
       </case>
     </set>

@@ -63,7 +63,7 @@ class Ssu: public QObject {
                     QHash<QString, QString> parametersOverride=QHash<QString, QString>());
     /**
      * Unregister a device. This will clean all registration data from a device,
-     * though will not touch the information on SSU server; the information there
+     * though will not touch the information on ssu server; the information there
      * has to be manually cleaned for a device we don't own anymore, but will be
      * overwritten next time the device gets registered
      */
