@@ -63,17 +63,6 @@ int SsuCoreConfig::deviceMode(){
 
 QString SsuCoreConfig::domain(bool pretty){
   if (contains("domain")){
-    // this is a workaround for upgrading existing devices to
-    // Jolla sales setup. it should be removed in a few weeks
-    // this should keep devices with old default domain in rnd
-    // mode using the proper domain
-    if (contains("default-rnd-domain") &&
-        isRegistered() &&
-        value("domain").toString() == "sales" &&
-        (deviceMode() & Ssu::RndMode) == Ssu::RndMode)
-      setValue("domain", value("default-rnd-domain"));
-    //
-
     if (pretty)
       return value("domain").toString().replace(":", "-");
     else
