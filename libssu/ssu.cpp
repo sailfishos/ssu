@@ -633,6 +633,9 @@ void Ssu::updateCredentials(bool force){
 }
 
 void Ssu::updateStoreCredentials(){
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  SsuLog *ssuLog = SsuLog::instance();
+
   QDBusMessage message = QDBusMessage::createMethodCall("com.jolla.jollastore",
                                                         "/StoreClient",
                                                         "com.jolla.jollastore",
@@ -640,7 +643,11 @@ void Ssu::updateStoreCredentials(){
   QDBusPendingReply<QString, QString> reply = SsuCoreConfig::userSessionBus().asyncCall(message);
   reply.waitForFinished();
   if (reply.isError()) {
-    setError(QString("Store credentials not received. %1").arg(reply.error().message()));
+    if (settings->value("ignore-credential-errors").toBool() == true){
+      ssuLog->print(LOG_WARNING, QString("Warning: ignore-credential-errors is set, passing auth errors down to libzypp"));
+      ssuLog->print(LOG_WARNING, QString("Store credentials not received. %1").arg(reply.error().message()));
+    } else
+      setError(QString("Store credentials not received. %1").arg(reply.error().message()));
   } else {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     settings->beginGroup("credentials-store");
