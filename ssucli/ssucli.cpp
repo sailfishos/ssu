@@ -13,6 +13,7 @@
 #include "libssu/ssudeviceinfo.h"
 #include "libssu/ssurepomanager.h"
 #include "libssu/ssucoreconfig.h"
+#include "libssu/ssuvariables.h"
 
 #include <QDebug>
 
@@ -470,6 +471,47 @@ void SsuCli::optRepos(QStringList opt){
   state = Idle;
 }
 
+void SsuCli::optSet(QStringList opt){
+  QTextStream qout(stdout);
+  SsuVariables var;
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  QHash<QString, QString> storageHash;
+
+  // set repository specific variable
+  if (opt.count() == 5 && opt.at(2) == "-r"){
+    settings->setValue("repository-url-variables/" + opt.at(3), opt.at(4));
+    // clear repo specific variable
+  } else if (opt.count() == 4 && opt.at(2) == "-r"){
+    settings->remove("repository-url-variables/" + opt.at(3));
+    // list repo specific variables
+  } else if (opt.count() == 3 && opt.at(2) == "-r"){
+    qout << "Repository specific variables:" << endl << endl;
+    var.variableSection(settings, "repository-url-variables", &storageHash);
+    // set global variable
+  } else if (opt.count() == 4){
+    settings->setValue("global-variables/" + opt.at(2), opt.at(3));
+    // clear global variable
+  } else if (opt.count() == 3){
+    settings->remove("global-variables/" + opt.at(2));
+    // list global variables
+  } else if (opt.count() == 2){
+    qout << "Global variables:" << endl << endl;
+    var.variableSection(settings, "global-variables", &storageHash);
+  }
+
+  settings->sync();
+
+  if (!storageHash.isEmpty()){
+    QHash<QString, QString>::const_iterator i = storageHash.constBegin();
+    while (i != storageHash.constEnd()){
+      qout << i.key() << "=" << i.value() << endl;
+      i++;
+    }
+  }
+
+  state = Idle;
+}
+
 void SsuCli::optStatus(QStringList opt){
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
@@ -579,6 +621,7 @@ void SsuCli::run(){
       "release", "re", 0, -1, &SsuCli::optRelease,
       "update", "up", 0, -1, &SsuCli::optUpdateCredentials,
       "domain", "do", 0, -1, &SsuCli::optDomain,
+      "set", "set", 0, -1, &SsuCli::optSet,
   };
 
   bool found = false;
@@ -646,11 +689,15 @@ void SsuCli::usage(QString message){
        << "\tdisablerepo, dr <repo> \tdisable this repository" << endl
        << endl
        << "Configuration management:" << endl
-       << "\tflavour, fl     \tdisplay flavour used (RnD only)" << endl
-       << "\t  [newflavour]  \tset new flavour" << endl
-       << "\trelease, re     \tdisplay release used" << endl
-       << "\t  [-r]          \tuse RnD release" << endl
-       << "\t  [newrelease]  \tset new (RnD)release" << endl
+       << "\tflavour, fl          \tdisplay flavour used (RnD only)" << endl
+       << "\t  [newflavour]       \tset new flavour" << endl
+       << "\trelease, re          \tdisplay release used" << endl
+       << "\t  [-r]               \tuse RnD release" << endl
+       << "\t  [newrelease]       \tset new (RnD)release" << endl
+       << "\tset                  \tdisplay global variables" << endl
+       << "\t  [-r]               \toperate on repository only variables" << endl
+       << "\t  <variable>         \tdisplay value of <variable>" << endl
+       << "\t  <variable> <value> \tset value of <variable> to <value>" << endl
        << endl
        << "Device management:" << endl
        << "\tstatus, s     \tprint registration status and device information" << endl

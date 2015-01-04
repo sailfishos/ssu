@@ -307,8 +307,14 @@ QStringList SsuRepoManager::repoVariables(QHash<QString, QString> *storageHash, 
   QStringList configSections;
   SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
 
-  // fill in all arbitrary variables from ssu.ini
+  // fill in all arbitrary repo specific variables from ssu.ini
   var.variableSection(settings, "repository-url-variables", storageHash);
+
+  // fill in all global variables from ssu.ini
+  // TODO: should be handled somewhere in core variable logic once variables
+  //       are more widely used outside of repository urls, for now this is
+  //       just for easier migration to "full" variable usage at a later point.
+  var.variableSection(settings, "global-variables", storageHash);
 
   // add/overwrite some of the variables with sane ones
   if (rnd){

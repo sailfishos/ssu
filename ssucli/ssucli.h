@@ -40,6 +40,7 @@ class SsuCli: public QObject {
     void optRegister(QStringList opt);
     void optRelease(QStringList opt);
     void optRepos(QStringList opt);
+    void optSet(QStringList opt);
     void optStatus(QStringList opt);
     void optUpdateCredentials(QStringList opt);
     void optUpdateRepos(QStringList opt);
