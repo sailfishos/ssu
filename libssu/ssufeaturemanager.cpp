@@ -73,7 +73,7 @@ QString SsuFeatureManager::url(QString repo, bool rndRepo){
 
   if (featureSettings->contains(repoHeader + repo))
     return featureSettings->value(repoHeader + repo).toString();
-  else if (featureSettings->contains("repositorios/" + repo))
+  else if (featureSettings->contains("repositories/" + repo))
     return featureSettings->value("repositories/" + repo).toString();
 
   return "";
