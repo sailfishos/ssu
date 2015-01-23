@@ -29,7 +29,7 @@ SOURCES = \
 
 CONFIG += link_pkgconfig
 QT += network xml dbus
-PKGCONFIG += libsystemd-journal boardname libshadowutils
+PKGCONFIG += libsystemd-journal libshadowutils
 
 install_headers.files = $${public_headers}
 

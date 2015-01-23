@@ -10,3 +10,4 @@ doc/latex
 /rndssucli/ssuproxy.cpp
 /rndssucli/ssuproxy.h
 /.nodocs
+ssucli/ssuproxy.h
