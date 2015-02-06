@@ -18,3 +18,6 @@ test_data_usr_share.files = \
 
 test_data_boardmappings_d.files = \
         testdata/board-mappings.ini \
+
+# Needed for recent versions of libzypp
+QMAKE_CXXFLAGS += -std=c++11
