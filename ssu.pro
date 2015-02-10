@@ -4,7 +4,7 @@ contains(QT_VERSION, ^4\\.[0-7]\\..*) {
 
 TEMPLATE = subdirs
 SUBDIRS = libssu libssunetworkproxy ssud
-SUBDIRS += ssucli ssuurlresolver ssuks
+SUBDIRS += ssucli ssuurlresolver ssuks ssuslipstream
 
 ssuconfhack {
     SUBDIRS += ssuconfperm
@@ -18,6 +18,7 @@ ssuurlresolver.depends = libssu
 tests.depends = libssu
 ssuks.depends = libssu
 ssud.depends  = libssu
+ssuslipstream.depends = libssu
 
 config.files = ssu.ini
 config.path  = /etc/ssu
