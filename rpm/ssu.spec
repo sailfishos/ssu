@@ -36,6 +36,7 @@ Requires: ssu-network-proxy
 # them for the vendor data packages to use
 %attr(0755, -, -) %{_oneshotdir}/*
 %{_bindir}/ssud
+/lib/systemd/system/*.service
 %{_datadir}/dbus-1/system-services/*.service
 %{_sysconfdir}/dbus-1/system.d/*.conf
 
