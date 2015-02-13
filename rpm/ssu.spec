@@ -81,6 +81,17 @@ Provides: rpm-macros
 %{_bindir}/ssuks
 
 
+%package slipstream
+Summary: %{name} OS factory snapshot download provider
+Group: System/Base
+
+%description slipstream
+Helper utility to authenticate downloads of factory snapshot manifests.
+
+%files slipstream
+%defattr(-,root,root,-)
+%{_bindir}/ssuslipstream
+
 %package devel
 Summary: Development files for %{name}
 Group: Development/Libraries
