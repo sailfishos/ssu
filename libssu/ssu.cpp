@@ -125,7 +125,7 @@ QString Ssu::flavour(){
   return settings->flavour();
 }
 
-int Ssu::deviceMode(){
+Ssu::DeviceModeFlags Ssu::deviceMode(){
   SsuCoreConfig *settings = SsuCoreConfig::instance();
   return settings->deviceMode();
 }
@@ -150,7 +150,7 @@ QString Ssu::release(bool rnd){
   return settings->release(rnd);
 }
 
-void Ssu::setDeviceMode(int mode, int editMode){
+void Ssu::setDeviceMode(Ssu::DeviceModeFlags mode, enum Ssu::EditMode editMode){
   SsuCoreConfig *settings = SsuCoreConfig::instance();
   settings->setDeviceMode(mode, editMode);
 }

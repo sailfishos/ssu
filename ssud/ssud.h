@@ -33,8 +33,8 @@ class Ssud: public QObject {
     void registerDevice(const QString &username, const QString &password);
     void unregisterDevice();
     /* repository management */
-    int deviceMode();
-    void setDeviceMode(int mode);
+    Ssu::DeviceModeFlags deviceMode();
+    void setDeviceMode(enum Ssu::DeviceMode mode);
     QString flavour();
     void setFlavour(const QString &release);
     QString release(bool rnd);

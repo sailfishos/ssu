@@ -33,15 +33,15 @@ void CoreconfigTest::testFlavour(){
 
 void CoreconfigTest::testDeviceMode(){
   SsuCoreConfig::instance()->remove("deviceMode");
-  QCOMPARE(SsuCoreConfig::instance()->deviceMode(), (int)Ssu::ReleaseMode);
+  QCOMPARE(SsuCoreConfig::instance()->deviceMode(), Ssu::ReleaseMode);
   SsuCoreConfig::instance()->setDeviceMode(Ssu::ReleaseMode, Ssu::Add);
-  QCOMPARE(SsuCoreConfig::instance()->deviceMode(), (int)Ssu::ReleaseMode);
+  QCOMPARE(SsuCoreConfig::instance()->deviceMode(), Ssu::ReleaseMode);
   SsuCoreConfig::instance()->setDeviceMode(Ssu::LenientMode, Ssu::Add);
-  QCOMPARE(SsuCoreConfig::instance()->deviceMode(), (int)Ssu::ReleaseMode | Ssu::LenientMode);
+  QCOMPARE(SsuCoreConfig::instance()->deviceMode(), Ssu::ReleaseMode | Ssu::LenientMode);
   SsuCoreConfig::instance()->setDeviceMode(Ssu::ReleaseMode, Ssu::Remove);
-  QCOMPARE(SsuCoreConfig::instance()->deviceMode(), (int)Ssu::LenientMode);
+  QCOMPARE(SsuCoreConfig::instance()->deviceMode(), Ssu::LenientMode);
   SsuCoreConfig::instance()->setDeviceMode(Ssu::ReleaseMode, Ssu::Replace);
-  QCOMPARE(SsuCoreConfig::instance()->deviceMode(), (int)Ssu::ReleaseMode);
+  QCOMPARE(SsuCoreConfig::instance()->deviceMode(), Ssu::ReleaseMode);
 }
 
 void CoreconfigTest::testDomain(){

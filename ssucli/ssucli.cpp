@@ -148,7 +148,7 @@ void SsuCli::optMode(QStringList opt){
     reply.waitForFinished();
     if (reply.isError()){
       qerr << "DBus call failed, falling back to libssu" << endl;
-      ssu.setDeviceMode(opt.at(2).toInt());
+      ssu.setDeviceMode(Ssu::DeviceModeFlags(opt.at(2).toInt()));
 
       SsuRepoManager repoManager;
       repoManager.update();
