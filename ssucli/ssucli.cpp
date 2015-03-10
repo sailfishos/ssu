@@ -543,6 +543,7 @@ void SsuCli::optStatus(QStringList opt){
     qout << "Release (rnd): " << ssu.release(true) << " (" << ssu.flavour() << ")" << endl;
   else
     qout << "Release: " << ssu.release() << endl;
+  qout << "Domain: " <<  ssu.domain() << endl;
 }
 
 void SsuCli::optUpdateCredentials(QStringList opt){
