@@ -13,7 +13,6 @@ ssuconfhack {
 SUBDIRS += tests tools
 
 ssucli.depends = libssu
-rndregisterui.depends = libssu
 ssuurlresolver.depends = libssu
 tests.depends = libssu
 ssuks.depends = libssu

@@ -1,6 +1,0 @@
-<RCC>
-    <qresource prefix="/">
-        <file>resources/qml/rndregisterui.qml</file>
-        <file>resources/qml/RndSsuPage.qml</file>
-    </qresource>
-</RCC>
