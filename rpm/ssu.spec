@@ -38,6 +38,10 @@ Requires: ssu-network-proxy
 %{_bindir}/ssud
 /lib/systemd/system/*.service
 %{_datadir}/dbus-1/system-services/*.service
+%dir %{_datarootdir}/%{name}
+%dir %{_datarootdir}/%{name}/board-mappings.d
+%dir %{_datarootdir}/%{name}/features.d
+%dir %{_sysconfdir}/%{name}/
 %{_sysconfdir}/dbus-1/system.d/*.conf
 
 %package network-proxy-plugin
@@ -162,7 +166,10 @@ fi
 %install
 cd build && make INSTALL_ROOT=%{buildroot} install
 mkdir -p %{buildroot}/%{_sysconfdir}/zypp/credentials.d
+mkdir -p %{buildroot}/%{_datarootdir}/%{name}/board-mappings.d
+mkdir -p %{buildroot}/%{_datarootdir}/%{name}/features.d
 mkdir -p %{buildroot}/%{_docdir}/%{name}
+mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 cd .. && cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
 
 
