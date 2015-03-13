@@ -54,7 +54,8 @@ class SsuDeviceInfo: public QObject {
     Q_INVOKABLE QString deviceModel();
     /**
      * Calculate the device ID used in ssu requests
-     * @return QSystemDeviceInfo::imei(), if available, or QSystemDeviceInfo::uniqueDeviceID()
+     * @return QSystemDeviceInfo::imei(), if available, or QNetworkInfo::macAddress(QNetworkInfo::WlanMode, 0),
+     * if available, or QSystemDeviceInfo::uniqueDeviceID()
      */
     Q_INVOKABLE QString deviceUid();
     /**
