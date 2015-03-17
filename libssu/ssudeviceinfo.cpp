@@ -281,34 +281,61 @@ ofonoGetImeis()
     return result;
 }
 
+static QStringList
+getWlanMacs()
+{
+    // Based on QtSystems' qnetworkinfo_linux.cpp
+    QStringList result;
+
+    QStringList dirs = QDir(QLatin1String("/sys/class/net/"))
+            .entryList(QStringList() << QLatin1String("wlan*"));
+    foreach (const QString &dir, dirs) {
+        QFile carrier(QString("/sys/class/net/%1/address").arg(dir));
+        if (carrier.open(QIODevice::ReadOnly)) {
+            result.append(QString::fromLatin1(carrier.readAll().simplified().data()));
+        }
+    }
+    return result;
+}
+
+static QString
+normalizeUid(const QString& uid)
+{
+    // Normalize by stripping colons, dashes and making it lowercase
+    return uid.trimmed().replace(":", "").replace("-", "").toLower();
+}
+
 QString SsuDeviceInfo::deviceUid(){
+  SsuLog *ssuLog = SsuLog::instance();
   QStringList imeis = ofonoGetImeis();
-
-  if (imeis.size() == 0) {
-      qWarning() << "Could not get IMEI(s) from ofono, trying fallback";
-
-      // The fallback list is taken from QtSystems' qdeviceinfo_linux.cpp
-      QStringList fallbackFiles;
-      fallbackFiles << "/sys/devices/virtual/dmi/id/product_uuid";
-      fallbackFiles << "/etc/machine-id";
-      fallbackFiles << "/etc/unique-id";
-      fallbackFiles << "/var/lib/dbus/machine-id";
-
-      foreach (const QString &filename, fallbackFiles) {
-          QFile machineId(filename);
-          if (machineId.open(QFile::ReadOnly | QFile::Text)) {
-              QTextStream in(&machineId);
-
-              // Normalize by stripping colons, dashes and making it lowercase
-              return in.readAll().trimmed().replace(":", "").replace("-", "").toLower();
-          }
-      }
-
-      qCritical() << "Could not read fallback UID - returning empty string";
-      return "";
+  if (imeis.size() > 0) {
+      return imeis[0];
   }
 
-  return imeis[0];
+  QStringList wlanMacs = getWlanMacs();
+  if (wlanMacs.size() > 0) {
+      return normalizeUid(wlanMacs[0]);
+  }
+
+  ssuLog->print(LOG_WARNING, "Could not get IMEI(s) from ofono, nor WLAN mac, trying fallback");
+
+  // The fallback list is taken from QtSystems' qdeviceinfo_linux.cpp
+  QStringList fallbackFiles;
+  fallbackFiles << "/sys/devices/virtual/dmi/id/product_uuid";
+  fallbackFiles << "/etc/machine-id";
+  fallbackFiles << "/etc/unique-id";
+  fallbackFiles << "/var/lib/dbus/machine-id";
+
+  foreach (const QString &filename, fallbackFiles) {
+      QFile machineId(filename);
+      if (machineId.open(QFile::ReadOnly | QFile::Text)) {
+          QTextStream in(&machineId);
+          return normalizeUid(in.readAll());
+      }
+  }
+
+  ssuLog->print(LOG_CRIT, "Could not read fallback UID - returning empty string");
+  return "";
 }
 
 QStringList SsuDeviceInfo::disabledRepos(){
