@@ -12,7 +12,7 @@
 #include "ssukickstarter.h"
 #include "libssu/sandbox_p.h"
 #include "libssu/ssurepomanager.h"
-#include "libssu/ssuvariables.h"
+#include "libssu/ssuvariables_p.h"
 
 #include "../constants.h"
 

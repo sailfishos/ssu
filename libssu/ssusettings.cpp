@@ -12,7 +12,7 @@
 
 #include "sandbox_p.h"
 #include "ssusettings.h"
-#include "ssulog.h"
+#include "ssulog_p.h"
 
 SsuSettings::SsuSettings(): QSettings(){
 

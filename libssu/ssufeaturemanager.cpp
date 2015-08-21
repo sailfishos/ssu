@@ -11,9 +11,9 @@
 
 #include "ssudeviceinfo.h"
 #include "ssufeaturemanager.h"
-#include "ssucoreconfig.h"
-#include "ssulog.h"
-#include "ssuvariables.h"
+#include "ssucoreconfig_p.h"
+#include "ssulog_p.h"
+#include "ssuvariables_p.h"
 #include "ssu.h"
 
 #include "../constants.h"

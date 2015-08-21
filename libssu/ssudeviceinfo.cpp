@@ -17,9 +17,9 @@
 
 #include "sandbox_p.h"
 #include "ssudeviceinfo.h"
-#include "ssucoreconfig.h"
-#include "ssulog.h"
-#include "ssuvariables.h"
+#include "ssucoreconfig_p.h"
+#include "ssulog_p.h"
+#include "ssuvariables_p.h"
 
 #include "../constants.h"
 

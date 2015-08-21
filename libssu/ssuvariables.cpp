@@ -9,8 +9,8 @@
 #include <QRegExp>
 #include <QStringRef>
 
-#include "ssuvariables.h"
-#include "ssulog.h"
+#include "ssuvariables_p.h"
+#include "ssulog_p.h"
 
 #include "../constants.h"
 

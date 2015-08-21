@@ -14,7 +14,7 @@
 #include <systemd/sd-journal.h>
 
 #include "libssu/sandbox_p.h"
-#include "libssu/ssulog.h"
+#include "libssu/ssulog_p.h"
 
 SsuUrlResolver::SsuUrlResolver(): QObject(){
   QObject::connect(this,SIGNAL(done()),

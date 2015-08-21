@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "ssucoreconfig.h"
+#include "ssucoreconfig_p.h"
 
 SsuCoreConfig *SsuCoreConfig::ssuCoreConfig = 0;
 

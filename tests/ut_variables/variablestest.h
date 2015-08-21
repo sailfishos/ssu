@@ -13,7 +13,7 @@
 #include <QHash>
 
 #include "libssu/ssu.h"
-#include "libssu/ssuvariables.h"
+#include "libssu/ssuvariables_p.h"
 
 class VariablesTest: public QObject {
     Q_OBJECT

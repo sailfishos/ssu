@@ -26,7 +26,7 @@
 
 #include "libssu/ssu.h"
 #include "libssu/ssudeviceinfo.h"
-#include "libssu/ssucoreconfig.h"
+#include "libssu/ssucoreconfig_p.h"
 
 
 SsuSlipstream::SsuSlipstream()

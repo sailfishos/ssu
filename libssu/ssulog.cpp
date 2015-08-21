@@ -8,8 +8,8 @@
 #include <QFile>
 #include <QTextStream>
 
-#include "ssulog.h"
-#include "ssucoreconfig.h"
+#include "ssulog_p.h"
+#include "ssucoreconfig_p.h"
 
 SsuLog *SsuLog::ssuLog = 0;
 

@@ -5,16 +5,16 @@ include(../ssulibrary.pri)
 public_headers = \
         ssu.h \
         ssudeviceinfo.h \
-        ssulog.h \
         ssurepomanager.h \
-        ssusettings.h \
-        ssuvariables.h
+        ssusettings.h
 
 HEADERS = \
         $${public_headers} \
         sandbox_p.h \
-        ssucoreconfig.h \
-        ssufeaturemanager.h
+        ssucoreconfig_p.h \
+        ssufeaturemanager.h \
+        ssulog_p.h \
+        ssuvariables_p.h
 
 SOURCES = \
         sandbox.cpp \

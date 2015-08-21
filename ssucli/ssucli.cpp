@@ -12,8 +12,8 @@
 
 #include "libssu/ssudeviceinfo.h"
 #include "libssu/ssurepomanager.h"
-#include "libssu/ssucoreconfig.h"
-#include "libssu/ssuvariables.h"
+#include "libssu/ssucoreconfig_p.h"
+#include "libssu/ssuvariables_p.h"
 
 #include <QDebug>
 

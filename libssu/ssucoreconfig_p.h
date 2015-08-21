@@ -1,12 +1,12 @@
 /**
- * @file ssucoreconfig.h
+ * @file ssucoreconfig_p.h
  * @copyright 2013 Jolla Ltd.
  * @author Bernd Wachter <bwachter@lart.info>
  * @date 2013
  */
 
-#ifndef _SSUCORECONFIG_H
-#define _SSUCORECONFIG_H
+#ifndef _SSUCORECONFIG_P_H
+#define _SSUCORECONFIG_P_H
 
 #include <QObject>
 #include "ssusettings.h"

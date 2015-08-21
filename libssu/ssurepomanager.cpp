@@ -12,10 +12,10 @@
 #include "sandbox_p.h"
 #include "ssudeviceinfo.h"
 #include "ssurepomanager.h"
-#include "ssucoreconfig.h"
+#include "ssucoreconfig_p.h"
 #include "ssusettings.h"
-#include "ssulog.h"
-#include "ssuvariables.h"
+#include "ssulog_p.h"
+#include "ssuvariables_p.h"
 #include "ssufeaturemanager.h"
 #include "ssu.h"
 

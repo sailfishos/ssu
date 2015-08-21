@@ -9,7 +9,7 @@
 
 #include <QtTest/QtTest>
 
-#include "libssu/ssucoreconfig.h"
+#include "libssu/ssucoreconfig_p.h"
 
 void CoreconfigTest::testCredentialsScope(){
   QCOMPARE(SsuCoreConfig::instance()->credentialsScope("/*ignored*/", false), QString("example"));

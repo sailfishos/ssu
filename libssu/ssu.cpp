@@ -22,9 +22,9 @@
 
 #include "ssu.h"
 #include "sandbox_p.h"
-#include "ssulog.h"
-#include "ssuvariables.h"
-#include "ssucoreconfig.h"
+#include "ssulog_p.h"
+#include "ssuvariables_p.h"
+#include "ssucoreconfig_p.h"
 #include "ssurepomanager.h"
 #include "ssudeviceinfo.h"
 

@@ -9,7 +9,7 @@
 
 #include <QtTest/QtTest>
 
-#include "libssu/ssucoreconfig.h"
+#include "libssu/ssucoreconfig_p.h"
 #include "libssu/ssurepomanager.h"
 
 void RepoManagerTest::testSettings(){

@@ -15,7 +15,7 @@
 #include <QtCore/QProcessEnvironment>
 #include <QtCore/QSet>
 
-#include "libssu/ssucoreconfig.h"
+#include "libssu/ssucoreconfig_p.h"
 #include "constants.h"
 
 /**
