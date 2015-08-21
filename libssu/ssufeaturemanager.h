@@ -13,7 +13,7 @@
 #include <QStringList>
 
 #include "ssu.h"
-#include "ssusettings.h"
+#include "ssusettings_p.h"
 
 class SsuFeatureManager: public QObject {
     Q_OBJECT

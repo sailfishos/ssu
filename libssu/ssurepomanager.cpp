@@ -13,7 +13,7 @@
 #include "ssudeviceinfo.h"
 #include "ssurepomanager.h"
 #include "ssucoreconfig_p.h"
-#include "ssusettings.h"
+#include "ssusettings_p.h"
 #include "ssulog_p.h"
 #include "ssuvariables_p.h"
 #include "ssufeaturemanager.h"

@@ -11,7 +11,7 @@
 #include <QObject>
 #include <QHash>
 
-#include "ssusettings.h"
+#include "ssusettings_p.h"
 
 class SsuVariables: public QObject {
     Q_OBJECT

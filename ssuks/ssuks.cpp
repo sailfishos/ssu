@@ -16,6 +16,7 @@
 #include "ssukickstarter.h"
 #include "constants.h"
 #include "libssu/sandbox_p.h"
+#include "libssu/ssusettings_p.h"
 
 #include "ssuks.h"
 

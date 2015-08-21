@@ -1,12 +1,12 @@
 /**
- * @file ssusettings.h
+ * @file ssusettings_p.h
  * @copyright 2013 Jolla Ltd.
  * @author Bernd Wachter <bwachter@lart.info>
  * @date 2013
  */
 
-#ifndef _SSUSETTINGS_H
-#define _SSUSETTINGS_H
+#ifndef _SSUSETTINGS_P_H
+#define _SSUSETTINGS_P_H
 
 #include <QSettings>
 

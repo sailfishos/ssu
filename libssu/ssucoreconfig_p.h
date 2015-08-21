@@ -9,7 +9,7 @@
 #define _SSUCORECONFIG_P_H
 
 #include <QObject>
-#include "ssusettings.h"
+#include "ssusettings_p.h"
 #include "ssu.h"
 
 #ifndef SSU_CONFIGURATION

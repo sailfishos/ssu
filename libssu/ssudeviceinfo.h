@@ -10,8 +10,9 @@
 
 #include <QObject>
 
-#include "ssusettings.h"
 #include "ssu.h"
+
+class SsuSettings;
 
 class SsuDeviceInfo: public QObject {
     Q_OBJECT

@@ -11,7 +11,7 @@
 #include <QDateTime>
 
 #include "sandbox_p.h"
-#include "ssusettings.h"
+#include "ssusettings_p.h"
 #include "ssulog_p.h"
 
 SsuSettings::SsuSettings(): QSettings(){

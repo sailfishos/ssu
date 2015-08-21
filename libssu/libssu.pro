@@ -6,7 +6,6 @@ public_headers = \
         ssu.h \
         ssudeviceinfo.h \
         ssurepomanager.h \
-        ssusettings.h
 
 HEADERS = \
         $${public_headers} \
@@ -14,6 +13,7 @@ HEADERS = \
         ssucoreconfig_p.h \
         ssufeaturemanager.h \
         ssulog_p.h \
+        ssusettings_p.h \
         ssuvariables_p.h
 
 SOURCES = \
