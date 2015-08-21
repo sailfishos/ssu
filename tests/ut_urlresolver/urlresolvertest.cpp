@@ -142,7 +142,7 @@ void UrlResolverTest::checkRegisterDevice(){
   QVERIFY2(!ssu.registerDevice(&doc),
       "Ssu::registerDevice() should fail when 'certificate' is empty");
 
-  QFile certificateFile(TESTS_DATA_PATH "/mycert.crt");
+  QFile certificateFile(QString("%1/mycert.crt").arg(LOCATE_DATA_PATH));
   QVERIFY(certificateFile.open(QIODevice::ReadOnly));
 
   certificate.appendChild(doc.createTextNode(certificateFile.readAll()));
@@ -153,7 +153,7 @@ void UrlResolverTest::checkRegisterDevice(){
   QVERIFY2(!ssu.registerDevice(&doc),
       "Ssu::registerDevice() should fail when 'privateKey' is empty");
 
-  QFile privateKeyFile(TESTS_DATA_PATH "/mykey.key");
+  QFile privateKeyFile(QString("%1/mykey.key").arg(LOCATE_DATA_PATH));
   QVERIFY(privateKeyFile.open(QIODevice::ReadOnly));
 
   privateKey.appendChild(doc.createTextNode(privateKeyFile.readAll()));

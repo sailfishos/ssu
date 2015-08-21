@@ -20,12 +20,16 @@ typedef QStringList Args; // improve readability
 void SsuCliTest::init(){
   Q_ASSERT(m_sandbox == 0);
 
-  m_sandbox = new Sandbox(QString("%1/configroot").arg(TESTS_DATA_PATH),
+  m_sandbox = new Sandbox(QString("%1/configroot").arg(LOCATE_DATA_PATH),
       Sandbox::UseAsSkeleton, Sandbox::ChildProcesses);
   if (!m_sandbox->activate()){
     QFAIL("Failed to activate sandbox");
   }
-  setenv("LD_PRELOAD", qPrintable(QString("%1/libsandboxhook.so").arg(TESTS_PATH)), 1);
+  if (getenv("SSU_SANDBOX_PATH")){
+    qDebug() << "Using in-tree sandbox";
+    setenv("LD_PRELOAD", getenv("SSU_SANDBOX_PATH"), 1);
+  } else
+    setenv("LD_PRELOAD", qPrintable(QString("%1/libsandboxhook.so").arg(TESTS_PATH)), 1);
 
   m_bus = new QProcess(this);
   m_bus->start("dbus-daemon",

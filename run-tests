@@ -1,0 +1,75 @@
+#!/bin/sh
+#
+# Simple script to run all tests either in-tree or after test RPM
+# installation. Output will be nicely formatted if output formatter
+# is available. All arguments to this script are passed to formatoutput.
+
+prepareInTreeTestData(){
+    # this is a dirty hack to get most of the test data into a place
+    # usable for running tests without installation. Currently this
+    # causes some duplication
+    mkdir -p build/testdata
+    TESTDATA=`find tests -name testdata`
+
+    for t in $TESTDATA; do
+        test=`echo $t | sed 's,.*tests/,,' | sed 's,/.*,,'`
+        mkdir -p build/testdata/$test/
+        dirs=`find $t/* -prune -type f`
+        if [ -z "$dirs" ]; then
+            cp -a $t/* build/testdata/$test/
+        else
+            mkdir -p build/testdata/$test/configroot/usr/share/ssu/
+            mkdir -p build/testdata/$test/configroot/etc/ssu/
+            for ini in $t/*.ini; do
+                inifile=`echo $ini | sed 's,.*/,,'`
+                if [ $inifile = "ssu.ini" ]; then
+                    cp $ini build/testdata/$test/configroot/etc/ssu/
+                elif [ $inifile = "board-mappings.ini" ]; then
+                    mkdir -p build/testdata/$test/configroot/usr/share/ssu/board-mappings.d
+                    cp $ini build/testdata/$test/configroot/usr/share/ssu/board-mappings.d/
+                else
+                    cp $ini build/testdata/$test/configroot/usr/share/ssu/
+                fi
+            done
+            cp $t/* build/testdata/$test/configroot/
+            for key in $t/*.{key,crt}; do
+                cp $key build/testdata/$test/
+            done
+        fi
+    done
+}
+
+if [ -d "build" ]; then
+    BASE_DIR="`pwd`/build"
+    export LD_LIBRARY_PATH="$BASE_DIR/lib:${LD_LIBRARY_PATH}"
+    export SSU_SANDBOX_PATH="$BASE_DIR/lib/libsandboxhook.so"
+    prepareInTreeTestData
+    TESTS=`ls $BASE_DIR/bin/ut_*`
+    if [ -f "$BASE_DIR/bin/formatoutput" ]; then
+        FORMATOUTPUT="$BASE_DIR/bin/formatoutput"
+    fi
+elif [ -d "/opt/tests/ssu" ]; then
+    BASE_DIR="/opt/tests/ssu"
+    export LD_LIBRARY_PATH="$BASE_DIR:${LD_LIBRARY_PATH}"
+    TESTS=`ls $BASE_DIR/ut_*`
+    if [ -f "$BASE_DIR/formatoutput" ]; then
+        FORMATOUTPUT="$BASE_DIR/formatoutput"
+    fi
+else
+    echo "Neither ./build nor /opt/tests/ssu exist, exiting"
+    exit 1
+fi
+
+for test in $TESTS; do
+    if [ -d "./build/testdata/`basename $test`" ]; then
+        export SSU_TESTS_DATA_PATH="`pwd`/build/testdata/`basename $test`"
+    else
+        unset SSU_TESTS_DATA_PATH
+    fi
+
+    if [ -z "$FORMATOUTPUT" ]; then
+        $test | grep -v "^PASS"
+    else
+        $test | $FORMATOUTPUT $@
+    fi
+done

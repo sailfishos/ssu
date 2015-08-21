@@ -125,6 +125,13 @@ QString Sandbox::map(const QString &fileName)
         QFileInfo(fileName).absoluteFilePath()));
 }
 
+QString Sandbox::map(const QString &pathName, const QString &fileName)
+{
+  return effectiveRootDir().filePath(
+      QDir::root().relativeFilePath(
+        QFileInfo(pathName + fileName).absoluteFilePath()));
+}
+
 /**
  * Copies selected files into sandbox. Existing files in sandbox are not overwriten.
  *

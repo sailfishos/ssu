@@ -11,7 +11,7 @@
 #include "coreconfigtest.h"
 
 int main(int argc, char **argv){
-  Sandbox sandbox(QString("%1/configroot").arg(TESTS_DATA_PATH),
+  Sandbox sandbox(QString("%1/configroot").arg(LOCATE_DATA_PATH),
       Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
   if (!sandbox.activate()){
     qFatal("Failed to activate sandbox");

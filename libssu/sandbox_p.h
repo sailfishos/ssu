@@ -12,6 +12,12 @@
 #include <QtCore/QSet>
 #include <QtCore/QString>
 
+// use either environment variable SSU_TESTS_DATA_PATH or compile time
+// TESTS_DATA_PATH to locate test data
+#define LOCATE_DATA_PATH (getenv("SSU_TESTS_DATA_PATH") ? \
+                          getenv("SSU_TESTS_DATA_PATH") : \
+                          TESTS_DATA_PATH)
+
 class Sandbox {
   public:
     enum Usage {
@@ -36,6 +42,7 @@ class Sandbox {
 
     static QDir effectiveRootDir();
     static QString map(const QString &fileName);
+    static QString map(const QString &pathName, const QString &fileName);
 
     bool addWorldFiles(const QString &directory, QDir::Filters filters = QDir::NoFilter,
         const QStringList &filterNames = QStringList(), bool recurse = true);

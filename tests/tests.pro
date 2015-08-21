@@ -2,6 +2,7 @@ TEMPLATE        = subdirs
 CONFIG         += ordered coverage debug
 SUBDIRS         = \
         testutils \
+        formatoutput \
         testutils/sandboxhook.pro \
         ut_coreconfig \
         ut_deviceinfo \
@@ -16,4 +17,8 @@ SUBDIRS         = \
 include(tests_common.pri)
 tests.files     = tests.xml
 tests.path      = $$TESTS_PATH
-INSTALLS += tests
+
+scripts.files   = ../run-tests
+scripts.path    = $$TESTS_PATH
+
+INSTALLS += tests scripts
