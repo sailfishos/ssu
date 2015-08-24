@@ -122,8 +122,15 @@ Ssu::DeviceModeFlags Ssud::deviceMode(){
   return ssu.deviceMode();
 }
 
-void Ssud::setDeviceMode(enum Ssu::DeviceMode mode){
-  ssu.setDeviceMode(mode);
+void Ssud::setDeviceMode(int mode){
+  setDeviceMode(mode, Ssu::Replace);
+}
+
+void Ssud::setDeviceMode(int mode, int editMode){
+  ssu.setDeviceMode(
+    Ssu::DeviceModeFlags(mode),
+    Ssu::EditMode(editMode)
+    );
 
   SsuRepoManager repoManager;
   repoManager.update();

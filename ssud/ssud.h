@@ -34,7 +34,8 @@ class Ssud: public QObject {
     void unregisterDevice();
     /* repository management */
     Ssu::DeviceModeFlags deviceMode();
-    void setDeviceMode(enum Ssu::DeviceMode mode);
+    void setDeviceMode(int mode);
+    void setDeviceMode(int mode, int editMode);
     QString flavour();
     void setFlavour(const QString &release);
     QString release(bool rnd);
