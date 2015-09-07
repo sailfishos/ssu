@@ -123,6 +123,17 @@ int SsuRepoManager::remove(QString repo){
   return 0;
 }
 
+QStringList SsuRepoManager::repos(int filter){
+  SsuDeviceInfo deviceInfo;
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+  bool rnd = false;
+
+  if ((ssuSettings->deviceMode() & Ssu::RndMode) == Ssu::RndMode)
+    rnd = true;
+
+  return repos(rnd, deviceInfo, filter);
+}
+
 QStringList SsuRepoManager::repos(bool rnd, int filter){
   SsuDeviceInfo deviceInfo;
 
