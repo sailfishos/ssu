@@ -9,12 +9,19 @@
 #define _REPOMANAGERTEST_H
 
 #include <QObject>
+#include <QStringList>
 
 class RepoManagerTest: public QObject {
     Q_OBJECT
 
   private slots:
+    void initTestCase();
     void testSettings();
+    void testCustomRepos();
+    void testRepos();
+
+  private:
+    QStringList rndRepos, releaseRepos;
 };
 
 #endif
