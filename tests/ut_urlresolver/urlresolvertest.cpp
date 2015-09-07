@@ -14,10 +14,14 @@
 #include "testutils/process.h"
 
 void UrlResolverTest::initTestCase(){
-#ifdef TARGET_ARCH
   // test will fail if executed without proper installation of libssu and repos
   QString arch = "";
+#ifdef TARGET_ARCH
   arch = TARGET_ARCH;
+#else
+#warning "TARGET_ARCH not defined"
+#warning "In-tree tests will fail without using run-tests script"
+#endif
   rndRepos["nemo"] = QString("https://packages.example.com/nemo/latest/platform/%1/").arg(arch);
   rndRepos["mer-core"] = QString("https://packages.example.com/mer/latest/builds/%1/packages/").arg(arch);
 /*
@@ -26,18 +30,6 @@ void UrlResolverTest::initTestCase(){
   releaseRepos["nemo"] = QString("https://packages.example.com/releases/0.1/nemo/platform/%1/").arg(arch);
   releaseRepos["mer-core"] = QString("https://packages.example.com/0.1/mer/%1/packages/").arg(arch);
   releaseRepos["jolla"] = QString("https://packages.example.com/releases/0.1/jolla/%1/").arg(arch);
-#else
-#warning "TARGET_ARCH not defined"
-// if run in build dir, ssu.ini and repos missing the repo urls to compare will be empty!
-  rndRepos["nemo"] = "";
-  rndRepos["mer-core"] = "";
-  /*
-  rndRepos["non-oss"] = "";
-  */
-  releaseRepos["nemo"] = "";
-  releaseRepos["mer-core"] = "";
-  releaseRepos["jolla"] = "";
-#endif
 }
 
 void UrlResolverTest::cleanupTestCase(){
@@ -106,11 +98,7 @@ void UrlResolverTest::simpleRepoUrlLookup(){
     url=ssu.repoUrl(i.key(), true);
     QCOMPARE(url, i.value());
     url=ssu.repoUrl(i.key(), false);
-#ifdef TARGET_ARCH
     QVERIFY(url.compare(i.value()) != 0);
-#else
-    QCOMPARE(url, i.value());
-#endif
   }
 /*
   QCOMPARE(ssu.repoUrl("jolla", 0), QString(""));
