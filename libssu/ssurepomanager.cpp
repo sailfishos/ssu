@@ -28,8 +28,12 @@ SsuRepoManager::SsuRepoManager(): QObject() {
 int SsuRepoManager::add(QString repo, QString repoUrl){
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
 
-  // adding a repo is a noop when device is in update mode
+  // adding a repo is a noop when device is in update mode...
   if ((ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode)
+    return -1;
+
+  // ... or in AppInstallMode
+  if ((ssuSettings->deviceMode() & Ssu::AppInstallMode) == Ssu::AppInstallMode)
     return -1;
 
   if (repoUrl == ""){
@@ -102,8 +106,12 @@ int SsuRepoManager::enable(QString repo){
 int SsuRepoManager::remove(QString repo){
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
 
-  // removing a repo is a noop when device is in update mode
+  // removing a repo is a noop when device is in update mode...
   if ((ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode)
+    return -1;
+
+  // ... or AppInstallMode
+  if ((ssuSettings->deviceMode() & Ssu::AppInstallMode) == Ssu::AppInstallMode)
     return -1;
 
   if (ssuSettings->contains("repository-urls/" + repo))
@@ -163,8 +171,15 @@ QStringList SsuRepoManager::repos(bool rnd, SsuDeviceInfo &deviceInfo, int filte
   SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
 
   bool updateMode = false;
+  bool appInstallMode = false;
+
   if ((ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode)
     updateMode = true;
+
+  if ((ssuSettings->deviceMode() & Ssu::AppInstallMode) == Ssu::AppInstallMode){
+    updateMode = true;
+    appInstallMode = true;
+  }
 
   if (filter == Ssu::NoFilter ||
       filter == Ssu::UserFilter){
@@ -187,6 +202,13 @@ QStringList SsuRepoManager::repos(bool rnd, SsuDeviceInfo &deviceInfo, int filte
     // read user-enabled repositories from ssu.ini
     if (ssuSettings->contains("enabled-repos") && !updateMode)
       result.append(ssuSettings->value("enabled-repos").toStringList());
+
+    // if the store repository is enabled keep it enabled in AppInstallMode
+    if (ssuSettings->contains("enabled-repos") && appInstallMode){
+      // TODO store should not be hardcoded, but come via some store plugin
+      if (ssuSettings->value("enabled-repos").toStringList().contains("store"))
+        result.append("store");
+    }
   }
 
   if (filter == Ssu::NoFilter ||

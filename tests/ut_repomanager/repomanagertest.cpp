@@ -151,6 +151,31 @@ void RepoManagerTest::testCustomRepos(){
   coreConfig->setDeviceMode(Ssu::RndMode | Ssu::UpdateMode, Ssu::Replace);
   QCOMPARE(coreConfig->deviceMode(), Ssu::UpdateMode | Ssu::RndMode);
   QVERIFY(rndRepos.toSet() == repoManager.repos().toSet());
+
+  // check appinstall mode
+  // custom repositories, apart from store, should be gone
+  customRepos.clear();
+  customRepos << "store";
+
+  // check release mode
+  coreConfig->setDeviceMode(Ssu::ReleaseMode | Ssu::AppInstallMode, Ssu::Replace);
+  QCOMPARE(coreConfig->deviceMode(), Ssu::ReleaseMode | Ssu::AppInstallMode);
+  set = releaseRepos.toSet().unite(repoManager.repos().toSet());
+  QCOMPARE(set.count(), 3);
+  QVERIFY(set == customRepos.toSet().unite(releaseRepos.toSet()));
+
+  // and rnd mode
+  coreConfig->setDeviceMode(Ssu::RndMode, Ssu::Add);
+  QCOMPARE(coreConfig->deviceMode(), Ssu::ReleaseMode | Ssu::AppInstallMode | Ssu::RndMode);
+  set = rndRepos.toSet().unite(repoManager.repos().toSet());
+  QCOMPARE(set.count(), 6);
+  QVERIFY(set == customRepos.toSet().unite(rndRepos.toSet()));
+
+  coreConfig->setDeviceMode(Ssu::RndMode | Ssu::AppInstallMode, Ssu::Replace);
+  QCOMPARE(coreConfig->deviceMode(), Ssu::AppInstallMode | Ssu::RndMode);
+  set = rndRepos.toSet().unite(repoManager.repos().toSet());
+  QCOMPARE(set.count(), 6);
+  QVERIFY(set == customRepos.toSet().unite(rndRepos.toSet()));
 }
 
 void RepoManagerTest::testRepos(){

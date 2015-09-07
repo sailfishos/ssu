@@ -38,6 +38,9 @@ class Ssu: public QObject {
      * ReleaseMode is defined to make a switch to allowing RnD and Release
      * repositories on a device at the same time easy, if ever needed. Right
      * now any mode where RndMode is not set is treated as ReleaseMode.
+     *
+     * If both UpdateMode and AppInstallMode are specified the device behaves
+     * like in AppInstallMode.
      */
     enum DeviceMode {
       DisableRepoManager = 0x1,   ///< Disable automagic repository management
@@ -45,6 +48,7 @@ class Ssu: public QObject {
       ReleaseMode        = 0x4,   ///< Enable Release mode
       LenientMode        = 0x8,   ///< Disable strict mode (i.e., keep unmanaged repositories)
       UpdateMode         = 0x10,  ///< Do repo isolation and similar bits important for updating devices
+      AppInstallMode     = 0x20   ///< Do repo isolation, but keep store repository enabled
     };
 
     Q_DECLARE_FLAGS(DeviceModeFlags, DeviceMode)
