@@ -98,6 +98,7 @@ QString Ssu::credentialsScope(QString repoName, bool rndRepo){
     SsuVariables::variable(&repoSettings,
                            domain() + "-domain",
                            storeAuthReposKey).toStringList();
+
   if (storeAuthRepos.empty())
     storeAuthRepos =
       SsuVariables::variable(&repoSettings,
@@ -106,6 +107,18 @@ QString Ssu::credentialsScope(QString repoName, bool rndRepo){
 
   if (storeAuthRepos.contains(repoName))
     return "store";
+
+  // If we defined explicitly what credentials to use with which secure domain
+  // use those.
+  QHash<QString, QString> secureDomainAuth;
+  SsuVariables::variableSection(&repoSettings, "secure-domain-auth", &secureDomainAuth);
+  QHashIterator<QString, QString> i(secureDomainAuth);
+  while (i.hasNext()) {
+    i.next();
+    if (repoUrl(repoName, rndRepo).contains(i.key()) && !i.value().isEmpty()) {
+      return i.value();
+    }
+  }
 
   return settings->credentialsScope(repoName, rndRepo);
 }
