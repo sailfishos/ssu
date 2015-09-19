@@ -7,6 +7,7 @@ SUBDIRS         = \
         ut_coreconfig \
         ut_deviceinfo \
         ut_repomanager \
+        ut_ssu \
         ut_ssucli \
         ut_sandbox \
         ut_settings \

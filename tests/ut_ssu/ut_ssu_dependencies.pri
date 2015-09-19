@@ -1,0 +1,1 @@
+include(../../libssu/libssu.pri)
