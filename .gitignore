@@ -11,3 +11,8 @@ doc/latex
 /rndssucli/ssuproxy.h
 /.nodocs
 ssucli/ssuproxy.h
+*.o
+RPMS/
+installroot/
+moc_*.cpp
+qrc_*.cpp
