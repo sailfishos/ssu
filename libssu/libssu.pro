@@ -6,6 +6,7 @@ public_headers = \
         ssu.h \
         ssudeviceinfo.h \
         ssurepomanager.h \
+        ssufeaturemodel.h
 
 HEADERS = \
         $${public_headers} \
@@ -23,6 +24,7 @@ SOURCES = \
         ssudeviceinfo.cpp \
         ssulog.cpp \
         ssufeaturemanager.cpp \
+        ssufeaturemodel.cpp \
         ssuvariables.cpp \
         ssurepomanager.cpp \
         ssusettings.cpp

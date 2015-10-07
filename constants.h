@@ -24,4 +24,11 @@
 #define SSU_MAX_RECURSION 1024
 /// Path to zypper repo configuration
 #define ZYPP_REPO_PATH "/etc/zypp/repos.d"
+
+/// Path to the main ssu configuration file
+#define SSU_FEATURE_CONFIGURATION "/var/cache/ssu/features.ini"
+
+/// Path to the main ssu configuration file
+#define SSU_FEATURE_CONFIGURATION_DIR "/usr/share/ssu/features.d"
+
 #endif

@@ -1,0 +1,9 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource>
+    <file>testdata/feature-a.ini</file>
+    <file>testdata/feature-b.ini</file>
+    <file>testdata/feature-noname.ini</file>
+    <file>testdata/feature-noversion.ini</file>
+  </qresource>
+</RCC>

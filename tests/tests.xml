@@ -38,6 +38,11 @@
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_settings</step>
       </case>
     </set>
+    <set name="featuremodel" description="Test to determine feature model behaves correctly" feature="featuremodel">
+      <case name="ut_featuremodel" type="Functional" description="Feature model processing test" timeout="1000" subfeature="">
+        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_featuremodel</step>
+      </case>
+    </set>
     <set name="ssuurlresolver" description="Test to determine if the UrlResolverPlugin works well with installed version of libzypp" feature="ssuurlresolver">
       <case name="ut_ssuurlresolver" type="Functional" description="URL resolver plugin test" timeout="1000" subfeature="">
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_ssuurlresolver</step>

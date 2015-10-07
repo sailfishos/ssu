@@ -6,6 +6,7 @@ SUBDIRS         = \
         testutils/sandboxhook.pro \
         ut_coreconfig \
         ut_deviceinfo \
+        ut_featuremodel \
         ut_repomanager \
         ut_ssu \
         ut_ssucli \

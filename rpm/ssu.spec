@@ -84,7 +84,6 @@ Provides: rpm-macros
 %config %{_sysconfdir}/rpm/macros.ssuks
 %{_bindir}/ssuks
 
-
 %package slipstream
 Summary: %{name} OS factory snapshot download provider
 Group: System/Base
@@ -95,6 +94,17 @@ Helper utility to authenticate downloads of factory snapshot manifests.
 %files slipstream
 %defattr(-,root,root,-)
 %{_bindir}/ssuslipstream
+
+%package declarative
+Summary: QML plugin for libssu
+Group: System/Base
+BuildRequires: pkgconfig(Qt5Qml)
+
+%description declarative
+%{summary}
+
+%files declarative
+%{_libdir}/qt5/qml/Nemo/Ssu/*
 
 %package devel
 Summary: Development files for %{name}
