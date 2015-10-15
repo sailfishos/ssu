@@ -3,6 +3,7 @@ TARGET = declarativessu
 TARGET = $$qtLibraryTarget($$TARGET)
 
 include(../libssu/libssu.pri)
+include(../ssu_common.pri)
 
 MODULENAME = Nemo/Ssu
 TARGETPATH = $$[QT_INSTALL_QML]/$$MODULENAME
