@@ -19,6 +19,7 @@ tests.depends = libssu
 ssuks.depends = libssu
 ssud.depends  = libssu
 ssuslipstream.depends = libssu
+declarative.depends = libssu
 
 config.files = ssu.ini
 config.path  = /etc/ssu
