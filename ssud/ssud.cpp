@@ -116,6 +116,10 @@ void Ssud::unregisterDevice(){
   ssu.unregister();
 };
 
+QString Ssud::domain(){
+    autoclose.start();
+    return ssu.domain();
+}
 
 Ssu::DeviceModeFlags Ssud::deviceMode(){
   autoclose.start();

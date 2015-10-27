@@ -32,6 +32,7 @@ class Ssud: public QObject {
     bool isRegistered();
     void registerDevice(const QString &username, const QString &password);
     void unregisterDevice();
+    QString domain();
     /* repository management */
     Ssu::DeviceModeFlags deviceMode();
     void setDeviceMode(int mode);

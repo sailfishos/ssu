@@ -35,6 +35,9 @@
     <method name="isRegistered">
       <arg direction="out" type="b" name="status"/>
     </method>
+    <method name="domain">
+        <arg direction="out" type="s" name="domain"/>
+    </method>
 
     <!-- deviceInfo related methods -->
     <method name="deviceModel">
