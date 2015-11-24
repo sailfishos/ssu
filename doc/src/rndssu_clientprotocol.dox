@@ -4,7 +4,7 @@
 
 This page contains the protocol definition used between a ssu client on a device and a ssu server. The client-side of this protocol is implemented in libssu and the ssu CLI. The server side heavily depends on the available infrastructure, and is not available in public. See \ref rndssu_implementation_notes "the implementation notes for RnD ssu" for additional details required to implement a ssu server.
 
-$DEVICEID in the following examples is a variable filled by the ssu client before making the request, replaced by the devices IMEI (QSystemDeviceInfo::imei()), or a unique device ID (QSystemDeviceInfo::uniqueDeviceID()), if the IMEI is not available (netbooks, SDK, ...)
+$DEVICEID in the following examples is a variable filled by the ssu client before making the request, replaced by the devices IMEI (from oFono ModemManager API), or WLAN mac address or device uid fallback code similar to QDeviceInfo::uniqueDeviceID(), if the IMEI is not available (netbooks, SDK, ...)
 
 @section registration Device registration
 
