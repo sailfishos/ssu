@@ -251,31 +251,12 @@ ofonoGetImeis()
     QStringList result;
 
     QDBusMessage reply = QDBusConnection::systemBus().call(
-            QDBusMessage::createMethodCall("org.ofono", "/",
-                "org.ofono.Manager", "GetModems"));
+                QDBusMessage::createMethodCall("org.ofono", "/",
+                                               "org.nemomobile.ofono.ModemManager", "GetIMEI"));
 
-    foreach (const QVariant &v, reply.arguments()) {
-        if (v.canConvert<QDBusArgument>()) {
-            const QDBusArgument arg = v.value<QDBusArgument>();
-            if (arg.currentType() == QDBusArgument::ArrayType) {
-                arg.beginArray();
-                while (!arg.atEnd()) {
-                    if (arg.currentType() == QDBusArgument::StructureType) {
-                        QString path;
-                        QVariantMap props;
-
-                        arg.beginStructure();
-                        arg >> path >> props;
-                        arg.endStructure();
-
-                        if (props.contains("Serial")) {
-                            result << props["Serial"].toString();
-                        }
-                    }
-                }
-                arg.endArray();
-            }
-        }
+    QList<QVariant> arguments = reply.arguments();
+    if (arguments.count() > 0) {
+        result = arguments.at(0).toStringList();
     }
 
     return result;
