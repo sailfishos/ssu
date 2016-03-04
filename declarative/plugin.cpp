@@ -10,6 +10,12 @@
 
 #include <qqml.h>
 #include "declarativessufeaturemodel.h"
+#include "declarativessudeviceinfo.h"
+
+static QObject *device_info_factory(QQmlEngine *, QJSEngine *)
+{
+    return new DeclarativeSsuDeviceInfo;
+}
 
 class NemoSsuPlugin : public QQmlExtensionPlugin
 {
@@ -20,6 +26,7 @@ public:
     virtual void registerTypes(const char *)
     {
         qmlRegisterType<DeclarativeSsuFeatureModel>("Nemo.Ssu", 1, 0, "FeatureModel");
+        qmlRegisterSingletonType<DeclarativeSsuDeviceInfo>("Nemo.Ssu", 1, 1, "DeviceInfo", device_info_factory);
     }
 };
 

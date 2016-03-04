@@ -15,9 +15,11 @@ CONFIG += plugin
 
 target.path = $$TARGETPATH
 
-HEADERS =  declarativessufeaturemodel.h
+HEADERS =  declarativessufeaturemodel.h \
+           declarativessudeviceinfo.h
 SOURCES += plugin.cpp \
-           declarativessufeaturemodel.cpp
+           declarativessufeaturemodel.cpp \
+           declarativessudeviceinfo.cpp
 
 qmldir.files = qmldir *.qml *.js
 qmldir.path = $$target.path
