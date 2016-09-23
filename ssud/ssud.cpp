@@ -18,12 +18,12 @@ const char *Ssud::OBJECT_PATH = "/org/nemo/ssu";
 
 Ssud::Ssud(QObject *parent): QObject(parent){
   QDBusConnection connection = QDBusConnection::systemBus();
-  if (!connection.registerService(SERVICE_NAME)) {
-    qFatal("Cannot register D-Bus service at %s", SERVICE_NAME);
-  }
-
   if (!connection.registerObject(OBJECT_PATH, this)) {
     qFatal("Cannot register object at %s", OBJECT_PATH);
+  }
+
+  if (!connection.registerService(SERVICE_NAME)) {
+    qFatal("Cannot register D-Bus service at %s", SERVICE_NAME);
   }
 
   // prepare for controlled suicide on boredom
