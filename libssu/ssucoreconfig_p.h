@@ -109,8 +109,8 @@ public:
 
 
 private:
-    SsuCoreConfig(): SsuSettings(SSU_CONFIGURATION, QSettings::IniFormat, SSU_DEFAULT_CONFIGURATION) {};
-    SsuCoreConfig(const SsuCoreConfig &); // hide copy constructor
+    SsuCoreConfig(): SsuSettings(SSU_CONFIGURATION, QSettings::IniFormat, SSU_DEFAULT_CONFIGURATION) {}
+    Q_DISABLE_COPY(SsuCoreConfig)
 
     static SsuCoreConfig *ssuCoreConfig;
 };

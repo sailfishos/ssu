@@ -16,7 +16,7 @@ SsuLog *SsuLog::ssuLog = 0;
 SsuLog *SsuLog::instance()
 {
     if (!ssuLog) {
-        ssuLog = new SsuLog();
+        ssuLog = new SsuLog;
         ssuLog->fallbackLogPath = "/tmp/ssu.log";
         ssuLog->ssuLogLevel = -1;
     }

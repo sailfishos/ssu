@@ -23,8 +23,8 @@ public:
     void print(int priority, QString message);
 
 private:
-    SsuLog() {};
-    SsuLog(const SsuLog &); // hide copy constructor
+    SsuLog() {}
+    Q_DISABLE_COPY(SsuLog)
 
     static SsuLog *ssuLog;
     int ssuLogLevel;

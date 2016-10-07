@@ -16,7 +16,7 @@ class SsuKs: public QObject
     Q_OBJECT
 
 public:
-    SsuKs() {};
+    SsuKs() {}
 
 public slots:
     void run();

@@ -20,7 +20,7 @@ SsuCoreConfig *SsuCoreConfig::ssuCoreConfig = 0;
 SsuCoreConfig *SsuCoreConfig::instance()
 {
     if (!ssuCoreConfig)
-        ssuCoreConfig = new SsuCoreConfig();
+        ssuCoreConfig = new SsuCoreConfig;
 
     return ssuCoreConfig;
 }
