@@ -24,10 +24,11 @@
 
 class QDBusConnection;
 
-class SsuCoreConfig: public SsuSettings {
+class SsuCoreConfig: public SsuSettings
+{
     Q_OBJECT
 
-  public:
+public:
     static SsuCoreConfig *instance();
     /**
      * Find a username/password pair for the given scope
@@ -43,7 +44,7 @@ class SsuCoreConfig: public SsuSettings {
      *
      * @return a string containing the scope; it can be used to look up login credentials using  credentials()
      */
-    QString credentialsScope(QString repoName, bool rndRepo=false);
+    QString credentialsScope(QString repoName, bool rndRepo = false);
     /**
      * Return the URL for which credentials scope is valid
      */
@@ -63,7 +64,7 @@ class SsuCoreConfig: public SsuSettings {
      * to print the domain name set pretty to true
      * @return domain, or "" if not set
      */
-    Q_INVOKABLE QString domain(bool pretty=false);
+    Q_INVOKABLE QString domain(bool pretty = false);
     /**
      * Return devices RND registration status
      * @retval true device is registered
@@ -78,11 +79,11 @@ class SsuCoreConfig: public SsuSettings {
     /**
      * Return the release version string for either a release, or a RnD snapshot
      */
-    Q_INVOKABLE QString release(bool rnd=false);
+    Q_INVOKABLE QString release(bool rnd = false);
     /**
      * Set mode bits for the device
      */
-    Q_INVOKABLE void setDeviceMode(Ssu::DeviceModeFlags mode, enum Ssu::EditMode editMode=Ssu::Replace);
+    Q_INVOKABLE void setDeviceMode(Ssu::DeviceModeFlags mode, enum Ssu::EditMode editMode = Ssu::Replace);
     /**
      * Set the flavour used when resolving RND repositories
      */
@@ -90,7 +91,7 @@ class SsuCoreConfig: public SsuSettings {
     /**
      * Set the release version string for either a release, or a RnD snapshot
      */
-    Q_INVOKABLE void setRelease(QString release, bool rnd=false);
+    Q_INVOKABLE void setRelease(QString release, bool rnd = false);
     /**
      * Set the domain string (usually something like nemo, jolla, ..)
      */
@@ -107,7 +108,7 @@ class SsuCoreConfig: public SsuSettings {
     static QDBusConnection userSessionBus();
 
 
-  private:
+private:
     SsuCoreConfig(): SsuSettings(SSU_CONFIGURATION, QSettings::IniFormat, SSU_DEFAULT_CONFIGURATION) {};
     SsuCoreConfig(const SsuCoreConfig &); // hide copy constructor
 

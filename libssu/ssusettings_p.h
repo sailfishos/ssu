@@ -10,28 +10,29 @@
 
 #include <QSettings>
 
-class SsuSettings: public QSettings {
+class SsuSettings: public QSettings
+{
     Q_OBJECT
 
     friend class SettingsTest;
 
-  public:
+public:
     SsuSettings();
-    SsuSettings(const QString &fileName, Format format, QObject *parent=0);
+    SsuSettings(const QString &fileName, Format format, QObject *parent = 0);
     /**
      * Initialize the settings object with a defaults settings file, resulting in
      * update to the configuration file if needed
      */
-    SsuSettings(const QString &fileName, Format format, const QString &defaultFileName, QObject *parent=0);
+    SsuSettings(const QString &fileName, Format format, const QString &defaultFileName, QObject *parent = 0);
     /**
      * Initialize the settings object from a settings.d structure, if needed. Only INI
      * style settings are supported in this mode.
      */
-    SsuSettings(const QString &fileName, const QString &settingsDirectory, QObject *parent=0);
+    SsuSettings(const QString &fileName, const QString &settingsDirectory, QObject *parent = 0);
 
-  private:
+private:
     QString defaultSettingsFile, settingsd;
-    void merge(bool keepOld=false);
+    void merge(bool keepOld = false);
     static void merge(QSettings *masterSettings, const QStringList &settingsFiles);
     void upgrade();
 

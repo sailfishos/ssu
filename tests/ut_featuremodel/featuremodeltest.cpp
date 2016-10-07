@@ -11,15 +11,18 @@
 #include <QtTest/QSignalSpy>
 #include "libssu/ssufeaturemodel.h"
 
-void FeatureModelTest::initTestCase(){
+void FeatureModelTest::initTestCase()
+{
 
 }
 
-void FeatureModelTest::cleanupTestCase(){
+void FeatureModelTest::cleanupTestCase()
+{
 
 }
 
-void FeatureModelTest::testFeatures(){
+void FeatureModelTest::testFeatures()
+{
     SsuFeatureModel featureModel(0, ":/testdata");
 
     // Features with no name are skipped (feature-noname.ini)

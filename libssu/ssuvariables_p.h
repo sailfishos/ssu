@@ -13,10 +13,11 @@
 
 #include "ssusettings_p.h"
 
-class SsuVariables: public QObject {
+class SsuVariables: public QObject
+{
     Q_OBJECT
 
-  public:
+public:
     SsuVariables();
     /**
      * Return a default variable section, if exists, or an empty string.
@@ -29,7 +30,7 @@ class SsuVariables: public QObject {
     /**
      * Resolve a whole string, containing several variables. Variables inside variables are allowed
      */
-    static QString resolveString(QString pattern, QHash<QString, QString> *variables, int recursionDepth=0);
+    static QString resolveString(QString pattern, QHash<QString, QString> *variables, int recursionDepth = 0);
     /**
      * Resolve variables; variable can be passed as %(var) or var
      */
@@ -67,12 +68,12 @@ class SsuVariables: public QObject {
     static void variableSection(SsuSettings *settings, QString section,
                                 QHash<QString, QString> *storageHash);
 
-  private:
+private:
     static void readSection(SsuSettings *settings, QString section,
                             QHash<QString, QString> *storageHash, int recursionDepth,
-                            bool logOverride=true);
+                            bool logOverride = true);
     static QVariant readVariable(SsuSettings *settings, QString section, const QString &key,
-                                int recursionDepth, bool logOverride=true);
+                                 int recursionDepth, bool logOverride = true);
     SsuSettings *m_settings;
 };
 

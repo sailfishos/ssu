@@ -15,16 +15,17 @@
 #include "libssu/ssu.h"
 #include "libssu/ssuvariables_p.h"
 
-class VariablesTest: public QObject {
+class VariablesTest: public QObject
+{
     Q_OBJECT
 
-  private slots:
+private slots:
     void initTestCase();
     void cleanupTestCase();
     void checkResolveString();
 
 
-  private:
+private:
     Ssu ssu;
     SsuVariables var;
     QHash <QString, QString> variables, urls;

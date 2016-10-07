@@ -10,17 +10,18 @@
 #include "libssu/sandbox_p.h"
 #include "repomanagertest.h"
 
-int main(int argc, char **argv){
-  Sandbox sandbox(QString("%1/configroot").arg(LOCATE_DATA_PATH),
-      Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
-  if (!sandbox.activate()){
-    qFatal("Failed to activate sandbox");
-  }
+int main(int argc, char **argv)
+{
+    Sandbox sandbox(QString("%1/configroot").arg(LOCATE_DATA_PATH),
+                    Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
+    if (!sandbox.activate()) {
+        qFatal("Failed to activate sandbox");
+    }
 
-  RepoManagerTest repomanagerTest;
+    RepoManagerTest repomanagerTest;
 
-  if (QTest::qExec(&repomanagerTest, argc, argv))
-    return 1;
+    if (QTest::qExec(&repomanagerTest, argc, argv))
+        return 1;
 
-  return 0;
+    return 0;
 }

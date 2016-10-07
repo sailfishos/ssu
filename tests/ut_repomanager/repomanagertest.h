@@ -11,16 +11,17 @@
 #include <QObject>
 #include <QStringList>
 
-class RepoManagerTest: public QObject {
+class RepoManagerTest: public QObject
+{
     Q_OBJECT
 
-  private slots:
+private slots:
     void initTestCase();
     void testSettings();
     void testCustomRepos();
     void testRepos();
 
-  private:
+private:
     QStringList rndRepos, releaseRepos;
 };
 

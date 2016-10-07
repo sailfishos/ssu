@@ -15,31 +15,32 @@
 #include "libssu/ssudeviceinfo.h"
 #include "libssu/ssu.h"
 
-class SsuKickstarter {
-  public:
+class SsuKickstarter
+{
+public:
     SsuKickstarter();
     void setRepoParameters(QHash<QString, QString> parameters);
-    bool write(QString kickstart="");
+    bool write(QString kickstart = "");
 
     enum ScriptletFlags {
-      /// Chroot is not useful, but helps in making the code more readable
-      Chroot         = 0,
-      NoChroot       = 0x1,
-      DeviceSpecific = 0x2,
+        /// Chroot is not useful, but helps in making the code more readable
+        Chroot         = 0,
+        NoChroot       = 0x1,
+        DeviceSpecific = 0x2,
     };
 
-  private:
+private:
     QHash<QString, QString> repoOverride;
     Ssu ssu;
     bool rndMode;
     QString deviceModel;
     QStringList commands();
     /// read a command section from file system
-    QStringList commandSection(const QString &section, const QString &description="");
+    QStringList commandSection(const QString &section, const QString &description = "");
     QStringList packagesSection(QString name);
     QString replaceSpaces(const QString &value);
     QStringList repos();
-    QStringList scriptletSection(QString name, int flags=Chroot);
+    QStringList scriptletSection(QString name, int flags = Chroot);
 };
 
 #endif

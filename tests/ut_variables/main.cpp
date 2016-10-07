@@ -9,11 +9,12 @@
 
 #include "variablestest.h"
 
-int main(int argc, char **argv){
-  VariablesTest variablesTest;
+int main(int argc, char **argv)
+{
+    VariablesTest variablesTest;
 
-  if (QTest::qExec(&variablesTest, argc, argv))
-    return 1;
+    if (QTest::qExec(&variablesTest, argc, argv))
+        return 1;
 
-  return 0;
+    return 0;
 }

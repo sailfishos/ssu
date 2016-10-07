@@ -9,11 +9,12 @@
 
 #include "sandboxtest.h"
 
-int main(int argc, char **argv){
-  SandboxTest sandboxTest;
+int main(int argc, char **argv)
+{
+    SandboxTest sandboxTest;
 
-  if (QTest::qExec(&sandboxTest, argc, argv))
-    return 1;
+    if (QTest::qExec(&sandboxTest, argc, argv))
+        return 1;
 
-  return 0;
+    return 0;
 }

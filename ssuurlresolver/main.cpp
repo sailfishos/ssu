@@ -13,21 +13,22 @@
 #include "libssunetworkproxy/ssunetworkproxy.h"
 #include "ssuurlresolver.h"
 
-int main(int argc, char** argv){
-  QCoreApplication app(argc, argv);
-  QCoreApplication::setOrganizationName("Jolla");
-  QCoreApplication::setOrganizationDomain("http://www.jollamobile.com");
-  QCoreApplication::setApplicationName("SSU Url Resolver");
+int main(int argc, char **argv)
+{
+    QCoreApplication app(argc, argv);
+    QCoreApplication::setOrganizationName("Jolla");
+    QCoreApplication::setOrganizationDomain("http://www.jollamobile.com");
+    QCoreApplication::setApplicationName("SSU Url Resolver");
 
-  QTranslator qtTranslator;
-  qtTranslator.load("qt_" + QLocale::system().name(),
-                    QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-  app.installTranslator(&qtTranslator);
+    QTranslator qtTranslator;
+    qtTranslator.load("qt_" + QLocale::system().name(),
+                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&qtTranslator);
 
-  set_application_proxy_factory();
+    set_application_proxy_factory();
 
-  SsuUrlResolver mw;
-  QTimer::singleShot(0, &mw, SLOT(run()));
+    SsuUrlResolver mw;
+    QTimer::singleShot(0, &mw, SLOT(run()));
 
-  return app.exec();
+    return app.exec();
 }

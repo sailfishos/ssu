@@ -15,15 +15,16 @@
 #include "ssu.h"
 #include "ssusettings_p.h"
 
-class SsuFeatureManager: public QObject {
+class SsuFeatureManager: public QObject
+{
     Q_OBJECT
 
-  public:
+public:
     SsuFeatureManager();
-    QStringList repos(bool rndRepo, int filter=Ssu::NoFilter);
+    QStringList repos(bool rndRepo, int filter = Ssu::NoFilter);
     QString url(QString repo, bool rndRepo);
 
-  private:
+private:
     SsuSettings *featureSettings;
 };
 

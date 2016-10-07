@@ -10,10 +10,11 @@
 
 #include <QObject>
 
-class DeviceInfoTest: public QObject {
+class DeviceInfoTest: public QObject
+{
     Q_OBJECT
 
-  private slots:
+private slots:
     void testAdaptationVariables();
     void testDeviceUid();
     void testVariableSection();

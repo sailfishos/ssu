@@ -12,20 +12,21 @@
 #include "libssunetworkproxy/ssunetworkproxy.h"
 #include "ssud.h"
 
-int main(int argc, char** argv){
-  QCoreApplication app(argc, argv);
-  QCoreApplication::setOrganizationName("Jolla");
-  QCoreApplication::setOrganizationDomain("http://www.jollamobile.com");
-  QCoreApplication::setApplicationName("ssud");
+int main(int argc, char **argv)
+{
+    QCoreApplication app(argc, argv);
+    QCoreApplication::setOrganizationName("Jolla");
+    QCoreApplication::setOrganizationDomain("http://www.jollamobile.com");
+    QCoreApplication::setApplicationName("ssud");
 
-  QTranslator qtTranslator;
-  qtTranslator.load("qt_" + QLocale::system().name(),
-                    QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-  app.installTranslator(&qtTranslator);
+    QTranslator qtTranslator;
+    qtTranslator.load("qt_" + QLocale::system().name(),
+                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&qtTranslator);
 
-  set_application_proxy_factory();
+    set_application_proxy_factory();
 
-  Ssud ssud;
+    Ssud ssud;
 
-  app.exec();
+    app.exec();
 }

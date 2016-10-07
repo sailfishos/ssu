@@ -16,20 +16,21 @@ class QNetworkAccessManager;
 class QNetworkReply;
 class QDomDocument;
 
-class Ssu: public QObject {
+class Ssu: public QObject
+{
     Q_OBJECT
 
     friend class UrlResolverTest;
 
-  public:
+public:
     /**
      * Filters to control the output of the repository lookup methods
      */
     enum RepoFilter {
-      NoFilter,                 ///< All repositories (global + user)
-      UserFilter,               ///< Only user configured repositories
-      BoardFilter,              ///< Only global repositories, with user blacklist ignored
-      BoardFilterUserBlacklist, ///< Only global repositories, with user blacklist applied
+        NoFilter,                 ///< All repositories (global + user)
+        UserFilter,               ///< Only user configured repositories
+        BoardFilter,              ///< Only global repositories, with user blacklist ignored
+        BoardFilterUserBlacklist, ///< Only global repositories, with user blacklist applied
     };
 
     /**
@@ -43,12 +44,12 @@ class Ssu: public QObject {
      * like in AppInstallMode.
      */
     enum DeviceMode {
-      DisableRepoManager = 0x1,   ///< Disable automagic repository management
-      RndMode            = 0x2,   ///< Enable RnD mode for device
-      ReleaseMode        = 0x4,   ///< Enable Release mode
-      LenientMode        = 0x8,   ///< Disable strict mode (i.e., keep unmanaged repositories)
-      UpdateMode         = 0x10,  ///< Do repo isolation and similar bits important for updating devices
-      AppInstallMode     = 0x20   ///< Do repo isolation, but keep store repository enabled
+        DisableRepoManager = 0x1,   ///< Disable automagic repository management
+        RndMode            = 0x2,   ///< Enable RnD mode for device
+        ReleaseMode        = 0x4,   ///< Enable Release mode
+        LenientMode        = 0x8,   ///< Disable strict mode (i.e., keep unmanaged repositories)
+        UpdateMode         = 0x10,  ///< Do repo isolation and similar bits important for updating devices
+        AppInstallMode     = 0x20   ///< Do repo isolation, but keep store repository enabled
     };
 
     Q_DECLARE_FLAGS(DeviceModeFlags, DeviceMode)
@@ -57,26 +58,26 @@ class Ssu: public QObject {
      * A list of types ssu provides shiny values suitable for displaying
      */
     enum DisplayType {
-      DeviceManufacturer = 0,     ///< Manufacturer, like ACME Corp. Board mappings key "deviceManufacturer"
-      DeviceModel,                ///< Marketed device name, like Pogoblaster 3000. Board mappings key "prettyModel"
-      DeviceDesignation,          ///< Type designation, like NCC-1701. Beard mappings key "deviceDesignation"
+        DeviceManufacturer = 0,     ///< Manufacturer, like ACME Corp. Board mappings key "deviceManufacturer"
+        DeviceModel,                ///< Marketed device name, like Pogoblaster 3000. Board mappings key "prettyModel"
+        DeviceDesignation,          ///< Type designation, like NCC-1701. Beard mappings key "deviceDesignation"
     };
 
     /**
      * Edit modes for variables containing bitmasks
      */
     enum EditMode {
-      Replace = 0x1, ///< Replace the old value with the new one
-      Add     = 0x2, ///< Make sure the given value is set in the bitmask
-      Remove  = 0x4, ///< Make sure the given value is not set in the bitmask
+        Replace = 0x1, ///< Replace the old value with the new one
+        Add     = 0x2, ///< Make sure the given value is set in the bitmask
+        Remove  = 0x4, ///< Make sure the given value is not set in the bitmask
     };
 
     /**
      * Return codes to signal success or error conditions
      */
     enum ReturnValue {
-      Success = 0,
-      ErrUpdateMode = -10,
+        Success = 0,
+        ErrUpdateMode = -10,
     };
 
     Ssu();
@@ -94,7 +95,7 @@ class Ssu: public QObject {
      *
      * @return a string containing the scope; it can be used to look up login credentials using  credentials()
      */
-    QString credentialsScope(QString repoName, bool rndRepo=false);
+    QString credentialsScope(QString repoName, bool rndRepo = false);
     /**
      * Return the URL for which credentials scope is valid
      */
@@ -115,9 +116,9 @@ class Ssu: public QObject {
      * Resolve a repository url
      * @return the repository URL on success, an empty string on error
      */
-    QString repoUrl(QString repoName, bool rndRepo=false,
-                    QHash<QString, QString> repoParameters=QHash<QString, QString>(),
-                    QHash<QString, QString> parametersOverride=QHash<QString, QString>());
+    QString repoUrl(QString repoName, bool rndRepo = false,
+                    QHash<QString, QString> repoParameters = QHash<QString, QString>(),
+                    QHash<QString, QString> parametersOverride = QHash<QString, QString>());
     /**
      * Unregister a device. This will clean all registration data from a device,
      * though will not touch the information on ssu server; the information there
@@ -141,19 +142,19 @@ class Ssu: public QObject {
     /// See SsuCoreConfig::lastCredentialsUpdate
     Q_INVOKABLE QDateTime lastCredentialsUpdate();
     /// See SsuCoreConfig::release
-    Q_INVOKABLE QString release(bool rnd=false);
+    Q_INVOKABLE QString release(bool rnd = false);
     /// See SsuCoreConfig::setDeviceMode
-    Q_INVOKABLE void setDeviceMode(DeviceModeFlags mode, enum EditMode editMode=Replace);
+    Q_INVOKABLE void setDeviceMode(DeviceModeFlags mode, enum EditMode editMode = Replace);
     /// See SsuCoreConfig::setFlavour
     Q_INVOKABLE void setFlavour(QString flavour);
     /// See SsuCoreConfig::setRelease
-    Q_INVOKABLE void setRelease(QString release, bool rnd=false);
+    Q_INVOKABLE void setRelease(QString release, bool rnd = false);
     /// See SsuCoreConfig::setDomain
     Q_INVOKABLE void setDomain(QString domain);
     /// See SsuCoreConfig::useSslVerify
     Q_INVOKABLE bool useSslVerify();
 
-  private:
+private:
     QString errorString;
     bool errorFlag;
     QNetworkAccessManager *manager;
@@ -163,7 +164,7 @@ class Ssu: public QObject {
     bool verifyResponse(QDomDocument *response);
     void storeAuthorizedKeys(QByteArray data);
 
-  private slots:
+private slots:
     void requestFinished(QNetworkReply *reply);
     /**
      * Set errorString returned by lastError to errorMessage, set
@@ -171,7 +172,7 @@ class Ssu: public QObject {
      */
     void setError(QString errorMessage);
 
-  public slots:
+public slots:
     /**
      * Attempt RND device registration, using @a username and @a password supplied
      * @param username Jolla username
@@ -193,13 +194,13 @@ class Ssu: public QObject {
      * error() to check if an error occured, and use lastError() to retrieve the last
      * error message.
      */
-    void updateCredentials(bool force=false);
+    void updateCredentials(bool force = false);
     /**
      * Try to update credentials for (Jolla) store
      */
     void updateStoreCredentials();
 
-  signals:
+signals:
     /**
      * Emitted after an asynchronous operation finished
      */

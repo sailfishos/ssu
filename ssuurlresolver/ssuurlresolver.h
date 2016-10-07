@@ -20,47 +20,52 @@
 #include "libssu/ssu.h"
 
 // quick hack for waiting for a signal
-class SignalWait: public QObject {
+class SignalWait: public QObject
+{
     Q_OBJECT
-  public:
-    SignalWait(){
-      needRunning=1;
+public:
+    SignalWait()
+    {
+        needRunning = 1;
     }
 
-  public slots:
-    void sleep(){
-      if (needRunning==1)
-        loop.exec();
+public slots:
+    void sleep()
+    {
+        if (needRunning == 1)
+            loop.exec();
     }
 
-    virtual void finished(){
-      needRunning=0;
-      loop.exit();
+    virtual void finished()
+    {
+        needRunning = 0;
+        loop.exit();
     }
 
-  private:
+private:
     QEventLoop loop;
     int needRunning;
 };
 
 using namespace zypp;
 
-class SsuUrlResolver: public QObject {
+class SsuUrlResolver: public QObject
+{
     Q_OBJECT
 
-  public:
+public:
     SsuUrlResolver();
 
-  private:
+private:
     Ssu ssu;
     void error(QString message);
     void printJournal(int priority, QString message);
     bool writeZyppCredentialsIfNeeded(QString credentialsScope);
 
-  public slots:
+public slots:
     void run();
 
-  signals:
+signals:
     void done();
 
 };

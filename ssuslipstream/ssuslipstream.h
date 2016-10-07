@@ -23,7 +23,8 @@
 
 #include <QObject>
 
-class SsuSlipstream : public QObject {
+class SsuSlipstream : public QObject
+{
     Q_OBJECT
 
 public:

@@ -14,14 +14,15 @@
 
 #include "libssu/ssu.h"
 
-class Ssud: public QObject {
+class Ssud: public QObject
+{
     Q_OBJECT
 
-  public:
-    Ssud(QObject *parent=NULL);
+public:
+    Ssud(QObject *parent = NULL);
     virtual ~Ssud();
 
-  public slots:
+public slots:
     /* device info */
     QString deviceModel();
     QString deviceFamily();
@@ -51,22 +52,22 @@ class Ssud: public QObject {
     void quit();
 
 
-  signals:
+signals:
     void done();
     void credentialsChanged();
     void registrationStatusChanged();
 
-  private:
+private:
     Ssu ssu;
     static const char *SERVICE_NAME;
     static const char *OBJECT_PATH;
     QTimer autoclose;
 
     enum Actions {
-      Remove  = 0,
-      Add     = 1,
-      Disable = 2,
-      Enable  = 3,
+        Remove  = 0,
+        Add     = 1,
+        Disable = 2,
+        Enable  = 3,
     };
 };
 

@@ -10,10 +10,11 @@
 
 #include <QObject>
 
-class CoreconfigTest: public QObject {
+class CoreconfigTest: public QObject
+{
     Q_OBJECT
 
-  private slots:
+private slots:
     void testCredentialsScope();
     void testCredentials();
     void testCredentialsUrl();

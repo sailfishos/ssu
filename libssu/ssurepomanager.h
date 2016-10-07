@@ -15,10 +15,11 @@
 
 class SsuDeviceInfo;
 
-class SsuRepoManager: public QObject {
+class SsuRepoManager: public QObject
+{
     Q_OBJECT
 
-  public:
+public:
     SsuRepoManager();
     /**
      * Add a repository. Note: Repositories ending with -debuginfo receive special
@@ -28,7 +29,7 @@ class SsuRepoManager: public QObject {
      *
      * If the device is in UpdateMode this function does nothing.
      */
-    int add(QString repo, QString repoUrl="");
+    int add(QString repo, QString repoUrl = "");
     /**
      * Return the path to the CA certificate to be used for the given domain,
      * or default domain, if omitted
@@ -37,7 +38,7 @@ class SsuRepoManager: public QObject {
      * @retval -1 Repository not added because device is in update mode
      * @retval -2 Repository not added because third party repositories are disabled
      */
-    static QString caCertificatePath(QString domain="");
+    static QString caCertificatePath(QString domain = "");
     /**
      * Disable a repository
      *
@@ -65,18 +66,18 @@ class SsuRepoManager: public QObject {
     /**
      * Collect the list of repositories from different submodules
      */
-    QStringList repos(int filter=Ssu::NoFilter);
+    QStringList repos(int filter = Ssu::NoFilter);
     /**
      * Collect the list of repositories from different submodules.
      * This form allows overriding rnd mode setting.
      */
-    QStringList repos(bool rnd, int filter=Ssu::NoFilter);
+    QStringList repos(bool rnd, int filter = Ssu::NoFilter);
     /**
      * Collect the list of repositories from different submodules.
      * This form takes a reference to a custom device info instance
      * to allow overrides.
      */
-    QStringList repos(bool rnd, SsuDeviceInfo &deviceInfo, int filter=Ssu::NoFilter);
+    QStringList repos(bool rnd, SsuDeviceInfo &deviceInfo, int filter = Ssu::NoFilter);
     /**
      * Resolve repository specific variables, and store them in storageHash. Does
      * not include adaptation specific variables, see SsuDeviceInfo::adaptationVariables
@@ -84,7 +85,7 @@ class SsuRepoManager: public QObject {
      * Returns a list of sections in the configuration file that  might contain repository
      * URLs
      */
-    QStringList repoVariables(QHash<QString, QString> *storageHash, bool rnd=false);
+    QStringList repoVariables(QHash<QString, QString> *storageHash, bool rnd = false);
     /**
      * Update the repository files on disk
      */
@@ -93,9 +94,9 @@ class SsuRepoManager: public QObject {
      * Resolve a repository url
      * @return the repository URL on success, an empty string on error
      */
-    QString url(QString repoName, bool rndRepo=false,
-                QHash<QString, QString> repoParameters=QHash<QString, QString>(),
-                QHash<QString, QString> parametersOverride=QHash<QString, QString>());
+    QString url(QString repoName, bool rndRepo = false,
+                QHash<QString, QString> repoParameters = QHash<QString, QString>(),
+                QHash<QString, QString> parametersOverride = QHash<QString, QString>());
 
 };
 
