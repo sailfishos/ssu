@@ -25,10 +25,14 @@
 
 SsuDeviceInfo::SsuDeviceInfo(QString model): QObject()
 {
-
     boardMappings = new SsuSettings(SSU_BOARD_MAPPING_CONFIGURATION, SSU_BOARD_MAPPING_CONFIGURATION_DIR);
     if (!model.isEmpty())
         cachedModel = model;
+}
+
+SsuDeviceInfo::~SsuDeviceInfo()
+{
+    delete boardMappings;
 }
 
 QStringList SsuDeviceInfo::adaptationRepos()

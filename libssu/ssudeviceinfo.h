@@ -23,6 +23,9 @@ public:
      * Initialize with device to override autodetection
      */
     SsuDeviceInfo(QString model = "");
+
+    virtual ~SsuDeviceInfo();
+
     /**
      * Return the list of adaptations used for the set model
      */
