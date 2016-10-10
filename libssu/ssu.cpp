@@ -10,10 +10,7 @@
 #include <QDBusConnection>
 #include <QDBusMessage>
 #include <QDBusPendingReply>
-
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #include <QUrlQuery>
-#endif
 
 #include <getdef.h>
 #include <pwd.h>
@@ -275,7 +272,6 @@ void Ssu::requestFinished(QNetworkReply *reply)
     QNetworkRequest request = reply->request();
     QVariant originalDomainVariant = request.attribute(SSU_NETWORK_REQUEST_DOMAIN_DATA);
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     ssuLog->print(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
                   .arg(sslConfiguration.peerCertificate().subjectInfo(QSslCertificate::CommonName).join(""))
                   .arg(sslConfiguration.peerCertificate().issuerInfo(QSslCertificate::CommonName).join("")));
@@ -283,15 +279,6 @@ void Ssu::requestFinished(QNetworkReply *reply)
     foreach (const QSslCertificate cert, sslConfiguration.peerCertificateChain()) {
         ssuLog->print(LOG_DEBUG, QString("-> %1").arg(cert.subjectInfo(QSslCertificate::CommonName).join("")));
     }
-#else
-    ssuLog->print(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
-                  .arg(sslConfiguration.peerCertificate().subjectInfo(QSslCertificate::CommonName))
-                  .arg(sslConfiguration.peerCertificate().issuerInfo(QSslCertificate::CommonName)));
-
-    foreach (const QSslCertificate cert, sslConfiguration.peerCertificateChain()) {
-        ssuLog->print(LOG_DEBUG, QString("-> %1").arg(cert.subjectInfo(QSslCertificate::CommonName)));
-    }
-#endif
 
     pendingRequests--;
 
@@ -433,7 +420,6 @@ void Ssu::sendRegistration(QString usernameDomain, QString password)
 
     QUrl form;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     QUrlQuery q;
     q.addQueryItem("protocolVersion", SSU_PROTOCOL_VERSION);
     q.addQueryItem("deviceModel", deviceInfo.deviceModel());
@@ -442,13 +428,6 @@ void Ssu::sendRegistration(QString usernameDomain, QString password)
     }
 
     form.setQuery(q);
-#else
-    form.addQueryItem("protocolVersion", SSU_PROTOCOL_VERSION);
-    form.addQueryItem("deviceModel", deviceInfo.deviceModel());
-    if (!domain().isEmpty()) {
-        form.addQueryItem("domain", domain());
-    }
-#endif
 
     ssuLog->print(LOG_DEBUG, QString("Sending request to %1")
                   .arg(request.url().url()));
@@ -456,11 +435,7 @@ void Ssu::sendRegistration(QString usernameDomain, QString password)
     QNetworkReply *reply;
 
     pendingRequests++;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
     reply = manager->post(request, form.query(QUrl::FullyEncoded).toStdString().c_str());
-#else
-    reply = manager->post(request, form.encodedQuery());
-#endif
     // we could expose downloadProgress() from reply in case we want progress info
 
     QString homeUrl = settings->value("home-url").toString().arg(username);
