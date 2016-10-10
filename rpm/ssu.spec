@@ -3,7 +3,7 @@ Version: 0.40.5
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
-License: GPLv2
+License: GPLv2+ and LGPLv2.1+ and BSD-3-clause
 Source0: %{name}-%{version}.tar.gz
 URL: https://github.com/nemomobile/ssu
 BuildRequires: pkgconfig(Qt5Core)
@@ -43,6 +43,7 @@ Requires: ssu-network-proxy
 %dir %{_datarootdir}/%{name}/features.d
 %dir %{_sysconfdir}/%{name}/
 %{_sysconfdir}/dbus-1/system.d/*.conf
+%doc COPYING.GPL COPYING.LGPL COPYING.BSD
 
 %package network-proxy-plugin
 Summary: Network Proxy support for ssu
