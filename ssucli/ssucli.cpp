@@ -529,6 +529,8 @@ void SsuCli::optSet(QStringList opt)
 
 void SsuCli::optStatus(QStringList opt)
 {
+    Q_UNUSED(opt)
+
     QTextStream qout(stdout);
     QTextStream qerr(stderr);
     SsuDeviceInfo deviceInfo;
@@ -585,6 +587,8 @@ void SsuCli::optUpdateCredentials(QStringList opt)
 
 void SsuCli::optUpdateRepos(QStringList opt)
 {
+    Q_UNUSED(opt)
+
     QTextStream qerr(stdout);
 
     QDBusPendingReply<> reply = ssuProxy->updateRepos();
@@ -647,7 +651,7 @@ void SsuCli::run()
     bool found = false;
     int argc = arguments.count() - 2;
 
-    for (int i = 0; i < sizeof(handlers) / sizeof(handlers[0]); i++) {
+    for (unsigned int i = 0; i < sizeof(handlers) / sizeof(handlers[0]); i++) {
         if ((arguments.at(1) != handlers[i].longopt) &&
                 (arguments.at(1) != handlers[i].shortopt)) {
             continue;

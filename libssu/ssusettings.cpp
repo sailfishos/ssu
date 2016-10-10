@@ -46,8 +46,6 @@ void SsuSettings::merge(bool keepOld)
 
     bool skipMerge = true;
 
-    SsuLog *ssuLog = SsuLog::instance();
-
     QDirIterator it(settingsd, QDir::AllEntries | QDir::NoDot | QDir::NoDotDot, QDirIterator::FollowSymlinks);
     QStringList settingsFiles;
 

@@ -37,6 +37,9 @@ QPair<QString, QString> SsuCoreConfig::credentials(QString scope)
 
 QString SsuCoreConfig::credentialsScope(QString repoName, bool rndRepo)
 {
+    Q_UNUSED(repoName)
+    Q_UNUSED(rndRepo)
+
     if (contains("credentials-scope"))
         return value("credentials-scope").toString();
     else
@@ -158,7 +161,7 @@ QDBusConnection SsuCoreConfig::userSessionBus()
 
     // For calls from valid UID we assume that they are properly logged in users.
     // If they are not the call will fail, but it's their fault.
-    if (getuid() >= uid_min) {
+    if (getuid() >= static_cast<uid_t>(uid_min)) {
         return QDBusConnection::sessionBus();
     } else {
         // DBus security policy will prevent this beeing used by callers other

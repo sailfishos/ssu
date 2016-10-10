@@ -53,9 +53,9 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
     // - export the entry in the adaptation list as %(adaptation)
     // - look up variables for that adaptation, and export matching
     //   adaptation variable
-    QRegExp regex("adaptation\\\d*", Qt::CaseSensitive, QRegExp::RegExp2);
+    QRegExp regex("adaptation\\d*", Qt::CaseSensitive, QRegExp::RegExp2);
     if (regex.exactMatch(adaptationName)) {
-        regex.setPattern("\\\d*");
+        regex.setPattern("\\d*");
         regex.lastIndexIn(adaptationName);
         int n = regex.cap().toInt();
 

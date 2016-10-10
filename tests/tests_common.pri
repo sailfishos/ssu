@@ -1,3 +1,5 @@
+CONFIG += c++11
+
 isEmpty(TARGET):error("TARGET must be defined before this file is included")
 
 INCLUDEPATH *= $${PWD}

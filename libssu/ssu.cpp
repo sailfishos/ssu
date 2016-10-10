@@ -517,7 +517,7 @@ void Ssu::storeAuthorizedKeys(QByteArray data)
     int uid_min = getdef_num("UID_MIN", -1);
     QString homePath;
 
-    if (getuid() >= uid_min) {
+    if (getuid() >= static_cast<uid_t>(uid_min)) {
         homePath = dir.homePath();
     } else if (getuid() == 0) {
         // place authorized_keys in the default users home when run with uid0

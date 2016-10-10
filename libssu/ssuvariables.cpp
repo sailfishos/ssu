@@ -42,7 +42,7 @@ QString SsuVariables::resolveString(QString pattern, QHash<QString, QString> *va
         return "maximum-recursion-level-reached";
     }
 
-    QRegExp regex("%\\\([^%]*\\\)", Qt::CaseSensitive, QRegExp::RegExp2);
+    QRegExp regex("%\\([^%]*\\)", Qt::CaseSensitive, QRegExp::RegExp2);
     regex.setMinimal(true);
 
     int pos = 0;
@@ -253,6 +253,8 @@ void SsuVariables::readSection(SsuSettings *settings, QString section,
 QVariant SsuVariables::readVariable(SsuSettings *settings, QString section, const QString &key,
                                     int recursionDepth, bool logOverride)
 {
+    Q_UNUSED(logOverride)
+
     QVariant value;
 
     if (recursionDepth >= SSU_MAX_RECURSION) {

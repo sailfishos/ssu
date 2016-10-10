@@ -34,8 +34,6 @@ SsuFeatureManager::SsuFeatureManager(): QObject()
 QStringList SsuFeatureManager::repos(bool rndRepo, int filter)
 {
     QStringList r;
-    QStringList keys;
-    SsuCoreConfig *settings = SsuCoreConfig::instance();
 
     // @TODO features currently can't be blacklisted, but just ignoring user filter
     // is still the best way atm
