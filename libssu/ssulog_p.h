@@ -12,18 +12,19 @@
 
 #include <systemd/sd-journal.h>
 
-class SsuLog {
+class SsuLog
+{
 
-  public:
+public:
     static SsuLog *instance();
     /**
      * Print a message to systemds journal, or to a text log file, if a fallback is defined
      */
     void print(int priority, QString message);
 
-  private:
-    SsuLog() {};
-    SsuLog(const SsuLog &); // hide copy constructor
+private:
+    SsuLog() {}
+    Q_DISABLE_COPY(SsuLog)
 
     static SsuLog *ssuLog;
     int ssuLogLevel;

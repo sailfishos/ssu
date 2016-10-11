@@ -10,22 +10,23 @@
 
 #include <QtCore/QProcess>
 
-class Process {
-  public:
+class Process
+{
+public:
     enum ExpectedResult {
-      ExpectSuccess,
-      ExpectFail
+        ExpectSuccess,
+        ExpectFail
     };
 
-  public:
+public:
     Process();
 
     QString execute(const QString &program, const QStringList &arguments,
-        bool expectedResult = ExpectSuccess);
+                    bool expectedResult = ExpectSuccess);
     bool hasError();
     QString fmtErrorMessage();
 
-  private:
+private:
     QProcess m_process;
     QString m_program;
     QStringList m_arguments;

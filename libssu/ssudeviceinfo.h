@@ -14,14 +14,18 @@
 
 class SsuSettings;
 
-class SsuDeviceInfo: public QObject {
+class SsuDeviceInfo: public QObject
+{
     Q_OBJECT
 
-  public:
+public:
     /**
      * Initialize with device to override autodetection
      */
-    SsuDeviceInfo(QString model="");
+    SsuDeviceInfo(QString model = "");
+
+    virtual ~SsuDeviceInfo();
+
     /**
      * Return the list of adaptations used for the set model
      */
@@ -36,7 +40,7 @@ class SsuDeviceInfo: public QObject {
      * or as variant. If no model is provided as argument the autodetected or previously
      * set model is used.
      */
-    bool contains(const QString &model="");
+    bool contains(const QString &model = "");
     /**
      * Try to find the device family for the system this is running on. This function
      * temporarily changes the detected model, and therefore should not be used in a
@@ -48,7 +52,7 @@ class SsuDeviceInfo: public QObject {
      * If the device is not a variant it will return an empty string. If
      * fallback is set to true it return the device model in this case.
      */
-    Q_INVOKABLE QString deviceVariant(bool fallback=false);
+    Q_INVOKABLE QString deviceVariant(bool fallback = false);
     /**
      * Try to find out ond what kind of system this is running
      */
@@ -80,11 +84,11 @@ class SsuDeviceInfo: public QObject {
      * only board-specific, or only user-specific are returned.
      * Disabled repositories are excluded depending on filter settings.
      */
-    QStringList repos(bool rnd=false, int filter=Ssu::NoFilter);
+    QStringList repos(bool rnd = false, int filter = Ssu::NoFilter);
     /**
      * Override device model autodetection
      */
-    Q_INVOKABLE void setDeviceModel(QString model="");
+    Q_INVOKABLE void setDeviceModel(QString model = "");
     /**
      * Return a variable from the given variable section. 'var'- is automatically
      * prepended to the section name if not specified already. Recursive search
@@ -105,10 +109,10 @@ class SsuDeviceInfo: public QObject {
      * dedicated device section the key from the device section will get
      * returned, otherwise the one from the variant.
      */
-    QVariant value(const QString &key, const QVariant &value=QVariant());
+    QVariant value(const QString &key, const QVariant &value = QVariant());
 
 
-  private:
+private:
     SsuSettings *boardMappings;
     QString cachedFamily, cachedModel, cachedVariant;
 

@@ -11,16 +11,17 @@
 #include <QObject>
 #include <QDebug>
 
-class SsuKs: public QObject {
+class SsuKs: public QObject
+{
     Q_OBJECT
 
-  public:
-    SsuKs(){};
+public:
+    SsuKs() {}
 
-  public slots:
+public slots:
     void run();
 
-  private:
+private:
     void usage();
 };
 

@@ -18,7 +18,8 @@ bool featureLessThan(const QHash<QByteArray, QString> &feature1, const QHash<QBy
     return feature1.value("name") < feature2.value("name");
 }
 
-class SsuFeatureModelPrivate {
+class SsuFeatureModelPrivate
+{
 public:
     SsuFeatureModelPrivate(const QString &p) : path(p)
     {
@@ -28,13 +29,14 @@ public:
     ~SsuFeatureModelPrivate()
     {}
 
-    void load() {
-        QDirIterator it(path, QDir::AllEntries|QDir::NoDot|QDir::NoDotDot, QDirIterator::FollowSymlinks);
+    void load()
+    {
+        QDirIterator it(path, QDir::AllEntries | QDir::NoDot | QDir::NoDotDot, QDirIterator::FollowSymlinks);
         QStringList settingsFiles;
 
         while (it.hasNext()) {
-          it.next();
-          settingsFiles.append(it.filePath());
+            it.next();
+            settingsFiles.append(it.filePath());
         }
         foreach (const QString &settingsFile, settingsFiles) {
             QSettings settings(settingsFile, QSettings::IniFormat);
@@ -59,8 +61,8 @@ public:
         qSort(features.begin(), features.end(), featureLessThan);
     }
 
-   QString path;
-   QList<QHash<QByteArray, QString> > features;
+    QString path;
+    QList<QHash<QByteArray, QString> > features;
 };
 
 SsuFeatureModel::SsuFeatureModel(QObject *parent, const QString &path)
@@ -120,7 +122,7 @@ QVariant SsuFeatureModel::data(const QModelIndex &index, int role) const
 
 QHash<int, QByteArray> SsuFeatureModel::roleNames() const
 {
-    QHash<int,QByteArray> roles;
+    QHash<int, QByteArray> roles;
     roles.insert(Name, "name");
     roles.insert(Version, "version");
     return roles;

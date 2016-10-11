@@ -10,13 +10,14 @@
 
 #include <QObject>
 
-class SandboxTest: public QObject {
+class SandboxTest: public QObject
+{
     Q_OBJECT
 
-  private slots:
+private slots:
     void test();
 
-  private:
+private:
     static QString readAll(const QString &fileName);
 };
 

@@ -18,20 +18,21 @@
                           getenv("SSU_TESTS_DATA_PATH") : \
                           TESTS_DATA_PATH)
 
-class Sandbox {
-  public:
+class Sandbox
+{
+public:
     enum Usage {
-      UseDirectly,
-      UseAsSkeleton,
+        UseDirectly,
+        UseAsSkeleton,
     };
 
     enum Scope {
-      ThisProcess    = 0x01,
-      ChildProcesses = 0x02,
+        ThisProcess    = 0x01,
+        ChildProcesses = 0x02,
     };
     Q_DECLARE_FLAGS(Scopes, Scope)
 
-  public:
+public:
     Sandbox();
     Sandbox(const QString &sandboxPath, Usage usage, Scopes scopes);
     ~Sandbox();
@@ -45,15 +46,15 @@ class Sandbox {
     static QString map(const QString &pathName, const QString &fileName);
 
     bool addWorldFiles(const QString &directory, QDir::Filters filters = QDir::NoFilter,
-        const QStringList &filterNames = QStringList(), bool recurse = true);
+                       const QStringList &filterNames = QStringList(), bool recurse = true);
     bool addWorldFile(const QString &file);
 
-  private:
+private:
     bool prepare();
     static QString createTmpDir(const QString &nameTemplate);
     static bool copyDir(const QString &directory, const QString &newName);
 
-  private:
+private:
     static Sandbox *s_activeInstance;
     const bool m_defaultConstructed;
     const Usage m_usage;

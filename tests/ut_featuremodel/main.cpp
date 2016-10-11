@@ -10,13 +10,14 @@
 
 #include "featuremodeltest.h"
 
-int main(int argc, char **argv){
-  QCoreApplication app(argc, argv);
+int main(int argc, char **argv)
+{
+    QCoreApplication app(argc, argv);
 
-  FeatureModelTest featureModelTest;
+    FeatureModelTest featureModelTest;
 
-  if (QTest::qExec(&featureModelTest, argc, argv))
-    return 1;
+    if (QTest::qExec(&featureModelTest, argc, argv))
+        return 1;
 
-  return 0;
+    return 0;
 }

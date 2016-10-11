@@ -18,8 +18,9 @@
 
 #include "../constants.h"
 
-SsuFeatureManager::SsuFeatureManager(): QObject() {
-  featureSettings = new SsuSettings(SSU_FEATURE_CONFIGURATION, SSU_FEATURE_CONFIGURATION_DIR);
+SsuFeatureManager::SsuFeatureManager(): QObject()
+{
+    featureSettings = new SsuSettings(SSU_FEATURE_CONFIGURATION, SSU_FEATURE_CONFIGURATION_DIR);
 }
 
 
@@ -30,41 +31,41 @@ SsuFeatureManager::SsuFeatureManager(): QObject() {
 //    all features have a list of repositories in the repos key
 //    if there are enabled/disabled features, check the repos keys from all enabled features
 //    and only enable the repositories from those
-QStringList SsuFeatureManager::repos(bool rndRepo, int filter){
-  QStringList r;
-  QStringList keys;
-  SsuCoreConfig *settings = SsuCoreConfig::instance();
+QStringList SsuFeatureManager::repos(bool rndRepo, int filter)
+{
+    QStringList r;
 
-  // @TODO features currently can't be blacklisted, but just ignoring user filter
-  // is still the best way atm
-  if (filter == Ssu::UserFilter)
+    // @TODO features currently can't be blacklisted, but just ignoring user filter
+    // is still the best way atm
+    if (filter == Ssu::UserFilter)
+        return r;
+
+    QString repoHeader = QString("repositories-%1/")
+                         .arg(rndRepo ? "rnd" : "release");
+
+    // take the global groups
+    featureSettings->beginGroup("repositories");
+    r.append(featureSettings->allKeys());
+    featureSettings->endGroup();
+
+    // and override with rnd/release specific groups
+    featureSettings->beginGroup(repoHeader);
+    r.append(featureSettings->allKeys());
+    featureSettings->endGroup();
+
+    r.removeDuplicates();
     return r;
-
-  QString repoHeader = QString("repositories-%1/")
-    .arg(rndRepo ? "rnd" : "release");
-
-  // take the global groups
-  featureSettings->beginGroup("repositories");
-  r.append(featureSettings->allKeys());
-  featureSettings->endGroup();
-
-  // and override with rnd/release specific groups
-  featureSettings->beginGroup(repoHeader);
-  r.append(featureSettings->allKeys());
-  featureSettings->endGroup();
-
-  r.removeDuplicates();
-  return r;
 }
 
-QString SsuFeatureManager::url(QString repo, bool rndRepo){
-  QString repoHeader = QString("repositories-%1/")
-    .arg(rndRepo ? "rnd" : "release");
+QString SsuFeatureManager::url(QString repo, bool rndRepo)
+{
+    QString repoHeader = QString("repositories-%1/")
+                         .arg(rndRepo ? "rnd" : "release");
 
-  if (featureSettings->contains(repoHeader + repo))
-    return featureSettings->value(repoHeader + repo).toString();
-  else if (featureSettings->contains("repositories/" + repo))
-    return featureSettings->value("repositories/" + repo).toString();
+    if (featureSettings->contains(repoHeader + repo))
+        return featureSettings->value(repoHeader + repo).toString();
+    else if (featureSettings->contains("repositories/" + repo))
+        return featureSettings->value("repositories/" + repo).toString();
 
-  return "";
+    return "";
 }

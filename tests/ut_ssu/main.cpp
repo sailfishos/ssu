@@ -10,17 +10,18 @@
 #include "libssu/sandbox_p.h"
 #include "ssutest.h"
 
-int main(int argc, char **argv){
-  Sandbox sandbox(QString("%1/configroot").arg(LOCATE_DATA_PATH),
-      Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
-  if (!sandbox.activate()){
-    qFatal("Failed to activate sandbox");
-  }
+int main(int argc, char **argv)
+{
+    Sandbox sandbox(QString("%1/configroot").arg(LOCATE_DATA_PATH),
+                    Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
+    if (!sandbox.activate()) {
+        qFatal("Failed to activate sandbox");
+    }
 
-  SsuTest ssuTest;
+    SsuTest ssuTest;
 
-  if (QTest::qExec(&ssuTest, argc, argv))
-    return 1;
+    if (QTest::qExec(&ssuTest, argc, argv))
+        return 1;
 
-  return 0;
+    return 0;
 }

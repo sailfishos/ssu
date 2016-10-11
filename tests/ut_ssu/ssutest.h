@@ -13,15 +13,16 @@
 
 #include "libssu/ssu.h"
 
-class SsuTest: public QObject {
+class SsuTest: public QObject
+{
     Q_OBJECT
 
-  private slots:
+private slots:
     void initTestCase();
     void testCredentialsScope();
     void testCredentialsScopeStoreAuthRepos();
-    void testCredentialsScopeSecureDomainAuth(); 
-  private:
+    void testCredentialsScopeSecureDomainAuth();
+private:
     Ssu ssu;
 };
 

@@ -10,10 +10,11 @@
 
 #include <QObject>
 
-class FeatureModelTest: public QObject {
+class FeatureModelTest: public QObject
+{
     Q_OBJECT
 
-  private slots:
+private slots:
     void initTestCase();
     void cleanupTestCase();
     void testFeatures();

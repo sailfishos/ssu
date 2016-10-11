@@ -19,9 +19,9 @@ public:
      * A list of types ssu provides shiny values suitable for displaying
      */
     enum DisplayType {
-      DeviceManufacturer = Ssu::DeviceManufacturer,  ///< Manufacturer, like ACME Corp. Board mappings key "deviceManufacturer"
-      DeviceModel = Ssu::DeviceModel,                ///< Marketed device name, like Pogoblaster 3000. Board mappings key "prettyModel"
-      DeviceDesignation = Ssu::DeviceDesignation,    ///< Type designation, like NCC-1701. Beard mappings key "deviceDesignation"
+        DeviceManufacturer = Ssu::DeviceManufacturer,  ///< Manufacturer, like ACME Corp. Board mappings key "deviceManufacturer"
+        DeviceModel = Ssu::DeviceModel,                ///< Marketed device name, like Pogoblaster 3000. Board mappings key "prettyModel"
+        DeviceDesignation = Ssu::DeviceDesignation,    ///< Type designation, like NCC-1701. Beard mappings key "deviceDesignation"
     };
 
     DeclarativeSsuDeviceInfo();
@@ -37,7 +37,7 @@ public:
      * If the device is not a variant it will return an empty string. If
      * fallback is set to true it return the device model in this case.
      */
-    Q_INVOKABLE QString deviceVariant(bool fallback=false);
+    Q_INVOKABLE QString deviceVariant(bool fallback = false);
     /**
      * Try to find out ond what kind of system this is running
      */

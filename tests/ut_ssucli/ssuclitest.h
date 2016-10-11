@@ -14,13 +14,14 @@ class QProcess;
 
 class Sandbox;
 
-class SsuCliTest: public QObject {
+class SsuCliTest: public QObject
+{
     Q_OBJECT
 
-  public:
+public:
     SsuCliTest(): m_sandbox(0) {}
 
-  private slots:
+private slots:
     void init();
     void cleanup();
 
@@ -28,7 +29,7 @@ class SsuCliTest: public QObject {
     void testSubcommandRelease();
     void testSubcommandMode();
 
-  private:
+private:
     Sandbox *m_sandbox;
     QProcess *m_bus;
     QProcess *m_ssud;

@@ -16,23 +16,24 @@
 #include "libssu/ssu.h"
 #include "ssuproxy.h"
 
-class SsuCli: public QObject {
+class SsuCli: public QObject
+{
     Q_OBJECT
 
-  public:
+public:
     SsuCli();
     ~SsuCli();
 
-  public slots:
+public slots:
     void run();
 
-  private:
+private:
     Ssu ssu;
     SsuProxy *ssuProxy;
     QSettings settings;
     int state;
-    void usage(QString message="");
-    void uidWarning(QString message="");
+    void usage(QString message = "");
+    void uidWarning(QString message = "");
     void optDomain(QStringList opt);
     void optFlavour(QStringList opt);
     void optMode(QStringList opt);
@@ -46,30 +47,42 @@ class SsuCli: public QObject {
     void optUpdateRepos(QStringList opt);
 
     enum Actions {
-      Remove  = 0,
-      Add     = 1,
-      Disable = 2,
-      Enable  = 3,
+        Remove  = 0,
+        Add     = 1,
+        Disable = 2,
+        Enable  = 3,
     };
 
     void optModifyRepo(enum Actions action, QStringList opt);
 
-    void optAddRepo(QStringList opt) { optModifyRepo(Add, opt); }
-    void optRemoveRepo(QStringList opt) { optModifyRepo(Remove, opt); }
-    void optEnableRepo(QStringList opt) { optModifyRepo(Enable, opt); }
-    void optDisableRepo(QStringList opt) { optModifyRepo(Disable, opt); }
+    void optAddRepo(QStringList opt)
+    {
+        optModifyRepo(Add, opt);
+    }
+    void optRemoveRepo(QStringList opt)
+    {
+        optModifyRepo(Remove, opt);
+    }
+    void optEnableRepo(QStringList opt)
+    {
+        optModifyRepo(Enable, opt);
+    }
+    void optDisableRepo(QStringList opt)
+    {
+        optModifyRepo(Disable, opt);
+    }
 
     enum State {
-      Idle,
-      Busy,
-      UserError
+        Idle,
+        Busy,
+        UserError
     };
 
-  private slots:
+private slots:
     void handleResponse();
     void handleDBusResponse();
 
-  signals:
+signals:
     void done();
 
 };

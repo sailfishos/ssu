@@ -14,10 +14,11 @@
 
 #include "libssu/ssu.h"
 
-class UrlResolverTest: public QObject {
+class UrlResolverTest: public QObject
+{
     Q_OBJECT
 
-  private slots:
+private slots:
     void initTestCase();
     void cleanupTestCase();
     void checkFlavour();
@@ -31,7 +32,7 @@ class UrlResolverTest: public QObject {
     void checkStoreAuthorizedKeys();
     void checkVerifyResponse();
 
-  private:
+private:
     Ssu ssu;
     QHash<QString, QString> rndRepos, releaseRepos;
 };

@@ -10,10 +10,11 @@
 
 #include <QObject>
 
-class SettingsTest: public QObject {
+class SettingsTest: public QObject
+{
     Q_OBJECT
 
-  private slots:
+private slots:
     void initTestCase();
     void cleanupTestCase();
     void testMerge_data();
@@ -21,7 +22,7 @@ class SettingsTest: public QObject {
     void testUpgrade_data();
     void testUpgrade();
 
-  private:
+private:
 };
 
 #endif

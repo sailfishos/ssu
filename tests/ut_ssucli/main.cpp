@@ -9,11 +9,12 @@
 
 #include "ssuclitest.h"
 
-int main(int argc, char **argv){
-  SsuCliTest ssuCliTest;
+int main(int argc, char **argv)
+{
+    SsuCliTest ssuCliTest;
 
-  if (QTest::qExec(&ssuCliTest, argc, argv))
-    return 1;
+    if (QTest::qExec(&ssuCliTest, argc, argv))
+        return 1;
 
-  return 0;
+    return 0;
 }

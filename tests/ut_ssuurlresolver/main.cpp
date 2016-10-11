@@ -9,11 +9,12 @@
 
 #include "ssuurlresolvertest.h"
 
-int main(int argc, char **argv){
-  SsuUrlResolverTest ssuUrlResolverTest;
+int main(int argc, char **argv)
+{
+    SsuUrlResolverTest ssuUrlResolverTest;
 
-  if (QTest::qExec(&ssuUrlResolverTest, argc, argv))
-    return 1;
+    if (QTest::qExec(&ssuUrlResolverTest, argc, argv))
+        return 1;
 
-  return 0;
+    return 0;
 }

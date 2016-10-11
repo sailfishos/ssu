@@ -12,19 +12,20 @@
 
 class Sandbox;
 
-class SsuUrlResolverTest: public QObject {
+class SsuUrlResolverTest: public QObject
+{
     Q_OBJECT
 
-  public:
+public:
     SsuUrlResolverTest(): m_sandbox(0) {}
 
-  private slots:
+private slots:
     void initTestCase();
     void cleanupTestCase();
     void test_data();
     void test();
 
-  private:
+private:
     Sandbox *m_sandbox;
 };
 
