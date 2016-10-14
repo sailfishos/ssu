@@ -9,7 +9,7 @@
 #include <QTextStream>
 #include <QDir>
 
-#include <QDBusMessage>
+#include <QDBusReply>
 #include <QDBusConnection>
 #include <QDBusArgument>
 
@@ -262,13 +262,12 @@ ofonoGetImeis()
 {
     QStringList result;
 
-    QDBusMessage reply = QDBusConnection::systemBus().call(
+    QDBusReply<QStringList> reply = QDBusConnection::systemBus().call(
                              QDBusMessage::createMethodCall("org.ofono", "/",
                                                             "org.nemomobile.ofono.ModemManager", "GetIMEI"));
 
-    QList<QVariant> arguments = reply.arguments();
-    if (arguments.count() > 0) {
-        result = arguments.at(0).toStringList();
+    if (reply.isValid()) {
+        result = reply.value();
     }
 
     return result;
