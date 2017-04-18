@@ -31,6 +31,7 @@ Requires: ssu-network-proxy
 %{_libdir}/zypp/plugins/urlresolver/*
 %{_bindir}/ssu
 %{_libdir}/libssu.so.*
+%{_libdir}/ssu/libsandboxhook.so
 %dir %{_sysconfdir}/zypp/credentials.d
 # ssu itself does not use the package-update triggers, but provides
 # them for the vendor data packages to use

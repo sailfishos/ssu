@@ -30,7 +30,7 @@ void SsuCliTest::init()
         qDebug() << "Using in-tree sandbox";
         setenv("LD_PRELOAD", getenv("SSU_SANDBOX_PATH"), 1);
     } else
-        setenv("LD_PRELOAD", qPrintable(QString("%1/libsandboxhook.so").arg(TESTS_PATH)), 1);
+        setenv("LD_PRELOAD", SSU_SANDBOX_PATH, 1);
 
     m_bus = new QProcess(this);
     m_bus->start("dbus-daemon",

@@ -3,7 +3,6 @@ CONFIG         += ordered coverage debug
 SUBDIRS         = \
         testutils \
         formatoutput \
-        testutils/sandboxhook.pro \
         ut_coreconfig \
         ut_deviceinfo \
         ut_featuremodel \
