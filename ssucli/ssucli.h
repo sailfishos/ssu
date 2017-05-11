@@ -78,6 +78,8 @@ private:
         UserError
     };
 
+    QString fallingBackToDirectUse(const QDBusError &error) const;
+
 private slots:
     void handleResponse();
     void handleDBusResponse();
