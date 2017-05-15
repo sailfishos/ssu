@@ -99,7 +99,7 @@ void SsuCli::optFlavour(QStringList opt)
         QDBusPendingReply<> reply = ssuProxy->setFlavour(opt.at(2));
         reply.waitForFinished();
         if (reply.isError()) {
-            qerr << "DBus call failed, falling back to libssu" << endl;
+            qerr << fallingBackToDirectUse(reply.error()) << endl;
             ssu.setFlavour(opt.at(2));
 
             SsuRepoManager repoManager;
@@ -156,7 +156,7 @@ void SsuCli::optMode(QStringList opt)
         QDBusPendingReply<> reply = ssuProxy->setDeviceMode(opt.at(2).toInt());
         reply.waitForFinished();
         if (reply.isError()) {
-            qerr << "DBus call failed, falling back to libssu" << endl;
+            qerr << fallingBackToDirectUse(reply.error()) << endl;
             ssu.setDeviceMode(Ssu::DeviceModeFlags(opt.at(2).toInt()));
 
             SsuRepoManager repoManager;
@@ -193,7 +193,7 @@ void SsuCli::optModifyRepo(enum Actions action, QStringList opt)
         QDBusPendingReply<> reply = ssuProxy->modifyRepo(action, opt.at(2));
         reply.waitForFinished();
         if (reply.isError()) {
-            qerr << "DBus call failed, falling back to libssu" << endl;
+            qerr << fallingBackToDirectUse(reply.error()) << endl;
 
             switch (action) {
             case Add:
@@ -235,7 +235,7 @@ void SsuCli::optModifyRepo(enum Actions action, QStringList opt)
         QDBusPendingReply<> reply = ssuProxy->addRepo(repo, url);
         reply.waitForFinished();
         if (reply.isError()) {
-            qerr << "DBus call failed, falling back to libssu" << endl;
+            qerr << fallingBackToDirectUse(reply.error()) << endl;
             repoManager.add(repo, url);
             repoManager.update();
             uidWarning();
@@ -278,8 +278,7 @@ void SsuCli::optRegister(QStringList opt)
     QDBusPendingReply<> reply = ssuProxy->registerDevice(username, password);
     reply.waitForFinished();
     if (reply.isError()) {
-        qerr << "DBus call failed, falling back to libssu" << endl;
-        qerr << reply.error().message() << endl;
+        qerr << fallingBackToDirectUse(reply.error()) << endl;
         ssu.sendRegistration(username, password);
     }
 
@@ -303,7 +302,7 @@ void SsuCli::optRelease(QStringList opt)
             QDBusPendingReply<> reply = ssuProxy->setRelease(opt.at(2), false);
             reply.waitForFinished();
             if (reply.isError()) {
-                qerr << "DBus call failed, falling back to libssu" << endl;
+                qerr << fallingBackToDirectUse(reply.error()) << endl;
                 ssu.setRelease(opt.at(2));
 
                 SsuRepoManager repoManager;
@@ -324,7 +323,7 @@ void SsuCli::optRelease(QStringList opt)
         QDBusPendingReply<> reply = ssuProxy->setRelease(opt.at(3), true);
         reply.waitForFinished();
         if (reply.isError()) {
-            qerr << "DBus call failed, falling back to libssu" << endl;
+            qerr << fallingBackToDirectUse(reply.error()) << endl;
             ssu.setRelease(opt.at(3), true);
 
             SsuRepoManager repoManager;
@@ -594,7 +593,7 @@ void SsuCli::optUpdateRepos(QStringList opt)
     QDBusPendingReply<> reply = ssuProxy->updateRepos();
     reply.waitForFinished();
     if (reply.isError()) {
-        qerr << "DBus call failed, falling back to libssu" << endl;
+        qerr << fallingBackToDirectUse(reply.error()) << endl;
         SsuRepoManager repoManager;
         repoManager.update();
         uidWarning();
@@ -737,4 +736,12 @@ void SsuCli::usage(QString message)
         qout << message << endl;
     qout.flush();
     QCoreApplication::exit(1);
+}
+
+QString SsuCli::fallingBackToDirectUse(const QDBusError &reason) const
+{
+    if (reason.type() == QDBusError::Disconnected)
+        return QStringLiteral("DBus unavailable, falling back to libssu");
+    else
+        return QStringLiteral("WARNING: DBus call failed, falling back to libssu: ") + reason.message();
 }
