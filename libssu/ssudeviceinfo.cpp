@@ -148,8 +148,6 @@ QString SsuDeviceInfo::deviceVariant(bool fallback)
     if (!cachedVariant.isEmpty())
         return cachedVariant;
 
-    cachedVariant = "";
-
     if (boardMappings->contains("variants/" + deviceModel())) {
         cachedVariant = boardMappings->value("variants/" + deviceModel()).toString();
     }

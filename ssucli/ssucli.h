@@ -33,7 +33,7 @@ private:
     QSettings settings;
     int state;
     void usage(QString message = "");
-    void uidWarning(QString message = "");
+    void uidWarning();
     void optDomain(QStringList opt);
     void optFlavour(QStringList opt);
     void optMode(QStringList opt);

@@ -432,10 +432,8 @@ void Ssu::sendRegistration(QString usernameDomain, QString password)
     ssuLog->print(LOG_DEBUG, QString("Sending request to %1")
                   .arg(request.url().url()));
 
-    QNetworkReply *reply;
-
     pendingRequests++;
-    reply = manager->post(request, form.query(QUrl::FullyEncoded).toStdString().c_str());
+    manager->post(request, form.query(QUrl::FullyEncoded).toStdString().c_str());
     // we could expose downloadProgress() from reply in case we want progress info
 
     QString homeUrl = settings->value("home-url").toString().arg(username);

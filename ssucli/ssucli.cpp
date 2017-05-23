@@ -186,7 +186,6 @@ void SsuCli::optModel(QStringList opt)
 void SsuCli::optModifyRepo(enum Actions action, QStringList opt)
 {
     SsuRepoManager repoManager;
-    QTextStream qout(stdout);
     QTextStream qerr(stderr);
 
     if (opt.count() == 3) {
@@ -684,14 +683,11 @@ void SsuCli::run()
         usage();
 }
 
-void SsuCli::uidWarning(QString message)
+void SsuCli::uidWarning()
 {
-    if (message.isEmpty())
-        message = "Run 'ssu ur' as root to recreate repository files";
-
     if (geteuid() != 0) {
         QTextStream qout(stderr);
-        qout << "You're not root. " << message << endl;
+        qout << "You're not root. Run 'ssu ur' as root to recreate repository files" << endl;
     }
 }
 
