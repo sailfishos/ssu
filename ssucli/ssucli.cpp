@@ -19,7 +19,8 @@
 
 #include "ssucli.h"
 
-SsuCli::SsuCli(): QObject()
+SsuCli::SsuCli()
+    : QObject()
 {
     connect(this, SIGNAL(done()),
             QCoreApplication::instance(), SLOT(quit()), Qt::DirectConnection);
@@ -171,7 +172,6 @@ void SsuCli::optMode(QStringList opt)
 void SsuCli::optModel(QStringList opt)
 {
     QTextStream qout(stdout);
-    QTextStream qerr(stderr);
     SsuDeviceInfo deviceInfo;
 
     if (opt.count() == 3 && opt.at(2) == "-s") {
@@ -413,8 +413,9 @@ void SsuCli::optRepos(QStringList opt)
             if (repo.endsWith("-debuginfo")) {
                 repoName = repo.left(repo.size() - 10);
                 repoParameters.insert("debugSplit", "debug");
-            } else if (repoParameters.value("debugSplit") == "debug")
+            } else if (repoParameters.value("debugSplit") == "debug") {
                 repoParameters.remove("debugSplit");
+            }
 
             QString repoUrl = ssu.repoUrl(repoName, rndRepo, repoParameters, repoOverride);
             qout << "repo --name=" << repo << "-"
@@ -426,9 +427,9 @@ void SsuCli::optRepos(QStringList opt)
         return;
     }
 
-    if (device.isEmpty())
+    if (device.isEmpty()) {
         repos = repoManager.repos(rndRepo, deviceInfo, Ssu::BoardFilterUserBlacklist);
-    else {
+    } else {
         qout << "Printing repository configuration for '" << device << "'" << endl << endl;
         repos = repoManager.repos(rndRepo, deviceInfo, Ssu::BoardFilter);
     }
@@ -601,7 +602,6 @@ void SsuCli::optUpdateRepos(QStringList opt)
 
 void SsuCli::run()
 {
-    QTextStream qout(stdout);
     QTextStream qerr(stderr);
 
     QStringList arguments = QCoreApplication::arguments();

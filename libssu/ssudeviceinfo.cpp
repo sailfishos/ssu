@@ -23,7 +23,8 @@
 
 #include "../constants.h"
 
-SsuDeviceInfo::SsuDeviceInfo(QString model): QObject()
+SsuDeviceInfo::SsuDeviceInfo(const QString &model)
+    : QObject()
 {
     boardMappings = new SsuSettings(SSU_BOARD_MAPPING_CONFIGURATION, SSU_BOARD_MAPPING_CONFIGURATION_DIR);
     if (!model.isEmpty())
@@ -160,19 +161,16 @@ QString SsuDeviceInfo::deviceVariant(bool fallback)
 
 QString SsuDeviceInfo::deviceModel()
 {
-    QDir dir;
-    QFile procCpuinfo;
-    QStringList keys;
-
     if (!cachedModel.isEmpty())
         return cachedModel;
 
     boardMappings->beginGroup("file.exists");
-    keys = boardMappings->allKeys();
+    QStringList keys = boardMappings->allKeys();
 
     // check if the device can be identified by testing for a file
     foreach (const QString &key, keys) {
         QString value = boardMappings->value(key).toString();
+        QDir dir;
         if (dir.exists(Sandbox::map(value))) {
             cachedModel = key;
             break;
@@ -182,6 +180,7 @@ QString SsuDeviceInfo::deviceModel()
     if (!cachedModel.isEmpty()) return cachedModel;
 
     // check if the device can be identified by a string in /proc/cpuinfo
+    QFile procCpuinfo;
     procCpuinfo.setFileName(Sandbox::map("/proc/cpuinfo"));
     procCpuinfo.open(QIODevice::ReadOnly | QIODevice::Text);
     if (procCpuinfo.isOpen()) {
@@ -346,7 +345,6 @@ QString SsuDeviceInfo::displayName(const int type)
     QString model = deviceModel();
     QString variant = deviceVariant(false);
     QString value, key;
-
 
     switch (type) {
     case Ssu::DeviceManufacturer:

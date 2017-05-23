@@ -276,7 +276,7 @@ bool Sandbox::prepare()
 
 QString Sandbox::createTmpDir(const QString &nameTemplate)
 {
-    static const int REASONABLE_REPEAT_COUNT = 10;
+    const int REASONABLE_REPEAT_COUNT = 10;
 
     for (int i = 0; i < REASONABLE_REPEAT_COUNT; ++i) {
         QString path;

@@ -26,9 +26,6 @@ SsuLog *SsuLog::instance()
 
 void SsuLog::print(int priority, QString message)
 {
-    QByteArray ba = message.toUtf8();
-    const char *ca = ba.constData();
-
     // directly go through qsettings here to avoid recursive invocation
     // of coreconfig / ssulog
     if (ssuLogLevel == -1) {
@@ -44,6 +41,9 @@ void SsuLog::print(int priority, QString message)
     // logging only for specific services probably best way for now
     if (priority > ssuLogLevel)
         return;
+
+    QByteArray ba = message.toUtf8();
+    const char *ca = ba.constData();
 
     if (sd_journal_print(priority, "ssu: %s", ca) < 0 && fallbackLogPath != "") {
         QFile logfile;

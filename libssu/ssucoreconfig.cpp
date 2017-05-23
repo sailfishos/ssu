@@ -111,8 +111,9 @@ void SsuCoreConfig::setDeviceMode(Ssu::DeviceModeFlags mode, enum Ssu::EditMode 
         oldMode |= mode;
     } else if ((editMode & Ssu::Remove) == Ssu::Remove) {
         oldMode &= ~mode;
-    } else
+    } else {
         oldMode = mode;
+    }
 
     setValue("deviceMode", oldMode);
     sync();

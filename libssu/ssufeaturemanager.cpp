@@ -18,7 +18,8 @@
 
 #include "../constants.h"
 
-SsuFeatureManager::SsuFeatureManager(): QObject()
+SsuFeatureManager::SsuFeatureManager()
+    : QObject()
 {
     featureSettings = new SsuSettings(SSU_FEATURE_CONFIGURATION, SSU_FEATURE_CONFIGURATION_DIR);
 }

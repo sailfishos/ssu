@@ -14,9 +14,9 @@
 
 #include "../constants.h"
 
-SsuVariables::SsuVariables(): QObject()
+SsuVariables::SsuVariables()
+    : QObject()
 {
-
 }
 
 QString SsuVariables::defaultSection(SsuSettings *settings, QString section)
@@ -153,9 +153,7 @@ QVariant SsuVariables::variable(QString section, const QString &key)
 
 QVariant SsuVariables::variable(SsuSettings *settings, QString section, const QString &key)
 {
-    QVariant value;
-
-    value = readVariable(settings, section, key, 0);
+    QVariant value = readVariable(settings, section, key, 0);
 
     // first check if the value is defined in the main section, and fall back
     // to default sections
@@ -178,9 +176,9 @@ void SsuVariables::variableSection(SsuSettings *settings, QString section, QHash
 {
 
     QString dSection = defaultSection(settings, section);
-    if (dSection.isEmpty())
+    if (dSection.isEmpty()) {
         readSection(settings, section, storageHash, 0);
-    else {
+    } else {
         readSection(settings, dSection, storageHash, 0);
         readSection(settings, section, storageHash, 0, false);
     }

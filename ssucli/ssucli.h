@@ -47,10 +47,10 @@ private:
     void optUpdateRepos(QStringList opt);
 
     enum Actions {
-        Remove  = 0,
-        Add     = 1,
-        Disable = 2,
-        Enable  = 3,
+        Remove,
+        Add,
+        Disable,
+        Enable
     };
 
     void optModifyRepo(enum Actions action, QStringList opt);

@@ -64,13 +64,13 @@ QStringList SsuKickstarter::commandSection(const QString &section, const QString
                           .arg(SSU_DATA_DIR)
                           .arg(section)));
 
-    if (dir.exists(replaceSpaces(deviceModel.toLower())))
+    if (dir.exists(replaceSpaces(deviceModel.toLower()))) {
         commandFile = replaceSpaces(deviceModel.toLower());
-    else if (dir.exists(replaceSpaces(deviceInfo.deviceVariant(true).toLower())))
+    } else if (dir.exists(replaceSpaces(deviceInfo.deviceVariant(true).toLower()))) {
         commandFile = replaceSpaces(deviceInfo.deviceVariant(true).toLower());
-    else if (dir.exists("default"))
+    } else if (dir.exists("default")) {
         commandFile = "default";
-    else {
+    } else {
         if (description.isEmpty())
             result.append("## No suitable configuration found in " + dir.path());
         else
@@ -129,7 +129,7 @@ QStringList SsuKickstarter::repos()
                                 : ""))
                           .arg(repoUrl)
                          );
-        } else
+        } else {
             result.append(QString("repo --name=%1-%2%3 --baseurl=%4")
                           .arg(repo)
                           .arg((rndMode ? repoOverride.value("rndRelease")
@@ -138,6 +138,7 @@ QStringList SsuKickstarter::repos()
                                 : ""))
                           .arg(repoUrl)
                          );
+        }
     }
 
     return result;
@@ -228,12 +229,7 @@ void SsuKickstarter::setRepoParameters(QHash<QString, QString> parameters)
 
 bool SsuKickstarter::write(QString kickstart)
 {
-    QFile ks;
-    QTextStream kout;
     QTextStream qerr(stderr);
-    SsuDeviceInfo deviceInfo(deviceModel);
-    SsuRepoManager repoManager;
-    SsuVariables var;
     QStringList commandSections;
 
     // initialize with default 'part' for compatibility, as partitions
@@ -252,9 +248,11 @@ bool SsuKickstarter::write(QString kickstart)
     QHash<QString, QString> defaults;
     // get generic repo variables; domain and adaptation specific bits are not interesting
     // in the kickstart
+    SsuRepoManager repoManager;
     repoManager.repoVariables(&defaults, rndMode);
 
     // overwrite with kickstart defaults
+    SsuDeviceInfo deviceInfo(deviceModel);
     deviceInfo.variableSection("kickstart-defaults", &defaults);
     if (deviceInfo.variable("kickstart-defaults", "commandSections")
             .canConvert(QMetaType::QStringList)) {
@@ -308,7 +306,11 @@ bool SsuKickstarter::write(QString kickstart)
     QString outputDir = repoOverride.value("outputdir");
     if (!outputDir.isEmpty()) outputDir.append("/");
 
+    QFile ks;
+
     if (kickstart.isEmpty()) {
+        SsuVariables var;
+
         if (repoOverride.contains("filename")) {
             QString fileName = QString("%1%2")
                                .arg(outputDir)
@@ -321,9 +323,9 @@ bool SsuKickstarter::write(QString kickstart)
             qerr << "No filename specified, and no default filename configured" << endl;
             return false;
         }
-    } else if (kickstart == "-")
+    } else if (kickstart == "-") {
         opened = ks.open(stdout, QIODevice::WriteOnly);
-    else {
+    } else {
         ks.setFileName(outputDir + kickstart);
         opened = ks.open(QIODevice::WriteOnly);
     }
@@ -331,8 +333,9 @@ bool SsuKickstarter::write(QString kickstart)
     if (!opened) {
         qerr << "Unable to write output file " << ks.fileName() << ": " << ks.errorString() << endl;
         return false;
-    } else if (!ks.fileName().isEmpty())
+    } else if (!ks.fileName().isEmpty()) {
         qerr << "Writing kickstart to " << ks.fileName() << endl;
+    }
 
     QString displayName = QString("# DisplayName: %1 %2/%3 (%4) %5")
                           .arg(repoOverride.value("brand"))
@@ -365,6 +368,7 @@ bool SsuKickstarter::write(QString kickstart)
     QString kickstartType = QString("# KickstartType: %1")
                             .arg((rndMode ? "rnd" : "release"));
 
+    QTextStream kout;
     kout.setDevice(&ks);
     kout << displayName << endl;
     kout << kickstartType << endl;

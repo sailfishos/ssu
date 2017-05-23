@@ -16,7 +16,8 @@
 #include "libssu/sandbox_p.h"
 #include "libssu/ssulog_p.h"
 
-SsuUrlResolver::SsuUrlResolver(): QObject()
+SsuUrlResolver::SsuUrlResolver()
+    : QObject()
 {
     QObject::connect(this, SIGNAL(done()),
                      QCoreApplication::instance(), SLOT(quit()),
@@ -74,7 +75,7 @@ bool SsuUrlResolver::writeZyppCredentialsIfNeeded(QString credentialsScope)
 void SsuUrlResolver::run()
 {
     QHash<QString, QString> repoParameters;
-    QString resolvedUrl, repo;
+    QString repo;
     bool isRnd = false;
     SsuLog *ssuLog = SsuLog::instance();
 
@@ -130,11 +131,12 @@ void SsuUrlResolver::run()
         if (ssu.error()) {
             error(ssu.lastError());
         }
-    } else
+    } else {
         ssuLog->print(LOG_DEBUG, "Device not registered -- skipping credential update");
+    }
 
     // resolve base url
-    resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
+    QString resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
 
     QString credentialsScope = ssu.credentialsScope(repo, isRnd);
     // only do credentials magic on secure connections
@@ -155,8 +157,9 @@ void SsuUrlResolver::run()
         }
         headerList.append(QString("credentials=%1").arg(credentialsScope));
         writeZyppCredentialsIfNeeded(credentialsScope);
-    } else
+    } else {
         ssuLog->print(LOG_DEBUG, QString("Skipping credential for %1 with scope %2").arg(repo).arg(credentialsScope));
+    }
 
     if (!headerList.isEmpty() && !resolvedUrl.isEmpty()) {
         QUrl url(resolvedUrl);

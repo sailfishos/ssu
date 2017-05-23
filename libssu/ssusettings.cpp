@@ -14,26 +14,25 @@
 #include "ssusettings_p.h"
 #include "ssulog_p.h"
 
-SsuSettings::SsuSettings(): QSettings()
+SsuSettings::SsuSettings()
+    : QSettings()
 {
-
 }
 
-SsuSettings::SsuSettings(const QString &fileName, Format format, QObject *parent):
-    QSettings(Sandbox::map(fileName), format, parent)
+SsuSettings::SsuSettings(const QString &fileName, Format format, QObject *parent)
+    : QSettings(Sandbox::map(fileName), format, parent)
 {
-
 }
 
-SsuSettings::SsuSettings(const QString &fileName, Format format, const QString &defaultFileName, QObject *parent):
-    QSettings(Sandbox::map(fileName), format, parent)
+SsuSettings::SsuSettings(const QString &fileName, Format format, const QString &defaultFileName, QObject *parent)
+    : QSettings(Sandbox::map(fileName), format, parent)
 {
     defaultSettingsFile = Sandbox::map(defaultFileName);
     upgrade();
 }
 
-SsuSettings::SsuSettings(const QString &fileName, const QString &settingsDirectory, QObject *parent):
-    QSettings(Sandbox::map(fileName), QSettings::IniFormat, parent)
+SsuSettings::SsuSettings(const QString &fileName, const QString &settingsDirectory, QObject *parent)
+    : QSettings(Sandbox::map(fileName), QSettings::IniFormat, parent)
 {
     settingsd = Sandbox::map(settingsDirectory);
     merge();
@@ -112,13 +111,13 @@ void SsuSettings::merge(QSettings *masterSettings, const QStringList &settingsFi
  */
 void SsuSettings::upgrade()
 {
+    if (defaultSettingsFile.isEmpty())
+        return;
+
     int configVersion = 0;
     int defaultConfigVersion = 0;
 
     SsuLog *ssuLog = SsuLog::instance();
-
-    if (defaultSettingsFile == "")
-        return;
 
     QSettings defaultSettings(defaultSettingsFile, QSettings::IniFormat);
 
@@ -133,13 +132,13 @@ void SsuSettings::upgrade()
                       .arg(defaultConfigVersion));
 
         for (int i = configVersion + 1; i <= defaultConfigVersion; i++) {
-            QStringList defaultKeys;
             QString currentSection = QString("%1/").arg(i);
 
             ssuLog->print(LOG_DEBUG, QString("Processing configuration version %1").arg(i));
             defaultSettings.beginGroup(currentSection);
-            defaultKeys = defaultSettings.allKeys();
+            QStringList defaultKeys = defaultSettings.allKeys();
             defaultSettings.endGroup();
+
             foreach (const QString &key, defaultKeys) {
                 // Default keys support both commands and new keys
                 if (key.compare("cmd-remove", Qt::CaseSensitive) == 0) {

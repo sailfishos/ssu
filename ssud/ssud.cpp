@@ -16,7 +16,8 @@
 const char *Ssud::SERVICE_NAME = "org.nemo.ssu";
 const char *Ssud::OBJECT_PATH = "/org/nemo/ssu";
 
-Ssud::Ssud(QObject *parent): QObject(parent)
+Ssud::Ssud(QObject *parent)
+    : QObject(parent)
 {
     QDBusConnection connection = QDBusConnection::systemBus();
     if (!connection.registerObject(OBJECT_PATH, this)) {

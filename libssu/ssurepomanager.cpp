@@ -21,9 +21,9 @@
 
 #include "../constants.h"
 
-SsuRepoManager::SsuRepoManager(): QObject()
+SsuRepoManager::SsuRepoManager()
+    : QObject()
 {
-
 }
 
 int SsuRepoManager::add(QString repo, QString repoUrl)
@@ -47,8 +47,9 @@ int SsuRepoManager::add(QString repo, QString repoUrl)
         enabledRepos.append(repo);
         enabledRepos.removeDuplicates();
         ssuSettings->setValue("enabled-repos", enabledRepos);
-    } else
+    } else {
         ssuSettings->setValue("repository-urls/" + repo, repoUrl);
+    }
 
     ssuSettings->sync();
     return 0;
@@ -190,8 +191,7 @@ QStringList SsuRepoManager::repos(bool rnd, SsuDeviceInfo &deviceInfo, int filte
         appInstallMode = true;
     }
 
-    if (filter == Ssu::NoFilter ||
-            filter == Ssu::UserFilter) {
+    if (filter == Ssu::NoFilter || filter == Ssu::UserFilter) {
         // user defined repositories, or ones overriding URLs for default ones
         // -> in update mode we need to check for each of those if it already
         //    exists. If it exists, keep it, if it does not, disable it
@@ -242,22 +242,18 @@ void SsuRepoManager::update()
     // - delete all non-ssu managed repositories (missing ssu_ prefix)
     // - create list of ssu-repositories for current adaptation
     // - go through ssu_* repositories, delete all which are not in the list; write others
-
-    SsuDeviceInfo deviceInfo;
-    QStringList ssuFilters;
-
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
     int deviceMode = ssuSettings->deviceMode();
 
     SsuLog *ssuLog = SsuLog::instance();
 
-    // if device is misconfigured, always assume release mode
-    bool rndMode = false;
-
     if ((deviceMode & Ssu::DisableRepoManager) == Ssu::DisableRepoManager) {
         ssuLog->print(LOG_INFO, "Repo management requested, but not enabled (option 'deviceMode')");
         return;
     }
+
+    // if device is misconfigured, always assume release mode
+    bool rndMode = false;
 
     if ((deviceMode & Ssu::RndMode) == Ssu::RndMode)
         rndMode = true;
@@ -280,10 +276,11 @@ void SsuRepoManager::update()
     }
 
     // ... delete all ssu-managed repositories not valid for this device ...
+    QStringList ssuFilters;
     ssuFilters.append("ssu_*");
     QDirIterator it(Sandbox::map(ZYPP_REPO_PATH), ssuFilters);
     while (it.hasNext()) {
-        QString f = it.next();
+        it.next();
 
         QStringList parts = it.fileName().split("_");
         // repo file structure is ssu_<reponame>_<rnd|release>.repo -> splits to 3 parts
@@ -291,8 +288,9 @@ void SsuRepoManager::update()
             if (!repositoryList.contains(parts.at(1)) ||
                     parts.at(2) != (rndMode ? "rnd.repo" : "release.repo" ))
                 QFile(it.filePath()).remove();
-        } else
+        } else {
             QFile(it.filePath()).remove();
+        }
     }
 
     // ... and create all repositories required for this device
@@ -395,11 +393,6 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
                             QHash<QString, QString> repoParameters,
                             QHash<QString, QString> parametersOverride)
 {
-    QString r;
-    QStringList configSections;
-    SsuVariables var;
-    SsuCoreConfig *settings = SsuCoreConfig::instance();
-    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
     SsuDeviceInfo deviceInfo;
 
     // set debugSplit for incorrectly configured debuginfo repositories (debugSplit
@@ -408,8 +401,7 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
     if (repoName.endsWith("-debuginfo") && !repoParameters.contains("debugSplit"))
         repoParameters.insert("debugSplit", "debug");
 
-    configSections = repoVariables(&repoParameters, rndRepo);
-
+    QStringList configSections = repoVariables(&repoParameters, rndRepo);
 
     // Override device model (and therefore all the family, ... stuff)
     if (parametersOverride.contains("model"))
@@ -421,16 +413,20 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
     repoName = deviceInfo.adaptationVariables(repoName, &repoParameters);
 
 
+    SsuCoreConfig *settings = SsuCoreConfig::instance();
     QString domain;
+
     if (parametersOverride.contains("domain")) {
         domain = parametersOverride.value("domain");
         domain.replace("-", ":");
-    } else
+    } else {
         domain = settings->domain();
+    }
 
     // variableSection does autodetection for the domain default section
-    var.variableSection(&repoSettings,
-                        domain + "-domain", &repoParameters);
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+    SsuVariables var;
+    var.variableSection(&repoSettings, domain + "-domain", &repoParameters);
 
     // override arbitrary variables, mostly useful for generating mic URLs
     QHash<QString, QString>::const_iterator i = parametersOverride.constBegin();
@@ -445,6 +441,7 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
     // 3. URLs from repos.ini
 
     SsuFeatureManager featureManager;
+    QString r;
 
     if (settings->contains("repository-urls/" + repoName))
         r = settings->value("repository-urls/" + repoName).toString();
