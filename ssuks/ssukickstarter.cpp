@@ -112,7 +112,7 @@ QStringList SsuKickstarter::repos()
     foreach (const QString &repo, repos) {
         QString repoUrl = ssu.repoUrl(repo, rndMode, QHash<QString, QString>(), repoOverride);
 
-        if (repoUrl == "") {
+        if (repoUrl.isEmpty()) {
             qerr << "Repository " << repo << " does not have an URL, ignoring" << endl;
             continue;
         }
@@ -124,18 +124,18 @@ QStringList SsuKickstarter::repos()
                           .arg(repo)
                           .arg(replaceSpaces(deviceModel))
                           .arg((rndMode ? repoOverride.value("rndRelease")
-                                : repoOverride.value("release")))
+                                        : repoOverride.value("release")))
                           .arg((rndMode ? "-" + repoOverride.value("flavourName")
-                                : ""))
+                                        : QString()))
                           .arg(repoUrl)
                          );
         } else {
             result.append(QString("repo --name=%1-%2%3 --baseurl=%4")
                           .arg(repo)
                           .arg((rndMode ? repoOverride.value("rndRelease")
-                                : repoOverride.value("release")))
+                                        : repoOverride.value("release")))
                           .arg((rndMode ? "-" + repoOverride.value("flavourName")
-                                : ""))
+                                        : QString()))
                           .arg(repoUrl)
                          );
         }

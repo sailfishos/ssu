@@ -33,7 +33,7 @@ QString SsuVariables::defaultSection(SsuSettings *settings, QString section)
     if (settings->childGroups().contains(key))
         return key;
     else
-        return "";
+        return QString();
 }
 
 QString SsuVariables::resolveString(QString pattern, QHash<QString, QString> *variables, int recursionDepth)
@@ -77,7 +77,7 @@ QString SsuVariables::resolveString(QString pattern, QHash<QString, QString> *va
 
 QString SsuVariables::resolveVariable(QString variable, QHash<QString, QString> *variables)
 {
-    QString variableValue = "";
+    QString variableValue;
 
     if (variable.endsWith(")"))
         variable.chop(1);
@@ -105,12 +105,12 @@ QString SsuVariables::resolveVariable(QString variable, QHash<QString, QString> 
     switch (op.toLatin1()) {
     case '-':
         // substitute default value if variable is empty
-        if (variableValue == "")
+        if (variableValue.isEmpty())
             return variableSub.toString();
         break;
     case '+':
         // substitute default value if variable is not empty
-        if (variableValue != "")
+        if (!variableValue.isEmpty())
             return variableSub.toString();
         break;
     case '=': {

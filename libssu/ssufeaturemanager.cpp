@@ -68,5 +68,5 @@ QString SsuFeatureManager::url(QString repo, bool rndRepo)
     else if (featureSettings->contains("repositories/" + repo))
         return featureSettings->value("repositories/" + repo).toString();
 
-    return "";
+    return QString();
 }

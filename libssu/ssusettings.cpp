@@ -40,7 +40,7 @@ SsuSettings::SsuSettings(const QString &fileName, const QString &settingsDirecto
 
 void SsuSettings::merge(bool keepOld)
 {
-    if (settingsd == "")
+    if (settingsd.isEmpty())
         return;
 
     bool skipMerge = true;

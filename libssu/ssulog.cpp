@@ -45,7 +45,7 @@ void SsuLog::print(int priority, QString message)
     QByteArray ba = message.toUtf8();
     const char *ca = ba.constData();
 
-    if (sd_journal_print(priority, "ssu: %s", ca) < 0 && fallbackLogPath != "") {
+    if (sd_journal_print(priority, "ssu: %s", ca) < 0 && !fallbackLogPath.isEmpty()) {
         QFile logfile;
         QTextStream logstream;
         logfile.setFileName(fallbackLogPath);

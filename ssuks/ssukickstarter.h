@@ -36,7 +36,7 @@ private:
     QString deviceModel;
     QStringList commands();
     /// read a command section from file system
-    QStringList commandSection(const QString &section, const QString &description = "");
+    QStringList commandSection(const QString &section, const QString &description = QString());
     QStringList packagesSection(QString name);
     QString replaceSpaces(const QString &value);
     QStringList repos();

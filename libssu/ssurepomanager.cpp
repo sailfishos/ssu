@@ -38,7 +38,7 @@ int SsuRepoManager::add(QString repo, QString repoUrl)
     if ((ssuSettings->deviceMode() & Ssu::AppInstallMode) == Ssu::AppInstallMode)
         return -1;
 
-    if (repoUrl == "") {
+    if (repoUrl.isEmpty()) {
         // just enable a repository which has URL in repos.ini
         QStringList enabledRepos;
         if (ssuSettings->contains("enabled-repos"))
@@ -72,7 +72,7 @@ QString SsuRepoManager::caCertificatePath(QString domain)
     if (settings->contains("ca-certificate"))
         return settings->value("ca-certificate").toString();
 
-    return "";
+    return QString();
 }
 
 int SsuRepoManager::disable(QString repo)
@@ -309,7 +309,7 @@ void SsuRepoManager::update()
                                .arg(repo)
                                .arg(rndMode ? "rnd" : "release");
 
-        if (url(repoName, rndMode) == "") {
+        if (url(repoName, rndMode).isEmpty()) {
             // TODO, repositories should only be disabled if they're not required
             //       for this machine. For required repositories error is better
             QTextStream qerr(stderr);

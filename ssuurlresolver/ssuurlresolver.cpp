@@ -53,7 +53,7 @@ bool SsuUrlResolver::writeZyppCredentialsIfNeeded(QString credentialsScope)
     QPair<QString, QString> credentials = ssu.credentials(credentialsScope);
     SsuLog *ssuLog = SsuLog::instance();
 
-    if (credentials.first == "" || credentials.second == "") {
+    if (credentials.first.isEmpty() || credentials.second.isEmpty()) {
         ssuLog->print(LOG_WARNING, "Returned credentials are empty, skip writing");
         return false;
     }

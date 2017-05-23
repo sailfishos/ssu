@@ -340,7 +340,7 @@ void SsuCli::optRepos(QStringList opt)
     SsuRepoManager repoManager;
     SsuDeviceInfo deviceInfo;
     QHash<QString, QString> repoParameters, repoOverride;
-    QString device = "";
+    QString device;
     bool rndRepo = false;
     int micMode = 0, flagStart = 0;
 
@@ -397,7 +397,7 @@ void SsuCli::optRepos(QStringList opt)
             rndRepo = false;
     }
 
-    if (device != "") {
+    if (!device.isEmpty()) {
         deviceInfo.setDeviceModel(device);
         repoOverride.insert("model", device);
     }
@@ -459,7 +459,7 @@ void SsuCli::optRepos(QStringList opt)
         }
 
         if (i == 0) {
-            if (device != "") {
+            if (!device.isEmpty()) {
                 repos.clear();
                 continue;
             }
@@ -473,7 +473,7 @@ void SsuCli::optRepos(QStringList opt)
                 qout << endl << "Disabled repositories (global): " << endl;
         } else if (i == 2) {
             repos.clear();
-            if (device != "")
+            if (!device.isEmpty())
                 continue;
             if (ssuSettings->contains("disabled-repos"))
                 repos.append(ssuSettings->value("disabled-repos").toStringList());
@@ -553,7 +553,7 @@ void SsuCli::optStatus(QStringList opt)
     qout << "Device model: " << deviceInfo.displayName(Ssu::DeviceModel) << " ("
          << deviceInfo.deviceModel() << " / "
          << deviceInfo.displayName(Ssu::DeviceDesignation) << ")" << endl;
-    if (deviceInfo.deviceVariant() != "")
+    if (!deviceInfo.deviceVariant().isEmpty())
         qout << "Device variant: " << deviceInfo.deviceVariant() << endl;
     qout << "Device UID: " << deviceUid << endl;
     if ((ssu.deviceMode() & Ssu::RndMode) == Ssu::RndMode)

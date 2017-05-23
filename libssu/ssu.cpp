@@ -292,7 +292,7 @@ void Ssu::requestFinished(QNetworkReply *reply)
 
     /// @TODO: indicate that the device is not registered if there's a 404 on credentials update url
     if (settings->contains("home-url")) {
-        QString homeUrl = settings->value("home-url").toString().arg("");
+        QString homeUrl = settings->value("home-url").toString().arg(QString());
         homeUrl.remove(QRegExp("//+$"));
 
         if (request.url().toString().startsWith(homeUrl, Qt::CaseInsensitive)) {
@@ -401,7 +401,7 @@ void Ssu::sendRegistration(QString usernameDomain, QString password)
     }
 
     QString IMEI = deviceInfo.deviceUid();
-    if (IMEI == "") {
+    if (IMEI.isEmpty()) {
         setError("No valid UID available for your device. For phones: is your modem online?");
         return;
     }
@@ -484,7 +484,7 @@ bool Ssu::setCredentials(QDomDocument *response)
                 credentialScopes.append(scope);
             }
         } else {
-            setError("");
+            setError(QString());
             return false;
         }
     }
@@ -583,7 +583,7 @@ void Ssu::updateCredentials(bool force)
 
     SsuLog *ssuLog = SsuLog::instance();
 
-    if (deviceInfo.deviceUid() == "") {
+    if (deviceInfo.deviceUid().isEmpty()) {
         setError("No valid UID available for your device. For phones: is your modem online?");
         return;
     }

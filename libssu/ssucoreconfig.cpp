@@ -77,8 +77,9 @@ QString SsuCoreConfig::domain(bool pretty)
             return value("domain").toString().replace(":", "-");
         else
             return value("domain").toString();
-    } else
-        return "";
+    } else {
+        return QString();
+    }
 }
 
 bool SsuCoreConfig::isRegistered()

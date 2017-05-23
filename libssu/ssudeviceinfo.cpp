@@ -102,9 +102,9 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
 
 void SsuDeviceInfo::clearCache()
 {
-    cachedFamily = "";
-    cachedModel = "";
-    cachedVariant = "";
+    cachedFamily.clear();
+    cachedModel.clear();
+    cachedVariant.clear();
 }
 
 bool SsuDeviceInfo::contains(const QString &model)
@@ -153,7 +153,7 @@ QString SsuDeviceInfo::deviceVariant(bool fallback)
         cachedVariant = boardMappings->value("variants/" + deviceModel()).toString();
     }
 
-    if (cachedVariant == "" && fallback)
+    if (cachedVariant.isEmpty() && fallback)
         return deviceModel();
 
     return cachedVariant;
@@ -325,7 +325,7 @@ QString SsuDeviceInfo::deviceUid()
     }
 
     ssuLog->print(LOG_CRIT, "Could not read fallback UID - returning empty string");
-    return "";
+    return QString();
 }
 
 QStringList SsuDeviceInfo::disabledRepos()
@@ -357,7 +357,7 @@ QString SsuDeviceInfo::displayName(const int type)
         key = "/deviceDesignation";
         break;
     default:
-        return "";
+        return QString();
     }
 
     /*
@@ -370,7 +370,7 @@ QString SsuDeviceInfo::displayName(const int type)
 
     if (boardMappings->contains(model + key))
         value = boardMappings->value(model + key).toString();
-    else if (variant != "" && boardMappings->contains(variant + key))
+    else if (!variant.isEmpty() && boardMappings->contains(variant + key))
         value = boardMappings->value(variant + key).toString();
     else if (boardMappings->contains(key))
         value = boardMappings->value(key).toString();
@@ -449,13 +449,13 @@ void SsuDeviceInfo::variableSection(QString section, QHash<QString, QString> *st
 
 void SsuDeviceInfo::setDeviceModel(QString model)
 {
-    if (model == "")
-        cachedModel = "";
+    if (model.isEmpty())
+        cachedModel.clear();
     else
         cachedModel = model;
 
-    cachedFamily = "";
-    cachedVariant = "";
+    cachedFamily.clear();
+    cachedVariant.clear();
 }
 
 QVariant SsuDeviceInfo::value(const QString &key, const QVariant &value)

@@ -42,7 +42,7 @@ public:
      * or as variant. If no model is provided as argument the autodetected or previously
      * set model is used.
      */
-    bool contains(const QString &model = "");
+    bool contains(const QString &model = QString());
 
     /**
      * Try to find the device family for the system this is running on. This function
