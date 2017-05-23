@@ -24,7 +24,7 @@ SsuLog *SsuLog::instance()
     return ssuLog;
 }
 
-void SsuLog::print(int priority, QString message)
+void SsuLog::print(int priority, const QString &message)
 {
     // directly go through qsettings here to avoid recursive invocation
     // of coreconfig / ssulog

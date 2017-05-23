@@ -55,7 +55,7 @@ public:
      * If no manufacturer is found UNKNOWN is returned.
      * For an invalid type an empty string is returned.
      */
-    Q_INVOKABLE QString displayName(const int type);
+    Q_INVOKABLE QString displayName(int type);
 
 private:
     SsuDeviceInfo info;

@@ -22,7 +22,7 @@ public:
     /**
      * Initialize with device to override autodetection
      */
-    SsuDeviceInfo(QString model = "");
+    SsuDeviceInfo(const QString &model = QString());
 
     virtual ~SsuDeviceInfo();
 
@@ -85,7 +85,8 @@ public:
      * If no manufacturer is found UNKNOWN is returned.
      * For an invalid type an empty string is returned.
      */
-    Q_INVOKABLE QString displayName(const int type);
+    Q_INVOKABLE QString displayName(int type);
+
     /**
      * Return the complete list of repositories configured for a device.
      * Depending on the filter options, all repostories (user and board),
@@ -97,7 +98,7 @@ public:
     /**
      * Override device model autodetection
      */
-    Q_INVOKABLE void setDeviceModel(QString model = "");
+    Q_INVOKABLE void setDeviceModel(const QString &model = QString());
 
     /**
      * Return a variable from the given variable section. 'var'- is automatically
@@ -105,13 +106,13 @@ public:
      * through several variable sections (specified in the section) is supported,
      * returned will be the first occurence of the variable.
      */
-    QVariant variable(QString section, const QString &key);
+    QVariant variable(const QString &section, const QString &key);
 
     /**
      * Return the requested variable section. 'var-' is automatically
      * prepended to the section name if not specified already.
      */
-    void variableSection(QString section, QHash<QString, QString> *storageHash);
+    void variableSection(const QString &section, QHash<QString, QString> *storageHash);
 
     /**
      * Return a value from an adaptation section. Returns an empty string

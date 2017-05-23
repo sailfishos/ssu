@@ -24,7 +24,7 @@ SsuUrlResolver::SsuUrlResolver()
                      Qt::QueuedConnection);
 }
 
-void SsuUrlResolver::error(QString message)
+void SsuUrlResolver::error(const QString &message)
 {
     SsuLog *ssuLog = SsuLog::instance();
     ssuLog->print(LOG_WARNING, message);
@@ -35,7 +35,7 @@ void SsuUrlResolver::error(QString message)
     QCoreApplication::exit(1);
 }
 
-bool SsuUrlResolver::writeZyppCredentialsIfNeeded(QString credentialsScope)
+bool SsuUrlResolver::writeZyppCredentialsIfNeeded(const QString &credentialsScope)
 {
     QString filePath = Sandbox::map("/etc/zypp/credentials.d/" + credentialsScope);
     QFileInfo credentialsFileInfo(filePath);

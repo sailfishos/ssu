@@ -691,7 +691,7 @@ void SsuCli::uidWarning()
     }
 }
 
-void SsuCli::usage(QString message)
+void SsuCli::usage(const QString &message)
 {
     QTextStream qout(stderr);
     qout << "\nUsage: ssu <command> [-command-options] [arguments]" << endl

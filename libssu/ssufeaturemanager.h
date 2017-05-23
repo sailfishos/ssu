@@ -22,7 +22,7 @@ class SsuFeatureManager: public QObject
 public:
     SsuFeatureManager();
     QStringList repos(bool rndRepo, int filter = Ssu::NoFilter);
-    QString url(QString repo, bool rndRepo);
+    QString url(const QString &repo, bool rndRepo);
 
 private:
     SsuSettings *featureSettings;

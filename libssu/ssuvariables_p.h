@@ -26,15 +26,15 @@ public:
      * the first token (or second token for "var-" sections) replaced with
      * "default". You should therefore avoid "-" in section names.
      */
-    static QString defaultSection(SsuSettings *settings, QString section);
+    static QString defaultSection(SsuSettings *settings, const QString &section);
     /**
      * Resolve a whole string, containing several variables. Variables inside variables are allowed
      */
-    static QString resolveString(QString pattern, QHash<QString, QString> *variables, int recursionDepth = 0);
+    static QString resolveString(const QString &pattern, QHash<QString, QString> *variables, int recursionDepth = 0);
     /**
      * Resolve variables; variable can be passed as %(var) or var
      */
-    static QString resolveVariable(QString variable, QHash<QString, QString> *variables);
+    static QString resolveVariable(const QString &variable, QHash<QString, QString> *variables);
     /**
      * Set the settings object to use
      */
@@ -49,8 +49,8 @@ public:
      * through several variable sections (specified in the section) is supported,
      * returned will be the last occurence of the variable.
      */
-    QVariant variable(QString section, const QString &key);
-    static QVariant variable(SsuSettings *settings, QString section, const QString &key);
+    QVariant variable(const QString &section, const QString &key);
+    static QVariant variable(SsuSettings *settings, const QString &section, const QString &key);
     /**
      * Return the requested variable section, recursively looking up all variable
      * sections referenced inside with the 'variable' keyword. 'var-' is automatically
@@ -64,15 +64,15 @@ public:
      * This function tries to identify a default configuration section, and merges
      * the default section with the requested section.
      */
-    void variableSection(QString section, QHash<QString, QString> *storageHash);
-    static void variableSection(SsuSettings *settings, QString section,
+    void variableSection(const QString &section, QHash<QString, QString> *storageHash);
+    static void variableSection(SsuSettings *settings, const QString &section,
                                 QHash<QString, QString> *storageHash);
 
 private:
-    static void readSection(SsuSettings *settings, QString section,
+    static void readSection(SsuSettings *settings, const QString &section,
                             QHash<QString, QString> *storageHash, int recursionDepth,
                             bool logOverride = true);
-    static QVariant readVariable(SsuSettings *settings, QString section, const QString &key,
+    static QVariant readVariable(SsuSettings *settings, const QString &section, const QString &key,
                                  int recursionDepth, bool logOverride = true);
     SsuSettings *m_settings;
 };

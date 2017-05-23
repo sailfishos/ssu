@@ -32,7 +32,7 @@ private:
     SsuProxy *ssuProxy;
     QSettings settings;
     int state;
-    void usage(QString message = "");
+    void usage(const QString &message = QString());
     void uidWarning();
     void optDomain(QStringList opt);
     void optFlavour(QStringList opt);

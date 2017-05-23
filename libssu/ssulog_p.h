@@ -20,7 +20,7 @@ public:
     /**
      * Print a message to systemds journal, or to a text log file, if a fallback is defined
      */
-    void print(int priority, QString message);
+    void print(int priority, const QString &message);
 
 private:
     SsuLog() {}

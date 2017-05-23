@@ -144,7 +144,7 @@ QStringList SsuKickstarter::repos()
     return result;
 }
 
-QStringList SsuKickstarter::packagesSection(QString name)
+QStringList SsuKickstarter::packagesSection(const QString &name)
 {
     QStringList result;
 
@@ -167,7 +167,7 @@ QStringList SsuKickstarter::packagesSection(QString name)
 }
 
 // we intentionally don't support device-specific post scriptlets
-QStringList SsuKickstarter::scriptletSection(QString name, int flags)
+QStringList SsuKickstarter::scriptletSection(const QString &name, int flags)
 {
     QStringList result;
     QString path;
@@ -227,7 +227,7 @@ void SsuKickstarter::setRepoParameters(QHash<QString, QString> parameters)
         deviceModel = repoOverride.value("model");
 }
 
-bool SsuKickstarter::write(QString kickstart)
+bool SsuKickstarter::write(const QString &kickstart)
 {
     QTextStream qerr(stderr);
     QStringList commandSections;

@@ -340,7 +340,7 @@ QStringList SsuDeviceInfo::disabledRepos()
     return result;
 }
 
-QString SsuDeviceInfo::displayName(const int type)
+QString SsuDeviceInfo::displayName(int type)
 {
     QString model = deviceModel();
     QString variant = deviceVariant(false);
@@ -429,25 +429,27 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter)
     return result;
 }
 
-QVariant SsuDeviceInfo::variable(QString section, const QString &key)
+QVariant SsuDeviceInfo::variable(const QString &section, const QString &key)
 {
     /// @todo compat-setting as ssudeviceinfo guaranteed to prepend sections with var-;
     ///       SsuVariables does not have this guarantee. Remove from here as well.
-    if (!section.startsWith("var-"))
-        section = "var-" + section;
+    QString varSection(section);
+    if (!varSection.startsWith("var-"))
+        varSection = "var-" + varSection;
 
-    return SsuVariables::variable(boardMappings, section, key);
+    return SsuVariables::variable(boardMappings, varSection, key);
 }
 
-void SsuDeviceInfo::variableSection(QString section, QHash<QString, QString> *storageHash)
+void SsuDeviceInfo::variableSection(const QString &section, QHash<QString, QString> *storageHash)
 {
-    if (!section.startsWith("var-"))
-        section = "var-" + section;
+    QString varSection(section);
+    if (!varSection.startsWith("var-"))
+        varSection = "var-" + varSection;
 
-    SsuVariables::variableSection(boardMappings, section, storageHash);
+    SsuVariables::variableSection(boardMappings, varSection, storageHash);
 }
 
-void SsuDeviceInfo::setDeviceModel(QString model)
+void SsuDeviceInfo::setDeviceModel(const QString &model)
 {
     if (model.isEmpty())
         cachedModel.clear();

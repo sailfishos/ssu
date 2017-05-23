@@ -85,7 +85,7 @@ public:
      * Find a username/password pair for the given scope
      * @return a QPair with username and password, or an empty QPair if scope is invalid
      */
-    QPair<QString, QString> credentials(QString scope);
+    QPair<QString, QString> credentials(const QString &scope);
     /**
      * Get the scope for a repository, taking into account different scopes for
      * release and RnD repositories
@@ -95,11 +95,11 @@ public:
      *
      * @return a string containing the scope; it can be used to look up login credentials using  credentials()
      */
-    QString credentialsScope(QString repoName, bool rndRepo = false);
+    QString credentialsScope(const QString &repoName, bool rndRepo = false);
     /**
      * Return the URL for which credentials scope is valid
      */
-    QString credentialsUrl(QString scope);
+    QString credentialsUrl(const QString &scope);
     /**
      * Returns if the last operation was successful
      * @retval true last operation was successful
@@ -116,7 +116,7 @@ public:
      * Resolve a repository url
      * @return the repository URL on success, an empty string on error
      */
-    QString repoUrl(QString repoName, bool rndRepo = false,
+    QString repoUrl(const QString &repoName, bool rndRepo = false,
                     QHash<QString, QString> repoParameters = QHash<QString, QString>(),
                     QHash<QString, QString> parametersOverride = QHash<QString, QString>());
     /**
@@ -146,11 +146,11 @@ public:
     /// See SsuCoreConfig::setDeviceMode
     Q_INVOKABLE void setDeviceMode(DeviceModeFlags mode, enum EditMode editMode = Replace);
     /// See SsuCoreConfig::setFlavour
-    Q_INVOKABLE void setFlavour(QString flavour);
+    Q_INVOKABLE void setFlavour(const QString &flavour);
     /// See SsuCoreConfig::setRelease
-    Q_INVOKABLE void setRelease(QString release, bool rnd = false);
+    Q_INVOKABLE void setRelease(const QString &release, bool rnd = false);
     /// See SsuCoreConfig::setDomain
-    Q_INVOKABLE void setDomain(QString domain);
+    Q_INVOKABLE void setDomain(const QString &domain);
     /// See SsuCoreConfig::useSslVerify
     Q_INVOKABLE bool useSslVerify();
 
@@ -162,7 +162,7 @@ private:
     bool registerDevice(QDomDocument *response);
     bool setCredentials(QDomDocument *response);
     bool verifyResponse(QDomDocument *response);
-    void storeAuthorizedKeys(QByteArray data);
+    void storeAuthorizedKeys(const QByteArray &data);
 
 private slots:
     void requestFinished(QNetworkReply *reply);
@@ -170,7 +170,7 @@ private slots:
      * Set errorString returned by lastError to errorMessage, set
      * errorFlag returned by error() to true, and emit done()
      */
-    void setError(QString errorMessage);
+    void setError(const QString &errorMessage);
 
 public slots:
     /**
@@ -182,7 +182,7 @@ public slots:
      * error() to check if an error occured, and use lastError() to retrieve the last
      * error message.
      */
-    void sendRegistration(QString username, QString password);
+    void sendRegistration(const QString &username, const QString &password);
     /**
      * Try to update the RND repository credentials. The device needs to be registered
      * for this to work. updateCredentials remembers the time of the last credentials

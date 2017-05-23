@@ -26,7 +26,7 @@ QString DeclarativeSsuDeviceInfo::deviceModel()
     return info.deviceModel();
 }
 
-QString DeclarativeSsuDeviceInfo::displayName(const int type)
+QString DeclarativeSsuDeviceInfo::displayName(int type)
 {
     return info.displayName(type);
 }

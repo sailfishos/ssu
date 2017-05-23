@@ -29,7 +29,7 @@ public:
      *
      * If the device is in UpdateMode this function does nothing.
      */
-    int add(QString repo, QString repoUrl = "");
+    int add(const QString &repo, const QString &repoUrl = QString());
     /**
      * Return the path to the CA certificate to be used for the given domain,
      * or default domain, if omitted
@@ -38,7 +38,7 @@ public:
      * @retval -1 Repository not added because device is in update mode
      * @retval -2 Repository not added because third party repositories are disabled
      */
-    static QString caCertificatePath(QString domain = "");
+    static QString caCertificatePath(const QString &domain = QString());
     /**
      * Disable a repository
      *
@@ -46,7 +46,7 @@ public:
      * @retval -1 Request ignored because device is in update mode
      * @retval -2 Request ignored because 3rd party repositories are disabled
      */
-    int disable(QString repo);
+    int disable(const QString &repo);
     /**
      * Enable a repository, given it's not disabled by board configuration
      *
@@ -54,7 +54,7 @@ public:
      * @retval -1 Request ignored because device is in update mode
      * @retval -2 Request ignored because 3rd party repositories are disabled
      */
-    int enable(QString repo);
+    int enable(const QString &repo);
     /**
      * Remove a repository
      *
@@ -62,7 +62,7 @@ public:
      * @retval -1 Request ignored because device is in update mode
      * @retval -2 Request ignored because 3rd party repositories are disabled
      */
-    int remove(QString repo);
+    int remove(const QString &repo);
     /**
      * Collect the list of repositories from different submodules
      */
@@ -94,7 +94,7 @@ public:
      * Resolve a repository url
      * @return the repository URL on success, an empty string on error
      */
-    QString url(QString repoName, bool rndRepo = false,
+    QString url(const QString &repoName, bool rndRepo = false,
                 QHash<QString, QString> repoParameters = QHash<QString, QString>(),
                 QHash<QString, QString> parametersOverride = QHash<QString, QString>());
 

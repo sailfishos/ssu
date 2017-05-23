@@ -26,7 +26,7 @@ SsuRepoManager::SsuRepoManager()
 {
 }
 
-int SsuRepoManager::add(QString repo, QString repoUrl)
+int SsuRepoManager::add(const QString &repo, const QString &repoUrl)
 {
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
 
@@ -55,15 +55,13 @@ int SsuRepoManager::add(QString repo, QString repoUrl)
     return 0;
 }
 
-QString SsuRepoManager::caCertificatePath(QString domain)
+QString SsuRepoManager::caCertificatePath(const QString &domain)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
 
-    if (domain.isEmpty())
-        domain = settings->domain();
-
-    QString ca = SsuVariables::variable(&repoSettings, domain + "-domain",
+    QString ca = SsuVariables::variable(&repoSettings,
+                                        (domain.isEmpty() ? settings->domain() : domain) + "-domain",
                                         "_ca-certificate").toString();
     if (!ca.isEmpty())
         return ca;
@@ -75,7 +73,7 @@ QString SsuRepoManager::caCertificatePath(QString domain)
     return QString();
 }
 
-int SsuRepoManager::disable(QString repo)
+int SsuRepoManager::disable(const QString &repo)
 {
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
     QStringList disabledRepos;
@@ -92,7 +90,7 @@ int SsuRepoManager::disable(QString repo)
     return 0;
 }
 
-int SsuRepoManager::enable(QString repo)
+int SsuRepoManager::enable(const QString &repo)
 {
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
     QStringList disabledRepos;
@@ -109,7 +107,7 @@ int SsuRepoManager::enable(QString repo)
     return 0;
 }
 
-int SsuRepoManager::remove(QString repo)
+int SsuRepoManager::remove(const QString &repo)
 {
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
 
@@ -389,7 +387,7 @@ QStringList SsuRepoManager::repoVariables(QHash<QString, QString> *storageHash, 
 
 // RND repos have flavour (devel, testing, release), and release (latest, next)
 // Release repos only have release (latest, next, version number)
-QString SsuRepoManager::url(QString repoName, bool rndRepo,
+QString SsuRepoManager::url(const QString &repoName, bool rndRepo,
                             QHash<QString, QString> repoParameters,
                             QHash<QString, QString> parametersOverride)
 {
@@ -410,8 +408,7 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
     repoParameters.insert("deviceFamily", deviceInfo.deviceFamily());
     repoParameters.insert("deviceModel", deviceInfo.deviceModel());
 
-    repoName = deviceInfo.adaptationVariables(repoName, &repoParameters);
-
+    QString adaptationRepoName = deviceInfo.adaptationVariables(repoName, &repoParameters);
 
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     QString domain;
@@ -443,15 +440,15 @@ QString SsuRepoManager::url(QString repoName, bool rndRepo,
     SsuFeatureManager featureManager;
     QString r;
 
-    if (settings->contains("repository-urls/" + repoName))
-        r = settings->value("repository-urls/" + repoName).toString();
-    else if (featureManager.url(repoName, rndRepo) != "")
-        r = featureManager.url(repoName, rndRepo);
-    else {
+    if (settings->contains("repository-urls/" + adaptationRepoName)) {
+        r = settings->value("repository-urls/" + adaptationRepoName).toString();
+    } else if (!featureManager.url(adaptationRepoName, rndRepo).isEmpty()) {
+        r = featureManager.url(adaptationRepoName, rndRepo);
+    } else {
         foreach (const QString &section, configSections) {
             repoSettings.beginGroup(section);
-            if (repoSettings.contains(repoName)) {
-                r = repoSettings.value(repoName).toString();
+            if (repoSettings.contains(adaptationRepoName)) {
+                r = repoSettings.value(adaptationRepoName).toString();
                 repoSettings.endGroup();
                 break;
             }

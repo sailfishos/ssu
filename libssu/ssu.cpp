@@ -76,13 +76,13 @@ Ssu::Ssu()
 
 // FIXME, the whole credentials stuff needs reworking
 // should probably be part of repo handling instead of core configuration
-QPair<QString, QString> Ssu::credentials(QString scope)
+QPair<QString, QString> Ssu::credentials(const QString &scope)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     return settings->credentials(scope);
 }
 
-QString Ssu::credentialsScope(QString repoName, bool rndRepo)
+QString Ssu::credentialsScope(const QString &repoName, bool rndRepo)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
@@ -125,7 +125,7 @@ QString Ssu::credentialsScope(QString repoName, bool rndRepo)
     return settings->credentialsScope(repoName, rndRepo);
 }
 
-QString Ssu::credentialsUrl(QString scope)
+QString Ssu::credentialsUrl(const QString &scope)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     return settings->credentialsUrl(scope);
@@ -179,19 +179,19 @@ void Ssu::setDeviceMode(Ssu::DeviceModeFlags mode, enum Ssu::EditMode editMode)
     settings->setDeviceMode(mode, editMode);
 }
 
-void Ssu::setFlavour(QString flavour)
+void Ssu::setFlavour(const QString &flavour)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     settings->setFlavour(flavour);
 }
 
-void Ssu::setRelease(QString release, bool rnd)
+void Ssu::setRelease(const QString &release, bool rnd)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     settings->setRelease(release, rnd);
 }
 
-void Ssu::setDomain(QString domain)
+void Ssu::setDomain(const QString &domain)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     settings->setDomain(domain);
@@ -259,7 +259,7 @@ bool Ssu::registerDevice(QDomDocument *response)
 
 // RND repos have flavour (devel, testing, release), and release (latest, next)
 // Release repos only have release (latest, next, version number)
-QString Ssu::repoUrl(QString repoName, bool rndRepo,
+QString Ssu::repoUrl(const QString &repoName, bool rndRepo,
                      QHash<QString, QString> repoParameters,
                      QHash<QString, QString> parametersOverride)
 {
@@ -356,7 +356,7 @@ success:
     }
 }
 
-void Ssu::sendRegistration(QString usernameDomain, QString password)
+void Ssu::sendRegistration(const QString &usernameDomain, const QString &password)
 {
     errorFlag = false;
 
@@ -496,7 +496,7 @@ bool Ssu::setCredentials(QDomDocument *response)
     return true;
 }
 
-void Ssu::setError(QString errorMessage)
+void Ssu::setError(const QString &errorMessage)
 {
     errorFlag = true;
     errorString = errorMessage;
@@ -511,7 +511,7 @@ void Ssu::setError(QString errorMessage)
     emit done();
 }
 
-void Ssu::storeAuthorizedKeys(QByteArray data)
+void Ssu::storeAuthorizedKeys(const QByteArray &data)
 {
     QDir dir;
     SsuLog *ssuLog = SsuLog::instance();

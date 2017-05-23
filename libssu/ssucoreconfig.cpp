@@ -25,7 +25,7 @@ SsuCoreConfig *SsuCoreConfig::instance()
     return ssuCoreConfig;
 }
 
-QPair<QString, QString> SsuCoreConfig::credentials(QString scope)
+QPair<QString, QString> SsuCoreConfig::credentials(const QString &scope)
 {
     QPair<QString, QString> ret;
     beginGroup("credentials-" + scope);
@@ -35,7 +35,7 @@ QPair<QString, QString> SsuCoreConfig::credentials(QString scope)
     return ret;
 }
 
-QString SsuCoreConfig::credentialsScope(QString repoName, bool rndRepo)
+QString SsuCoreConfig::credentialsScope(const QString &repoName, bool rndRepo)
 {
     Q_UNUSED(repoName)
     Q_UNUSED(rndRepo)
@@ -46,7 +46,7 @@ QString SsuCoreConfig::credentialsScope(QString repoName, bool rndRepo)
         return "your-configuration-is-broken-and-does-not-contain-credentials-scope";
 }
 
-QString SsuCoreConfig::credentialsUrl(QString scope)
+QString SsuCoreConfig::credentialsUrl(const QString &scope)
 {
     if (contains("credentials-url-" + scope))
         return value("credentials-url-" + scope).toString();
@@ -120,7 +120,7 @@ void SsuCoreConfig::setDeviceMode(Ssu::DeviceModeFlags mode, enum Ssu::EditMode 
     sync();
 }
 
-void SsuCoreConfig::setFlavour(QString flavour)
+void SsuCoreConfig::setFlavour(const QString &flavour)
 {
     setValue("flavour", flavour);
     // flavour is RnD only, so enable RnD mode
@@ -128,7 +128,7 @@ void SsuCoreConfig::setFlavour(QString flavour)
     sync();
 }
 
-void SsuCoreConfig::setRelease(QString release, bool rnd)
+void SsuCoreConfig::setRelease(const QString &release, bool rnd)
 {
     if (rnd) {
         setValue("rndRelease", release);
@@ -141,11 +141,11 @@ void SsuCoreConfig::setRelease(QString release, bool rnd)
     sync();
 }
 
-void SsuCoreConfig::setDomain(QString domain)
+void SsuCoreConfig::setDomain(const QString &domain)
 {
     // - in domain messes with default section autodetection,
     // so change it to :
-    setValue("domain", domain.replace("-", ":"));
+    setValue("domain", QString(domain).replace("-", ":"));
     sync();
 }
 
