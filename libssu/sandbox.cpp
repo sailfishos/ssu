@@ -79,7 +79,7 @@ Sandbox::~Sandbox()
     }
 
     if (!m_tempDir.isEmpty() && QFileInfo(m_tempDir).exists()) {
-        if (QProcess::execute("rm", QStringList() << "-rf" << m_tempDir) != 0) {
+        if (!QDir(m_tempDir).removeRecursively()) {
             qWarning("%s: Failed to remove temporary directory", Q_FUNC_INFO);
         }
     }
