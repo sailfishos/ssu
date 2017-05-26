@@ -37,7 +37,8 @@ static void restoreUid()
     }
 }
 
-Ssu::Ssu(): QObject()
+Ssu::Ssu()
+    : QObject()
 {
     errorFlag = false;
     pendingRequests = 0;
@@ -75,13 +76,13 @@ Ssu::Ssu(): QObject()
 
 // FIXME, the whole credentials stuff needs reworking
 // should probably be part of repo handling instead of core configuration
-QPair<QString, QString> Ssu::credentials(QString scope)
+QPair<QString, QString> Ssu::credentials(const QString &scope)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     return settings->credentials(scope);
 }
 
-QString Ssu::credentialsScope(QString repoName, bool rndRepo)
+QString Ssu::credentialsScope(const QString &repoName, bool rndRepo)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
@@ -124,7 +125,7 @@ QString Ssu::credentialsScope(QString repoName, bool rndRepo)
     return settings->credentialsScope(repoName, rndRepo);
 }
 
-QString Ssu::credentialsUrl(QString scope)
+QString Ssu::credentialsUrl(const QString &scope)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     return settings->credentialsUrl(scope);
@@ -178,19 +179,19 @@ void Ssu::setDeviceMode(Ssu::DeviceModeFlags mode, enum Ssu::EditMode editMode)
     settings->setDeviceMode(mode, editMode);
 }
 
-void Ssu::setFlavour(QString flavour)
+void Ssu::setFlavour(const QString &flavour)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     settings->setFlavour(flavour);
 }
 
-void Ssu::setRelease(QString release, bool rnd)
+void Ssu::setRelease(const QString &release, bool rnd)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     settings->setRelease(release, rnd);
 }
 
-void Ssu::setDomain(QString domain)
+void Ssu::setDomain(const QString &domain)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     settings->setDomain(domain);
@@ -223,8 +224,9 @@ bool Ssu::registerDevice(QDomDocument *response)
         settings->setValue("registered", false);
         setError("Certificate is invalid");
         return false;
-    } else
+    } else {
         settings->setValue("certificate", certificate.toPem());
+    }
 
     QString privateKeyString = response->elementsByTagName("privateKey").at(0).toElement().text();
     QSslKey privateKey(privateKeyString.toLatin1(), QSsl::Rsa);
@@ -233,8 +235,9 @@ bool Ssu::registerDevice(QDomDocument *response)
         settings->setValue("registered", false);
         setError("Private key is invalid");
         return false;
-    } else
+    } else {
         settings->setValue("privateKey", privateKey.toPem());
+    }
 
     // oldUser is just for reference purposes, in case we want to notify
     // about owner changes for the device
@@ -256,7 +259,7 @@ bool Ssu::registerDevice(QDomDocument *response)
 
 // RND repos have flavour (devel, testing, release), and release (latest, next)
 // Release repos only have release (latest, next, version number)
-QString Ssu::repoUrl(QString repoName, bool rndRepo,
+QString Ssu::repoUrl(const QString &repoName, bool rndRepo,
                      QHash<QString, QString> repoParameters,
                      QHash<QString, QString> parametersOverride)
 {
@@ -289,7 +292,7 @@ void Ssu::requestFinished(QNetworkReply *reply)
 
     /// @TODO: indicate that the device is not registered if there's a 404 on credentials update url
     if (settings->contains("home-url")) {
-        QString homeUrl = settings->value("home-url").toString().arg("");
+        QString homeUrl = settings->value("home-url").toString().arg(QString());
         homeUrl.remove(QRegExp("//+$"));
 
         if (request.url().toString().startsWith(homeUrl, Qt::CaseInsensitive)) {
@@ -353,11 +356,11 @@ success:
     }
 }
 
-void Ssu::sendRegistration(QString usernameDomain, QString password)
+void Ssu::sendRegistration(const QString &usernameDomain, const QString &password)
 {
     errorFlag = false;
 
-    QString ssuCaCertificate, ssuRegisterUrl;
+    QString ssuRegisterUrl;
     QString username, domainName;
 
     SsuLog *ssuLog = SsuLog::instance();
@@ -381,7 +384,7 @@ void Ssu::sendRegistration(QString usernameDomain, QString password)
             setDomain(settings->value("default-rnd-domain").toString());
     }
 
-    ssuCaCertificate = SsuRepoManager::caCertificatePath();
+    QString ssuCaCertificate = SsuRepoManager::caCertificatePath();
     if (ssuCaCertificate.isEmpty()) {
         setError("CA certificate for ssu not set ('_ca-certificate in domain')");
         return;
@@ -393,11 +396,12 @@ void Ssu::sendRegistration(QString usernameDomain, QString password)
             setError("URL for ssu registration not set (config key 'register-url')");
             return;
         }
-    } else
+    } else {
         ssuRegisterUrl = settings->value("register-url").toString();
+    }
 
     QString IMEI = deviceInfo.deviceUid();
-    if (IMEI == "") {
+    if (IMEI.isEmpty()) {
         setError("No valid UID available for your device. For phones: is your modem online?");
         return;
     }
@@ -432,10 +436,8 @@ void Ssu::sendRegistration(QString usernameDomain, QString password)
     ssuLog->print(LOG_DEBUG, QString("Sending request to %1")
                   .arg(request.url().url()));
 
-    QNetworkReply *reply;
-
     pendingRequests++;
-    reply = manager->post(request, form.query(QUrl::FullyEncoded).toStdString().c_str());
+    manager->post(request, form.query(QUrl::FullyEncoded).toStdString().c_str());
     // we could expose downloadProgress() from reply in case we want progress info
 
     QString homeUrl = settings->value("home-url").toString().arg(username);
@@ -482,7 +484,7 @@ bool Ssu::setCredentials(QDomDocument *response)
                 credentialScopes.append(scope);
             }
         } else {
-            setError("");
+            setError(QString());
             return false;
         }
     }
@@ -494,7 +496,7 @@ bool Ssu::setCredentials(QDomDocument *response)
     return true;
 }
 
-void Ssu::setError(QString errorMessage)
+void Ssu::setError(const QString &errorMessage)
 {
     errorFlag = true;
     errorString = errorMessage;
@@ -509,7 +511,7 @@ void Ssu::setError(QString errorMessage)
     emit done();
 }
 
-void Ssu::storeAuthorizedKeys(QByteArray data)
+void Ssu::storeAuthorizedKeys(const QByteArray &data)
 {
     QDir dir;
     SsuLog *ssuLog = SsuLog::instance();
@@ -537,8 +539,9 @@ void Ssu::storeAuthorizedKeys(QByteArray data)
         ssuLog->print(LOG_DEBUG, QString("Dropping to %1/%2 for writing authorized keys")
                       .arg(uid_min)
                       .arg(pw->pw_gid));
-    } else
+    } else {
         return;
+    }
 
     homePath = Sandbox::map(homePath);
 
@@ -549,13 +552,14 @@ void Ssu::storeAuthorizedKeys(QByteArray data)
         return;
     }
 
-    if (!dir.exists(homePath + "/.ssh"))
+    if (!dir.exists(homePath + "/.ssh")) {
         if (!dir.mkdir(homePath + "/.ssh")) {
             ssuLog->print(LOG_DEBUG, QString("Unable to create .ssh in %1")
                           .arg(homePath));
             restoreUid();
             return;
         }
+    }
 
     QFile::setPermissions(homePath + "/.ssh",
                           QFile::ReadOwner | QFile::WriteOwner | QFile::ExeOwner);
@@ -579,7 +583,7 @@ void Ssu::updateCredentials(bool force)
 
     SsuLog *ssuLog = SsuLog::instance();
 
-    if (deviceInfo.deviceUid() == "") {
+    if (deviceInfo.deviceUid().isEmpty()) {
         setError("No valid UID available for your device. For phones: is your modem online?");
         return;
     }
@@ -597,8 +601,9 @@ void Ssu::updateCredentials(bool force)
             setError("URL for credentials update not set (config key 'credentials-url')");
             return;
         }
-    } else
+    } else {
         ssuCredentialsUrl = settings->value("credentials-url").toString();
+    }
 
     if (!isRegistered()) {
         setError("Device is not registered.");
@@ -661,8 +666,9 @@ void Ssu::updateStoreCredentials()
         if (settings->value("ignore-credential-errors").toBool() == true) {
             ssuLog->print(LOG_WARNING, QString("Warning: ignore-credential-errors is set, passing auth errors down to libzypp"));
             ssuLog->print(LOG_WARNING, QString("Store credentials not received. %1").arg(reply.error().message()));
-        } else
+        } else {
             setError(QString("Store credentials not received. %1").arg(reply.error().message()));
+        }
     } else {
         SsuCoreConfig *settings = SsuCoreConfig::instance();
         settings->beginGroup("credentials-store");

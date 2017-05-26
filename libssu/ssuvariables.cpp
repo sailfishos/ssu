@@ -14,12 +14,12 @@
 
 #include "../constants.h"
 
-SsuVariables::SsuVariables(): QObject()
+SsuVariables::SsuVariables()
+    : QObject()
 {
-
 }
 
-QString SsuVariables::defaultSection(SsuSettings *settings, QString section)
+QString SsuVariables::defaultSection(SsuSettings *settings, const QString &section)
 {
     QStringList parts = section.split("-");
 
@@ -33,10 +33,10 @@ QString SsuVariables::defaultSection(SsuSettings *settings, QString section)
     if (settings->childGroups().contains(key))
         return key;
     else
-        return "";
+        return QString();
 }
 
-QString SsuVariables::resolveString(QString pattern, QHash<QString, QString> *variables, int recursionDepth)
+QString SsuVariables::resolveString(const QString &pattern, QHash<QString, QString> *variables, int recursionDepth)
 {
     if (recursionDepth >= SSU_MAX_RECURSION) {
         return "maximum-recursion-level-reached";
@@ -46,13 +46,15 @@ QString SsuVariables::resolveString(QString pattern, QHash<QString, QString> *va
     regex.setMinimal(true);
 
     int pos = 0;
-    while ((pos = regex.indexIn(pattern, pos)) != -1) {
+    QString result(pattern);
+
+    while ((pos = regex.indexIn(result, pos)) != -1) {
         QString match = regex.cap(0);
 
         if (match.contains(":")) {
             // variable is special, resolve before replacing
             QString variable = resolveVariable(match, variables);
-            pattern.replace(match, variable);
+            result.replace(match, variable);
             pos += variable.length();
         } else {
             // look up variable name in hashmap, and replace it with stored value,
@@ -61,37 +63,39 @@ QString SsuVariables::resolveString(QString pattern, QHash<QString, QString> *va
             variableName.remove(0, 2);
             variableName.chop(1);
             if (variables->contains(variableName)) {
-                pattern.replace(match, variables->value(variableName));
+                result.replace(match, variables->value(variableName));
                 pos += variables->value(variableName).length();
-            } else
-                pattern.replace(match, "");
+            } else {
+                result.replace(match, "");
+            }
         }
     }
 
     // check if string still contains variables, and recurse
-    if (regex.indexIn(pattern, 0) != -1)
-        pattern = resolveString(pattern, variables, recursionDepth + 1);
+    if (regex.indexIn(result, 0) != -1)
+        result = resolveString(result, variables, recursionDepth + 1);
 
-    return pattern;
+    return result;
 }
 
-QString SsuVariables::resolveVariable(QString variable, QHash<QString, QString> *variables)
+QString SsuVariables::resolveVariable(const QString &variable, QHash<QString, QString> *variables)
 {
-    QString variableValue = "";
+    QString variableValue;
+    QString filteredVariable(variable);
 
-    if (variable.endsWith(")"))
-        variable.chop(1);
-    if (variable.startsWith("%("))
-        variable.remove(0, 2);
+    if (filteredVariable.endsWith(")"))
+        filteredVariable.chop(1);
+    if (filteredVariable.startsWith("%("))
+        filteredVariable.remove(0, 2);
 
     // hunt for your colon
-    int magic = variable.indexOf(":");
+    int magic = filteredVariable.indexOf(":");
 
     // seems you misplaced your colon
-    if (magic == -1) return variable;
+    if (magic == -1) return filteredVariable;
 
-    QStringRef variableName(&variable, 0, magic);
-    QStringRef variableSub(&variable, magic + 2, variable.length() - magic - 2);
+    QStringRef variableName(&filteredVariable, 0, magic);
+    QStringRef variableSub(&filteredVariable, magic + 2, filteredVariable.length() - magic - 2);
 
     // Fill in variable value for later tests, if it exists
     if (variables->contains(variableName.toString()))
@@ -99,18 +103,18 @@ QString SsuVariables::resolveVariable(QString variable, QHash<QString, QString> 
 
     // find the operator who's after your colon
     QChar op;
-    if (variable.length() > magic + 1)
-        op = variable.at(magic + 1);
+    if (filteredVariable.length() > magic + 1)
+        op = filteredVariable.at(magic + 1);
 
     switch (op.toLatin1()) {
     case '-':
         // substitute default value if variable is empty
-        if (variableValue == "")
+        if (variableValue.isEmpty())
             return variableSub.toString();
         break;
     case '+':
         // substitute default value if variable is not empty
-        if (variableValue != "")
+        if (!variableValue.isEmpty())
             return variableSub.toString();
         break;
     case '=': {
@@ -143,7 +147,7 @@ SsuSettings *SsuVariables::settings()
 }
 
 /// @todo add override capability with an override-section in ssu.ini
-QVariant SsuVariables::variable(QString section, const QString &key)
+QVariant SsuVariables::variable(const QString &section, const QString &key)
 {
     if (m_settings != NULL)
         return variable(m_settings, section, key);
@@ -151,11 +155,9 @@ QVariant SsuVariables::variable(QString section, const QString &key)
         return QVariant();
 }
 
-QVariant SsuVariables::variable(SsuSettings *settings, QString section, const QString &key)
+QVariant SsuVariables::variable(SsuSettings *settings, const QString &section, const QString &key)
 {
-    QVariant value;
-
-    value = readVariable(settings, section, key, 0);
+    QVariant value = readVariable(settings, section, key, 0);
 
     // first check if the value is defined in the main section, and fall back
     // to default sections
@@ -168,19 +170,18 @@ QVariant SsuVariables::variable(SsuSettings *settings, QString section, const QS
     return value;
 }
 
-void SsuVariables::variableSection(QString section, QHash<QString, QString> *storageHash)
+void SsuVariables::variableSection(const QString &section, QHash<QString, QString> *storageHash)
 {
     if (m_settings != NULL)
         variableSection(m_settings, section, storageHash);
 }
 
-void SsuVariables::variableSection(SsuSettings *settings, QString section, QHash<QString, QString> *storageHash)
+void SsuVariables::variableSection(SsuSettings *settings, const QString &section, QHash<QString, QString> *storageHash)
 {
-
     QString dSection = defaultSection(settings, section);
-    if (dSection.isEmpty())
+    if (dSection.isEmpty()) {
         readSection(settings, section, storageHash, 0);
-    else {
+    } else {
         readSection(settings, dSection, storageHash, 0);
         readSection(settings, section, storageHash, 0, false);
     }
@@ -190,7 +191,7 @@ void SsuVariables::variableSection(SsuSettings *settings, QString section, QHash
 // variables which exist in more than one section will get overwritten when discovered
 // again
 // the section itself gets evaluated at the end, again having a chance to overwrite variables
-void SsuVariables::readSection(SsuSettings *settings, QString section,
+void SsuVariables::readSection(SsuSettings *settings, const QString &section,
                                QHash<QString, QString> *storageHash, int recursionDepth,
                                bool logOverride)
 {
@@ -250,7 +251,7 @@ void SsuVariables::readSection(SsuSettings *settings, QString section,
     settings->endGroup();
 }
 
-QVariant SsuVariables::readVariable(SsuSettings *settings, QString section, const QString &key,
+QVariant SsuVariables::readVariable(SsuSettings *settings, const QString &section, const QString &key,
                                     int recursionDepth, bool logOverride)
 {
     Q_UNUSED(logOverride)

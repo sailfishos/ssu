@@ -16,14 +16,15 @@
 #include "libssu/sandbox_p.h"
 #include "libssu/ssulog_p.h"
 
-SsuUrlResolver::SsuUrlResolver(): QObject()
+SsuUrlResolver::SsuUrlResolver()
+    : QObject()
 {
     QObject::connect(this, SIGNAL(done()),
                      QCoreApplication::instance(), SLOT(quit()),
                      Qt::QueuedConnection);
 }
 
-void SsuUrlResolver::error(QString message)
+void SsuUrlResolver::error(const QString &message)
 {
     SsuLog *ssuLog = SsuLog::instance();
     ssuLog->print(LOG_WARNING, message);
@@ -34,7 +35,7 @@ void SsuUrlResolver::error(QString message)
     QCoreApplication::exit(1);
 }
 
-bool SsuUrlResolver::writeZyppCredentialsIfNeeded(QString credentialsScope)
+bool SsuUrlResolver::writeZyppCredentialsIfNeeded(const QString &credentialsScope)
 {
     QString filePath = Sandbox::map("/etc/zypp/credentials.d/" + credentialsScope);
     QFileInfo credentialsFileInfo(filePath);
@@ -52,7 +53,7 @@ bool SsuUrlResolver::writeZyppCredentialsIfNeeded(QString credentialsScope)
     QPair<QString, QString> credentials = ssu.credentials(credentialsScope);
     SsuLog *ssuLog = SsuLog::instance();
 
-    if (credentials.first == "" || credentials.second == "") {
+    if (credentials.first.isEmpty() || credentials.second.isEmpty()) {
         ssuLog->print(LOG_WARNING, "Returned credentials are empty, skip writing");
         return false;
     }
@@ -74,7 +75,7 @@ bool SsuUrlResolver::writeZyppCredentialsIfNeeded(QString credentialsScope)
 void SsuUrlResolver::run()
 {
     QHash<QString, QString> repoParameters;
-    QString resolvedUrl, repo;
+    QString repo;
     bool isRnd = false;
     SsuLog *ssuLog = SsuLog::instance();
 
@@ -130,11 +131,12 @@ void SsuUrlResolver::run()
         if (ssu.error()) {
             error(ssu.lastError());
         }
-    } else
+    } else {
         ssuLog->print(LOG_DEBUG, "Device not registered -- skipping credential update");
+    }
 
     // resolve base url
-    resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
+    QString resolvedUrl = ssu.repoUrl(repo, isRnd, repoParameters);
 
     QString credentialsScope = ssu.credentialsScope(repo, isRnd);
     // only do credentials magic on secure connections
@@ -155,8 +157,9 @@ void SsuUrlResolver::run()
         }
         headerList.append(QString("credentials=%1").arg(credentialsScope));
         writeZyppCredentialsIfNeeded(credentialsScope);
-    } else
+    } else {
         ssuLog->print(LOG_DEBUG, QString("Skipping credential for %1 with scope %2").arg(repo).arg(credentialsScope));
+    }
 
     if (!headerList.isEmpty() && !resolvedUrl.isEmpty()) {
         QUrl url(resolvedUrl);

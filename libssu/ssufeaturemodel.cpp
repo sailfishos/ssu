@@ -51,7 +51,7 @@ public:
                     if (keys.contains("version")) {
                         feature.insert("version", settings.value("version").toString());
                     } else {
-                        feature.insert("version", QString(""));
+                        feature.insert("version", QString());
                     }
                     features.append(feature);
                 }

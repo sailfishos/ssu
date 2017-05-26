@@ -32,8 +32,8 @@ private:
     SsuProxy *ssuProxy;
     QSettings settings;
     int state;
-    void usage(QString message = "");
-    void uidWarning(QString message = "");
+    void usage(const QString &message = QString());
+    void uidWarning();
     void optDomain(QStringList opt);
     void optFlavour(QStringList opt);
     void optMode(QStringList opt);
@@ -47,10 +47,10 @@ private:
     void optUpdateRepos(QStringList opt);
 
     enum Actions {
-        Remove  = 0,
-        Add     = 1,
-        Disable = 2,
-        Enable  = 3,
+        Remove,
+        Add,
+        Disable,
+        Enable
     };
 
     void optModifyRepo(enum Actions action, QStringList opt);

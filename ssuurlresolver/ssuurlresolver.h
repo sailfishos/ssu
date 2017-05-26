@@ -58,9 +58,8 @@ public:
 
 private:
     Ssu ssu;
-    void error(QString message);
-    void printJournal(int priority, QString message);
-    bool writeZyppCredentialsIfNeeded(QString credentialsScope);
+    void error(const QString &message);
+    bool writeZyppCredentialsIfNeeded(const QString &credentialsScope);
 
 public slots:
     void run();

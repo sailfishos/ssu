@@ -34,7 +34,7 @@ public:
      * Find a username/password pair for the given scope
      * @return a QPair with username and password, or an empty QPair if scope is invalid
      */
-    QPair<QString, QString> credentials(QString scope);
+    QPair<QString, QString> credentials(const QString &scope);
     /**
      * Get the scope for a repository, taking into account different scopes for
      * release and RnD repositories
@@ -44,11 +44,11 @@ public:
      *
      * @return a string containing the scope; it can be used to look up login credentials using  credentials()
      */
-    QString credentialsScope(QString repoName, bool rndRepo = false);
+    QString credentialsScope(const QString &repoName, bool rndRepo = false);
     /**
      * Return the URL for which credentials scope is valid
      */
-    QString credentialsUrl(QString scope);
+    QString credentialsUrl(const QString &scope);
     /**
      * Get the current flavour when RnD repositories are used
      * @return current flavour (usually something like testing, release, ..)
@@ -87,15 +87,15 @@ public:
     /**
      * Set the flavour used when resolving RND repositories
      */
-    Q_INVOKABLE void setFlavour(QString flavour);
+    Q_INVOKABLE void setFlavour(const QString &flavour);
     /**
      * Set the release version string for either a release, or a RnD snapshot
      */
-    Q_INVOKABLE void setRelease(QString release, bool rnd = false);
+    Q_INVOKABLE void setRelease(const QString &release, bool rnd = false);
     /**
      * Set the domain string (usually something like nemo, jolla, ..)
      */
-    Q_INVOKABLE void setDomain(QString domain);
+    Q_INVOKABLE void setDomain(const QString &domain);
     /**
      * Return configuration settings regarding ssl verification
      * @retval true SSL verification must be used; that's the default if not configured

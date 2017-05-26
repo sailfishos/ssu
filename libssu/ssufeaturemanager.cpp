@@ -18,7 +18,8 @@
 
 #include "../constants.h"
 
-SsuFeatureManager::SsuFeatureManager(): QObject()
+SsuFeatureManager::SsuFeatureManager()
+    : QObject()
 {
     featureSettings = new SsuSettings(SSU_FEATURE_CONFIGURATION, SSU_FEATURE_CONFIGURATION_DIR);
 }
@@ -57,7 +58,7 @@ QStringList SsuFeatureManager::repos(bool rndRepo, int filter)
     return r;
 }
 
-QString SsuFeatureManager::url(QString repo, bool rndRepo)
+QString SsuFeatureManager::url(const QString &repo, bool rndRepo)
 {
     QString repoHeader = QString("repositories-%1/")
                          .arg(rndRepo ? "rnd" : "release");
@@ -67,5 +68,5 @@ QString SsuFeatureManager::url(QString repo, bool rndRepo)
     else if (featureSettings->contains("repositories/" + repo))
         return featureSettings->value("repositories/" + repo).toString();
 
-    return "";
+    return QString();
 }

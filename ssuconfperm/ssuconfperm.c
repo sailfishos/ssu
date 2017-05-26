@@ -14,11 +14,12 @@
 
 #include "../constants.h"
 
-int main(int argc, char **argv){
-  struct stat sb;
+int main(int argc, char **argv)
+{
+    struct stat sb;
 
-  if (!stat(SSU_CONFIGURATION, &sb)){
-    chown(SSU_CONFIGURATION, 0, SSU_GROUP_ID);
-    chmod(SSU_CONFIGURATION, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH);
-  }
+    if (!stat(SSU_CONFIGURATION, &sb)){
+        chown(SSU_CONFIGURATION, 0, SSU_GROUP_ID);
+        chmod(SSU_CONFIGURATION, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH);
+    }
 }

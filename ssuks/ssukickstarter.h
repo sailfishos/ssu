@@ -20,7 +20,7 @@ class SsuKickstarter
 public:
     SsuKickstarter();
     void setRepoParameters(QHash<QString, QString> parameters);
-    bool write(QString kickstart = "");
+    bool write(const QString &kickstart = QString());
 
     enum ScriptletFlags {
         /// Chroot is not useful, but helps in making the code more readable
@@ -36,11 +36,11 @@ private:
     QString deviceModel;
     QStringList commands();
     /// read a command section from file system
-    QStringList commandSection(const QString &section, const QString &description = "");
-    QStringList packagesSection(QString name);
+    QStringList commandSection(const QString &section, const QString &description = QString());
+    QStringList packagesSection(const QString &name);
     QString replaceSpaces(const QString &value);
     QStringList repos();
-    QStringList scriptletSection(QString name, int flags = Chroot);
+    QStringList scriptletSection(const QString &name, int flags = Chroot);
 };
 
 #endif

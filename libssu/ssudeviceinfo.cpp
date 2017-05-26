@@ -23,7 +23,8 @@
 
 #include "../constants.h"
 
-SsuDeviceInfo::SsuDeviceInfo(QString model): QObject()
+SsuDeviceInfo::SsuDeviceInfo(const QString &model)
+    : QObject()
 {
     boardMappings = new SsuSettings(SSU_BOARD_MAPPING_CONFIGURATION, SSU_BOARD_MAPPING_CONFIGURATION_DIR);
     if (!model.isEmpty())
@@ -101,9 +102,9 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
 
 void SsuDeviceInfo::clearCache()
 {
-    cachedFamily = "";
-    cachedModel = "";
-    cachedVariant = "";
+    cachedFamily.clear();
+    cachedModel.clear();
+    cachedVariant.clear();
 }
 
 bool SsuDeviceInfo::contains(const QString &model)
@@ -148,13 +149,11 @@ QString SsuDeviceInfo::deviceVariant(bool fallback)
     if (!cachedVariant.isEmpty())
         return cachedVariant;
 
-    cachedVariant = "";
-
     if (boardMappings->contains("variants/" + deviceModel())) {
         cachedVariant = boardMappings->value("variants/" + deviceModel()).toString();
     }
 
-    if (cachedVariant == "" && fallback)
+    if (cachedVariant.isEmpty() && fallback)
         return deviceModel();
 
     return cachedVariant;
@@ -162,19 +161,16 @@ QString SsuDeviceInfo::deviceVariant(bool fallback)
 
 QString SsuDeviceInfo::deviceModel()
 {
-    QDir dir;
-    QFile procCpuinfo;
-    QStringList keys;
-
     if (!cachedModel.isEmpty())
         return cachedModel;
 
     boardMappings->beginGroup("file.exists");
-    keys = boardMappings->allKeys();
+    QStringList keys = boardMappings->allKeys();
 
     // check if the device can be identified by testing for a file
     foreach (const QString &key, keys) {
         QString value = boardMappings->value(key).toString();
+        QDir dir;
         if (dir.exists(Sandbox::map(value))) {
             cachedModel = key;
             break;
@@ -184,6 +180,7 @@ QString SsuDeviceInfo::deviceModel()
     if (!cachedModel.isEmpty()) return cachedModel;
 
     // check if the device can be identified by a string in /proc/cpuinfo
+    QFile procCpuinfo;
     procCpuinfo.setFileName(Sandbox::map("/proc/cpuinfo"));
     procCpuinfo.open(QIODevice::ReadOnly | QIODevice::Text);
     if (procCpuinfo.isOpen()) {
@@ -328,7 +325,7 @@ QString SsuDeviceInfo::deviceUid()
     }
 
     ssuLog->print(LOG_CRIT, "Could not read fallback UID - returning empty string");
-    return "";
+    return QString();
 }
 
 QStringList SsuDeviceInfo::disabledRepos()
@@ -343,12 +340,11 @@ QStringList SsuDeviceInfo::disabledRepos()
     return result;
 }
 
-QString SsuDeviceInfo::displayName(const int type)
+QString SsuDeviceInfo::displayName(int type)
 {
     QString model = deviceModel();
     QString variant = deviceVariant(false);
     QString value, key;
-
 
     switch (type) {
     case Ssu::DeviceManufacturer:
@@ -361,7 +357,7 @@ QString SsuDeviceInfo::displayName(const int type)
         key = "/deviceDesignation";
         break;
     default:
-        return "";
+        return QString();
     }
 
     /*
@@ -374,7 +370,7 @@ QString SsuDeviceInfo::displayName(const int type)
 
     if (boardMappings->contains(model + key))
         value = boardMappings->value(model + key).toString();
-    else if (variant != "" && boardMappings->contains(variant + key))
+    else if (!variant.isEmpty() && boardMappings->contains(variant + key))
         value = boardMappings->value(variant + key).toString();
     else if (boardMappings->contains(key))
         value = boardMappings->value(key).toString();
@@ -433,33 +429,35 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter)
     return result;
 }
 
-QVariant SsuDeviceInfo::variable(QString section, const QString &key)
+QVariant SsuDeviceInfo::variable(const QString &section, const QString &key)
 {
     /// @todo compat-setting as ssudeviceinfo guaranteed to prepend sections with var-;
     ///       SsuVariables does not have this guarantee. Remove from here as well.
-    if (!section.startsWith("var-"))
-        section = "var-" + section;
+    QString varSection(section);
+    if (!varSection.startsWith("var-"))
+        varSection = "var-" + varSection;
 
-    return SsuVariables::variable(boardMappings, section, key);
+    return SsuVariables::variable(boardMappings, varSection, key);
 }
 
-void SsuDeviceInfo::variableSection(QString section, QHash<QString, QString> *storageHash)
+void SsuDeviceInfo::variableSection(const QString &section, QHash<QString, QString> *storageHash)
 {
-    if (!section.startsWith("var-"))
-        section = "var-" + section;
+    QString varSection(section);
+    if (!varSection.startsWith("var-"))
+        varSection = "var-" + varSection;
 
-    SsuVariables::variableSection(boardMappings, section, storageHash);
+    SsuVariables::variableSection(boardMappings, varSection, storageHash);
 }
 
-void SsuDeviceInfo::setDeviceModel(QString model)
+void SsuDeviceInfo::setDeviceModel(const QString &model)
 {
-    if (model == "")
-        cachedModel = "";
+    if (model.isEmpty())
+        cachedModel.clear();
     else
         cachedModel = model;
 
-    cachedFamily = "";
-    cachedVariant = "";
+    cachedFamily.clear();
+    cachedVariant.clear();
 }
 
 QVariant SsuDeviceInfo::value(const QString &key, const QVariant &value)

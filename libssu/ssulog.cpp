@@ -24,11 +24,8 @@ SsuLog *SsuLog::instance()
     return ssuLog;
 }
 
-void SsuLog::print(int priority, QString message)
+void SsuLog::print(int priority, const QString &message)
 {
-    QByteArray ba = message.toUtf8();
-    const char *ca = ba.constData();
-
     // directly go through qsettings here to avoid recursive invocation
     // of coreconfig / ssulog
     if (ssuLogLevel == -1) {
@@ -45,7 +42,10 @@ void SsuLog::print(int priority, QString message)
     if (priority > ssuLogLevel)
         return;
 
-    if (sd_journal_print(priority, "ssu: %s", ca) < 0 && fallbackLogPath != "") {
+    QByteArray ba = message.toUtf8();
+    const char *ca = ba.constData();
+
+    if (sd_journal_print(priority, "ssu: %s", ca) < 0 && !fallbackLogPath.isEmpty()) {
         QFile logfile;
         QTextStream logstream;
         logfile.setFileName(fallbackLogPath);
