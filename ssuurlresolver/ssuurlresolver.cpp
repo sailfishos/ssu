@@ -35,6 +35,12 @@ void SsuUrlResolver::error(const QString &message)
     QCoreApplication::exit(1);
 }
 
+void SsuUrlResolver::ack() const
+{
+    zypp::PluginFrame out(zypp::PluginFrame::ackCommand());
+    out.writeTo(std::cout);
+}
+
 bool SsuUrlResolver::writeZyppCredentialsIfNeeded(const QString &credentialsScope)
 {
     QString filePath = Sandbox::map("/etc/zypp/credentials.d/" + credentialsScope);
@@ -74,12 +80,27 @@ bool SsuUrlResolver::writeZyppCredentialsIfNeeded(const QString &credentialsScop
 
 void SsuUrlResolver::run()
 {
+    while (true) {
+        zypp::PluginFrame inputFrame(std::cin);
+        if (inputFrame.command() == "RESOLVEURL") {
+            resolve(inputFrame);
+        } else if (inputFrame.command() == "_DISCONNECT") {
+            ack();
+            break;
+        } else {
+            error(QStringLiteral("Unknown plugin command"));
+            break;
+        }
+    }
+    emit done();
+}
+
+void SsuUrlResolver::resolve(PluginFrame &in)
+{
     QHash<QString, QString> repoParameters;
     QString repo;
     bool isRnd = false;
     SsuLog *ssuLog = SsuLog::instance();
-
-    PluginFrame in(std::cin);
 
     if (in.headerEmpty()) {
         error("Received empty header list. Most likely your ssu setup is broken");
@@ -185,6 +206,4 @@ void SsuUrlResolver::run()
         out.setBody(resolvedUrl.toStdString());
         out.writeTo(std::cout);
     }
-
-    emit done();
 }
