@@ -59,6 +59,8 @@ public:
 private:
     Ssu ssu;
     void error(const QString &message);
+    void ack() const;
+    void resolve(zypp::PluginFrame &in);
     bool writeZyppCredentialsIfNeeded(const QString &credentialsScope);
 
 public slots:
