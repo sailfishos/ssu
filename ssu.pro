@@ -7,11 +7,12 @@ ssuconfhack {
     SUBDIRS += ssuconfperm
 }
 
-SUBDIRS += tests tools
+SUBDIRS += sandboxhook tests tools
 
 ssucli.depends = libssu
 ssuurlresolver.depends = libssu
-tests.depends = libssu
+sandboxhook.depends = libssu
+tests.depends = libssu sandboxhook
 ssuks.depends = libssu
 ssud.depends  = libssu
 ssuslipstream.depends = libssu

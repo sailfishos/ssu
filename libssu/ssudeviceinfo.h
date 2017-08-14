@@ -41,13 +41,15 @@ public:
      * Check if a given model is available in the deviceinfo database, either directly,
      * or as variant. If no model is provided as argument the autodetected or previously
      * set model is used.
+     *
+     * @attention This function temporarily changes the detected model, and
+     * therefore should not be used in a multithreaded environment, unless you
+     * like funny results.
      */
     bool contains(const QString &model = QString());
 
     /**
-     * Try to find the device family for the system this is running on. This function
-     * temporarily changes the detected model, and therefore should not be used in a
-     * multithreaded environment, unless you like funny results.
+     * Try to find the device family for the system this is running on.
      */
     Q_INVOKABLE QString deviceFamily();
 
