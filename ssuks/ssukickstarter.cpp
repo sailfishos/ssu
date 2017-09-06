@@ -372,6 +372,7 @@ bool SsuKickstarter::write(const QString &kickstart)
     kout.setDevice(&ks);
     kout << displayName << endl;
     kout << kickstartType << endl;
+    kout << "# DeviceModel: " << deviceInfo.deviceModel() << endl;
     if (!suggestedFeatures.isEmpty())
         kout << suggestedFeatures << endl;
     kout << "# SuggestedImageType: " << imageType << endl;
