@@ -11,6 +11,7 @@ doc/latex
 /rndssucli/ssuproxy.h
 /.nodocs
 ssucli/ssuproxy.h
+ssucli/ssuproxy.cpp
 *.o
 RPMS/
 installroot/
