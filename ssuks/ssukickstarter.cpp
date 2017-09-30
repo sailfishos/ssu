@@ -347,15 +347,19 @@ bool SsuKickstarter::write(const QString &kickstart)
 
     QStringList featuresList = deviceInfo.value("img-features").toStringList();
 
+    // Add developer-mode feature to rnd images by default
+    if (rndMode)
+        featuresList << "developer-mode";
+
     QString suggestedFeatures;
 
     // work around some idiotic JS list parsing on our side by terminating one-element list by comma
     if (featuresList.count() == 1)
         suggestedFeatures = QString("# SuggestedFeatures: %1,")
-                            .arg(deviceInfo.value("img-features").toStringList().join(", "));
+                            .arg(featuresList.join(", "));
     else if (featuresList.count() > 1)
         suggestedFeatures = QString("# SuggestedFeatures: %1")
-                            .arg(deviceInfo.value("img-features").toStringList().join(", "));
+                            .arg(featuresList.join(", "));
 
     QString imageType = "fs";
     if (!deviceInfo.value("img-type").toString().isEmpty())
