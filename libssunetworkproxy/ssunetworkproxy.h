@@ -7,14 +7,24 @@
 
 #ifndef _LibSsuNetworkProxy_H
 #define _LibSsuNetworkProxy_H
+
 #include <dlfcn.h>
 
+#include <QtCore/QtGlobal>
+#include <QtNetwork/QNetworkProxyFactory>
+
 /**
- * Set application proxy if the required library is found, otherwise
- * do nothing.
+ * Set application proxy. First check \c http_proxy environment variable, then try to get
+ * proxy configuration from connman.
  */
 inline void set_application_proxy_factory()
 {
+    if (qEnvironmentVariableIsSet("http_proxy")) {
+        qDebug() << "Got http_proxy from environment, will not talk to connman";
+        QNetworkProxyFactory::setUseSystemConfiguration(true);
+        return;
+    }
+
     void *proxylib = dlopen("libssunetworkproxy.so", RTLD_LAZY);
     if (proxylib) {
         typedef void (*ssuproxyinit_t)();
