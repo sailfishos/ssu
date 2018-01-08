@@ -53,6 +53,7 @@ public:
     };
 
     Q_DECLARE_FLAGS(DeviceModeFlags, DeviceMode)
+    Q_FLAGS(DeviceModeFlags)
 
     /**
      * A list of types ssu provides shiny values suitable for displaying

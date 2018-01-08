@@ -136,7 +136,7 @@ QString Ssud::domain()
     return ssu.domain();
 }
 
-Ssu::DeviceModeFlags Ssud::deviceMode()
+int Ssud::deviceMode()
 {
     autoclose.start();
     return ssu.deviceMode();
