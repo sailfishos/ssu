@@ -35,7 +35,7 @@ public slots:
     void unregisterDevice();
     QString domain();
     /* repository management */
-    Ssu::DeviceModeFlags deviceMode();
+    int deviceMode();
     void setDeviceMode(int mode);
     void setDeviceMode(int mode, int editMode);
     QString flavour();

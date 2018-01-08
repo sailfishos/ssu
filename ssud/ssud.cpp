@@ -136,7 +136,8 @@ QString Ssud::domain()
     return ssu.domain();
 }
 
-Ssu::DeviceModeFlags Ssud::deviceMode()
+// called by DBus Adaptor, return integer instead of enum Ssu::DeviceModeFlags
+int Ssud::deviceMode()
 {
     autoclose.start();
     return ssu.deviceMode();
