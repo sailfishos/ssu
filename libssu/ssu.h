@@ -22,6 +22,9 @@ class Ssu: public QObject
 
     friend class UrlResolverTest;
 
+    Q_PROPERTY(bool registered READ isRegistered NOTIFY registrationStatusChanged)
+    Q_PROPERTY(DeviceModeFlags deviceMode READ deviceMode CONSTANT)
+    Q_PROPERTY(QString domain READ domain CONSTANT)
 public:
     /**
      * Filters to control the output of the repository lookup methods
@@ -53,6 +56,7 @@ public:
     };
 
     Q_DECLARE_FLAGS(DeviceModeFlags, DeviceMode)
+    Q_FLAGS(DeviceModeFlags)
 
     /**
      * A list of types ssu provides shiny values suitable for displaying
