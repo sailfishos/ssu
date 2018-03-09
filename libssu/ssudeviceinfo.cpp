@@ -136,10 +136,15 @@ QString SsuDeviceInfo::deviceFamily()
 
     QString model = deviceVariant(true);
 
-    cachedFamily = "UNKNOWN";
-
-    if (boardMappings->contains(model + "/family"))
+    if (boardMappings->contains(model + "/family")) {
         cachedFamily = boardMappings->value(model + "/family").toString();
+    } else {
+        // In case family is not defined, lets use device variant, which
+        // falls back to device model. This way we can use the deviceFamily
+        // in common repository names where we want to have same feature package
+        // for multiple devices some of which have family and some which do not.
+        cachedFamily = model;
+    }
 
     return cachedFamily;
 }
