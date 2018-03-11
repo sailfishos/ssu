@@ -407,6 +407,7 @@ QString SsuRepoManager::url(const QString &repoName, bool rndRepo,
 
     repoParameters.insert("deviceFamily", deviceInfo.deviceFamily());
     repoParameters.insert("deviceModel", deviceInfo.deviceModel());
+    repoParameters.insert("deviceVariant", deviceInfo.deviceVariant(true));
 
     QString adaptationRepoName = deviceInfo.adaptationVariables(repoName, &repoParameters);
 
