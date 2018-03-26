@@ -345,11 +345,14 @@ bool SsuKickstarter::write(const QString &kickstart)
                                 : "release"))
                           .arg(repoOverride.value("version"));
 
+    // Feature names can be prefixed with '-' to inhibit implicit suggestion
     QStringList featuresList = deviceInfo.value("img-features").toStringList();
 
     // Add developer-mode feature to rnd images by default
-    if (rndMode)
+    if (rndMode && !featuresList.contains("-developer-mode"))
         featuresList << "developer-mode";
+
+    featuresList = featuresList.filter(QRegExp("^[^-]"));
 
     QString suggestedFeatures;
 
