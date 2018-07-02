@@ -45,6 +45,7 @@ public slots:
     void modifyRepo(int action, const QString &repo);
     void addRepo(const QString &repo, const QString &url);
     void updateRepos();
+    QVariantList listRepos(bool rnd);
 
     bool error();
     QString lastError();

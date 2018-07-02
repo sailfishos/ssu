@@ -231,3 +231,16 @@ void Ssud::updateRepos()
     repoManager.update();
     autoclose.start();
 }
+
+QVariantList Ssud::listRepos(bool rnd)
+{
+    QVariantList reposList;
+    SsuRepoManager repoManager;
+
+    for (const QString &repo : repoManager.repos(rnd)) {
+        const QString repoUrl = ssu.repoUrl(repo, rnd);
+        reposList << QVariantMap({{ "url", repoUrl }, { "name", repo }});
+    }
+    autoclose.start();
+    return reposList;
+}
