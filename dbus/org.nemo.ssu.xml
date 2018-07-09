@@ -94,9 +94,9 @@
       <arg direction="in" type="s" name="url" />
     </method>
     <method name="listRepos">
-        <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantList"/>
-        <arg direction="in" type="b" name="rnd" />
-        <arg direction="out" type="a(v)" name="repos"/>
+      <arg type="a(ssa{sv})" direction="out"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QList&lt;SsuRepo&gt;"/>
+      <arg name="rnd" type="b" direction="in"/>
     </method>
     <method name="updateRepos">
     </method>

@@ -13,7 +13,7 @@
 #include <QTimer>
 
 #include "libssu/ssu.h"
-#include "ssud_include.h"
+#include "ssud_dbus.h"
 
 class Ssud: public QObject
 {
@@ -46,7 +46,7 @@ public slots:
     void modifyRepo(int action, const QString &repo);
     void addRepo(const QString &repo, const QString &url);
     void updateRepos();
-    QVariantList listRepos(bool rnd);
+    QList<SsuRepo> listRepos(bool rnd);
 
     bool error();
     QString lastError();

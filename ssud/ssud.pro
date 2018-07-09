@@ -7,7 +7,7 @@ CONFIG += link_pkgconfig
 
 HEADERS = \
         ssud.h \
-        ssud_include.h
+        ssud_dbus.h
 SOURCES = \
         ssud.cpp \
         main.cpp
@@ -27,5 +27,5 @@ INSTALLS += systemd service conf
 
 ssu_dbus_adaptor.files = ../dbus/org.nemo.ssu.xml
 ssu_dbus_adaptor.source_flags = -c SsuAdaptor
-ssu_dbus_adaptor.header_flags = -c SsuAdaptor -i ssud/ssud_include.h
+ssu_dbus_adaptor.header_flags = -c SsuAdaptor -i ssud/ssud_dbus.h
 DBUS_ADAPTORS += ssu_dbus_adaptor

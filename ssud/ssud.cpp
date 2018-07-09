@@ -19,6 +19,8 @@ const char *Ssud::OBJECT_PATH = "/org/nemo/ssu";
 Ssud::Ssud(QObject *parent)
     : QObject(parent)
 {
+    qDBusRegisterMetaType<SsuRepo>();
+    qDBusRegisterMetaType<QList<SsuRepo>>();
     QDBusConnection connection = QDBusConnection::systemBus();
     if (!connection.registerObject(OBJECT_PATH, this)) {
         qFatal("Cannot register object at %s", OBJECT_PATH);
@@ -232,14 +234,19 @@ void Ssud::updateRepos()
     autoclose.start();
 }
 
-QVariantList Ssud::listRepos(bool rnd)
+QList<SsuRepo> Ssud::listRepos(bool rnd)
 {
-    QVariantList reposList;
+    QList<SsuRepo> reposList;
     SsuRepoManager repoManager;
 
     for (const QString &repo : repoManager.repos(rnd)) {
         const QString repoUrl = ssu.repoUrl(repo, rnd);
-        reposList << QVariantMap({{ "url", repoUrl }, { "name", repo }});
+
+        SsuRepo ssuRepo;
+        ssuRepo.name = repo;
+        ssuRepo.url = repoUrl;
+
+        reposList.append(ssuRepo);
     }
     autoclose.start();
     return reposList;

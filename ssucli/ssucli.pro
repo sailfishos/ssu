@@ -11,5 +11,5 @@ SOURCES = main.cpp \
 
 ssu_dbus_interface.files = ../dbus/org.nemo.ssu.xml
 ssu_dbus_interface.source_flags = -c SsuProxy
-ssu_dbus_interface.header_flags = -c SsuProxy -i ssud/ssud_include.h
+ssu_dbus_interface.header_flags = -c SsuProxy -i ssud/ssud_dbus.h
 DBUS_INTERFACES += ssu_dbus_interface
