@@ -31,13 +31,3 @@ static_config.files = repos.ini ssu-defaults.ini board-mappings.ini
 static_config.path  = /usr/share/ssu
 
 INSTALLS += config static_config oneshot macros
-
-system(qdbusxml2cpp \
-    -c SsuAdaptor \
-    -a ssud/ssuadaptor.h:ssud/ssuadaptor.cpp \
-    dbus/org.nemo.ssu.xml)
-
-system(qdbusxml2cpp \
-    -c SsuProxy \
-    -p ssucli/ssuproxy.h:ssucli/ssuproxy.cpp \
-    dbus/org.nemo.ssu.xml)

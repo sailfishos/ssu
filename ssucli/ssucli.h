@@ -14,7 +14,7 @@
 #include <QDebug>
 
 #include "libssu/ssu.h"
-#include "ssuproxy.h"
+#include "ssu_interface.h"
 
 class SsuCli: public QObject
 {

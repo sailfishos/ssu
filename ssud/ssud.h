@@ -13,6 +13,7 @@
 #include <QTimer>
 
 #include "libssu/ssu.h"
+#include "ssud_include.h"
 
 class Ssud: public QObject
 {

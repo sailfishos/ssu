@@ -6,7 +6,7 @@
  */
 
 #include "ssud.h"
-#include "ssuadaptor.h"
+#include "ssu_adaptor.h"
 
 #include "libssu/ssudeviceinfo.h"
 #include "libssu/ssurepomanager.h"
