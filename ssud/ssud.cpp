@@ -6,7 +6,7 @@
  */
 
 #include "ssud.h"
-#include "ssuadaptor.h"
+#include "ssu_adaptor.h"
 
 #include "libssu/ssudeviceinfo.h"
 #include "libssu/ssurepomanager.h"
@@ -19,6 +19,8 @@ const char *Ssud::OBJECT_PATH = "/org/nemo/ssu";
 Ssud::Ssud(QObject *parent)
     : QObject(parent)
 {
+    qDBusRegisterMetaType<SsuRepo>();
+    qDBusRegisterMetaType<QList<SsuRepo>>();
     QDBusConnection connection = QDBusConnection::systemBus();
     if (!connection.registerObject(OBJECT_PATH, this)) {
         qFatal("Cannot register object at %s", OBJECT_PATH);
@@ -230,4 +232,22 @@ void Ssud::updateRepos()
     autoclose.stop();
     repoManager.update();
     autoclose.start();
+}
+
+QList<SsuRepo> Ssud::listRepos(bool rnd)
+{
+    QList<SsuRepo> reposList;
+    SsuRepoManager repoManager;
+
+    for (const QString &repo : repoManager.repos(rnd)) {
+        const QString repoUrl = ssu.repoUrl(repo, rnd);
+
+        SsuRepo ssuRepo;
+        ssuRepo.name = repo;
+        ssuRepo.url = repoUrl;
+
+        reposList.append(ssuRepo);
+    }
+    autoclose.start();
+    return reposList;
 }

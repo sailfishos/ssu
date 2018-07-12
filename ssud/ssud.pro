@@ -5,9 +5,10 @@ include(ssud_dependencies.pri)
 QT += network dbus
 CONFIG += link_pkgconfig
 
-HEADERS = ssuadaptor.h \
-        ssud.h
-SOURCES = ssuadaptor.cpp \
+HEADERS = \
+        ssud.h \
+        ssud_dbus.h
+SOURCES = \
         ssud.cpp \
         main.cpp
 
@@ -23,3 +24,8 @@ conf.files = ../dbus/$${DBUS_SERVICE_NAME}.conf
 conf.path = /etc/dbus-1/system.d/
 
 INSTALLS += systemd service conf
+
+ssu_dbus_adaptor.files = ../dbus/org.nemo.ssu.xml
+ssu_dbus_adaptor.source_flags = -c SsuAdaptor
+ssu_dbus_adaptor.header_flags = -c SsuAdaptor -i ssud/ssud_dbus.h
+DBUS_ADAPTORS += ssu_dbus_adaptor

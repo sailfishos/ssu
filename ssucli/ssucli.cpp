@@ -22,6 +22,8 @@
 SsuCli::SsuCli()
     : QObject()
 {
+    qDBusRegisterMetaType<SsuRepo>();
+
     connect(this, SIGNAL(done()),
             QCoreApplication::instance(), SLOT(quit()), Qt::DirectConnection);
     connect(&ssu, SIGNAL(done()),
