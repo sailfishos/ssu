@@ -1,11 +1,11 @@
 Name: ssu
-Version: 0.40.5
+Version: 0.43.10
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
 License: GPLv2+ and LGPLv2.1+ and BSD-3-clause
 Source0: %{name}-%{version}.tar.gz
-URL: https://github.com/nemomobile/ssu
+URL: https://git.merproject.org/mer-core/ssu
 BuildRequires: pkgconfig(Qt5Core)
 BuildRequires: pkgconfig(Qt5DBus)
 BuildRequires: pkgconfig(Qt5Network)

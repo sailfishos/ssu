@@ -21,7 +21,10 @@ SOURCES += plugin.cpp \
            declarativessufeaturemodel.cpp \
            declarativessudeviceinfo.cpp
 
-qmldir.files = qmldir *.qml *.js
+qmldir.files = qmldir *.qml *.js plugins.qmltypes
 qmldir.path = $$target.path
 
 INSTALLS += target qmldir
+
+qmltypes.commands = qmlplugindump -nonrelocatable Nemo.Ssu 1.0 > $$PWD/plugins.qmltypes
+QMAKE_EXTRA_TARGETS += qmltypes
