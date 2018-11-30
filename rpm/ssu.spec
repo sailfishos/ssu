@@ -121,6 +121,7 @@ Requires: %{name} = %{version}-%{release}
 %defattr(-,root,root,-)
 %{_libdir}/libssu.so
 %{_includedir}/ssu*.h
+%{_libdir}/pkgconfig/ssu.pc
 
 
 %package tests
@@ -167,7 +168,7 @@ Group: Documentation
 
 %build
 mkdir -p build && cd build
-%qmake5 DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive ..
+%qmake5 "VERSION=%{version}" DEFINES+='TARGET_ARCH=\\\"\"%{_target_cpu}\"\\\"' -recursive ..
 make %{?_smp_mflags}
 if [ -f ../.nodocs ]; then
     echo "Skip building documentation"

@@ -38,3 +38,18 @@ install_headers.files = $${public_headers}
 ssuconfhack {
     DEFINES += SSUCONFHACK
 }
+
+CONFIG += create_pc create_prl no_install_prl
+
+pkgconfig.files = $$PWD/pkgconfig/ssu.pc
+pkgconfig.path = /usr/lib/pkgconfig
+
+QMAKE_PKGCONFIG_NAME = $$TARGET
+QMAKE_PKGCONFIG_DESCRIPTION = ssu development files
+QMAKE_PKGCONFIG_VERSION = $$VERSION
+QMAKE_PKGCONFIG_LIBDIR = $$target.path
+QMAKE_PKGCONFIG_INCDIR = $$install_headers.path
+QMAKE_PKGCONFIG_DESTDIR = pkgconfig
+QMAKE_PKGCONFIG_REQUIRES = Qt5Network Qt5Xml Qt5DBus libsystemd-journal libshadowutils libzypp
+
+INSTALLS += pkgconfig
