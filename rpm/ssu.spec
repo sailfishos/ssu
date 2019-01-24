@@ -118,7 +118,7 @@ Requires: %{name} = %{version}-%{release}
 
 %files devel
 %defattr(-,root,root,-)
-%{_libdir}/*.so
+%{_libdir}/libssu.so
 %{_includedir}/ssu*.h
 
 
