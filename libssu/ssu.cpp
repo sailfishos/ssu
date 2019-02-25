@@ -155,6 +155,11 @@ QString Ssu::domain()
     return settings->domain(true);
 }
 
+QString Ssu::brand() {
+  SsuCoreConfig *settings = SsuCoreConfig::instance();
+  return settings->brand();
+}
+
 bool Ssu::isRegistered()
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();

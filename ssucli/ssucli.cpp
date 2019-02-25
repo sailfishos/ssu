@@ -68,6 +68,19 @@ void SsuCli::handleDBusResponse()
     }
 }
 
+void SsuCli::optBrand(QStringList opt)
+{
+    QTextStream qout(stdout);
+
+    if (opt.count() == 3 && opt.at(2) == "-s") {
+        qout << ssu.brand();
+        state = Idle;
+    } else if (opt.count() == 2) {
+        qout << "Device brand is: " << ssu.brand() << endl;
+        state = Idle;
+    }
+}
+
 void SsuCli::optDomain(QStringList opt)
 {
     QTextStream qout(stdout);
@@ -563,6 +576,7 @@ void SsuCli::optStatus(QStringList opt)
     else
         qout << "Release: " << ssu.release() << endl;
     qout << "Domain: " <<  ssu.domain() << endl;
+    qout << "Brand: " << (ssu.brand().isEmpty() ? "N/A" : ssu.brand()) << endl;
 }
 
 void SsuCli::optUpdateCredentials(QStringList opt)
@@ -639,6 +653,7 @@ void SsuCli::run()
         // those need to set state to Idle on success
         "register", "r", 0, -1, &SsuCli::optRegister,
         "repos", "lr", 0, -1, &SsuCli::optRepos,
+        "brand", "b", 0, -1, &SsuCli::optBrand,
         "flavour", "fl", 0, -1, &SsuCli::optFlavour,
         "mode", "m", 0, -1, &SsuCli::optMode,
         "model", "mo", 0, -1, &SsuCli::optModel,
@@ -729,6 +744,7 @@ void SsuCli::usage(const QString &message)
          << "\tupdate, up    \tupdate repository credentials" << endl
          << "\t      [-f]    \tforce update" << endl
          << "\tmodel, mo     \tprint name of device model (like N9)" << endl
+         << "\tbrand, b      \tprint brand of device model" << endl
          << endl;
     if (!message.isEmpty())
         qout << message << endl;

@@ -56,6 +56,11 @@ Ssud::~Ssud()
 {
 }
 
+QString Ssud::brand() {
+    autoclose.start();
+    return ssu.brand();
+}
+
 QString Ssud::deviceModel()
 {
     SsuDeviceInfo deviceInfo;

@@ -421,6 +421,8 @@ QString SsuRepoManager::url(const QString &repoName, bool rndRepo,
         domain = settings->domain();
     }
 
+    repoParameters.insert("brand", settings->brand());
+
     // variableSection does autodetection for the domain default section
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
     SsuVariables var;

@@ -350,6 +350,7 @@ Module {
         Method { name: "lastError"; type: "string" }
         Method { name: "unregister" }
         Method { name: "flavour"; type: "string" }
+        Method { name: "brand"; type: "string" }
         Method { name: "deviceMode"; type: "DeviceModeFlags" }
         Method { name: "domain"; type: "string" }
         Method { name: "isRegistered"; type: "bool" }
