@@ -71,6 +71,13 @@ QString SsuCoreConfig::domain(bool pretty){
     return "";
 }
 
+QString SsuCoreConfig::brand(){
+  if (contains("brand"))
+    return value("brand").toString();
+  else
+    return "";
+}
+
 bool SsuCoreConfig::isRegistered(){
   if (!contains("privateKey"))
     return false;

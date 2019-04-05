@@ -514,6 +514,19 @@ void SsuCli::optSet(QStringList opt){
   state = Idle;
 }
 
+void SsuCli::optBrand(QStringList opt){
+  QTextStream qout(stdout);
+  SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+
+  if (opt.count() == 3 && opt.at(2) == "-s"){
+    qout << ssuSettings->brand();
+    state = Idle;
+  } else if (opt.count() == 2){
+    qout << "Brand is: " << ssuSettings->brand() << endl;
+    state = Idle;
+  }
+}
+
 void SsuCli::optStatus(QStringList opt){
   QTextStream qout(stdout);
   QTextStream qerr(stderr);
@@ -625,6 +638,7 @@ void SsuCli::run(){
       "update", "up", 0, -1, &SsuCli::optUpdateCredentials,
       "domain", "do", 0, -1, &SsuCli::optDomain,
       "set", "set", 0, -1, &SsuCli::optSet,
+      "brand", "", 0, -1, &SsuCli::optBrand,
   };
 
   bool found = false;
@@ -701,6 +715,7 @@ void SsuCli::usage(QString message){
        << "\t  [-r]               \toperate on repository only variables" << endl
        << "\t  <variable>         \tdisplay value of <variable>" << endl
        << "\t  <variable> <value> \tset value of <variable> to <value>" << endl
+       << "\tbrand                \tdisplay the brand" << endl
        << endl
        << "Device management:" << endl
        << "\tstatus, s     \tprint registration status and device information" << endl

@@ -66,7 +66,7 @@ class SsuDeviceInfo: public QObject {
     /**
      * Return a string suitable for display in dialogs, ...
      *
-     * See Ssu::DeviceTypes for supported types.
+     * See Ssu::DisplayType for supported types.
      *
      * If not configured the model name used by ssu will be returned instead
      * for product and type.

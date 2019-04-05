@@ -65,6 +65,11 @@ class SsuCoreConfig: public SsuSettings {
      */
     Q_INVOKABLE QString domain(bool pretty=false);
     /**
+     * Get the current brand stored in the SSU_CONFIGURATION
+     * @return domain, or "" if not set
+     */
+    Q_INVOKABLE QString brand();
+    /**
      * Return devices RND registration status
      * @retval true device is registered
      * @retval false device is not registered
