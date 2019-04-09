@@ -323,7 +323,7 @@ QString SsuDeviceInfo::deviceUid()
 
     foreach (const QString &filename, fallbackFiles) {
         QFile machineId(filename);
-        if (machineId.open(QFile::ReadOnly | QFile::Text)) {
+        if (machineId.open(QFile::ReadOnly | QFile::Text) && machineId.size() > 0) {
             QTextStream in(&machineId);
             return normalizeUid(in.readAll());
         }
