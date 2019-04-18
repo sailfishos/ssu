@@ -44,13 +44,13 @@
       <arg direction="out" type="s" name="model"/>
     </method>
     <method name="deviceFamily">
-      <arg direction="out" type="s" name="model"/>
+      <arg direction="out" type="s" name="family"/>
     </method>
     <method name="deviceUid">
-      <arg direction="out" type="s" name="model"/>
+      <arg direction="out" type="s" name="uid"/>
     </method>
     <method name="deviceVariant">
-      <arg direction="out" type="s" name="model"/>
+      <arg direction="out" type="s" name="variant"/>
     </method>
     <!-- return a model-specific string suitable for displaying -->
     <!-- see documentation of Ssu::DisplayType for supported types -->
@@ -72,6 +72,9 @@
     </method>
     <method name="flavour">
       <arg direction="out" type="s" name="flavour"/>
+    </method>
+    <method name="brand">
+        <arg direction="out" type="s" name="brand"/>
     </method>
     <method name="setFlavour">
       <arg direction="in" type="s" name="flavour"/>

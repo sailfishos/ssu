@@ -18,7 +18,6 @@
 
 /* TODO:
  * - commands from the command section should be verified
- * - allow overriding brand key
  */
 
 
@@ -276,7 +275,7 @@ bool SsuKickstarter::write(const QString &kickstart)
     if (!rndMode && repoOverride.contains("flavourName"))
         repoOverride.remove("flavourName");
 
-    //TODO: check for mandatory keys, brand, ..
+    //TODO: check for mandatory keys, ..
     if (!repoOverride.contains("deviceModel"))
         repoOverride.insert("deviceModel", deviceInfo.deviceModel());
 
@@ -298,7 +297,7 @@ bool SsuKickstarter::write(const QString &kickstart)
     }
 
     if (!repoOverride.contains("brand")) {
-        qerr << "No brand set. Check your configuration." << endl;
+        qerr << "Brand is missing in your configuration." << endl;
         return false;
     }
 
@@ -381,6 +380,7 @@ bool SsuKickstarter::write(const QString &kickstart)
     kout << kickstartType << endl;
     kout << "# DeviceModel: " << deviceInfo.deviceModel() << endl;
     kout << "# DeviceVariant: " << deviceInfo.deviceVariant(true) << endl;
+    kout << "# Brand: " << repoOverride.value("brand") << endl;
     if (!suggestedFeatures.isEmpty())
         kout << suggestedFeatures << endl;
     kout << "# SuggestedImageType: " << imageType << endl;

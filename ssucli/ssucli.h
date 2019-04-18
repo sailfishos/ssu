@@ -34,6 +34,7 @@ private:
     int state;
     void usage(const QString &message = QString());
     void uidWarning();
+    void optBrand(QStringList opt);
     void optDomain(QStringList opt);
     void optFlavour(QStringList opt);
     void optMode(QStringList opt);

@@ -141,6 +141,8 @@ public:
     Q_INVOKABLE DeviceModeFlags deviceMode();
     /// See SsuCoreConfig::domain; returns printable version
     Q_INVOKABLE QString domain();
+    /// See SsuCoreConfig::brand
+    Q_INVOKABLE QString brand();
     /// See SsuCoreConfig::isRegistered
     Q_INVOKABLE bool isRegistered();
     /// See SsuCoreConfig::lastCredentialsUpdate
