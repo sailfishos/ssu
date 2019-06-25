@@ -52,6 +52,8 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
 {
     SsuLog *ssuLog = SsuLog::instance();
     QStringList adaptationRepoList = adaptationRepos();
+    QString model = deviceVariant(true);
+
     // special handling for adaptation-repositories
     // - check if repo is in right format (adaptation\d*)
     // - check if the configuration has that many adaptation repos
@@ -74,7 +76,6 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
             storageHash->insert("adaptation", adaptationRepo);
             ssuLog->print(LOG_DEBUG, "Found first adaptation " + adaptationName);
 
-            QString model = deviceVariant(true);
             QHash<QString, QString> h;
 
             // add global variables for this model
@@ -96,6 +97,23 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
             ssuLog->print(LOG_INFO, "Note: adaptation repo for invalid repo requested " + adaptationName);
 
         return "adaptation";
+    }
+
+    // If adaptation has defined repository-specific-variables and it matches to the
+    // repository name then also get those variables.
+    else if (boardMappings->contains(model + "/repository-specific-variables")) {
+        QStringList sections = boardMappings->value(model + "/repository-specific-variables").toStringList();
+        if (sections.contains(model + "-" + adaptationName)) {
+            QHash<QString, QString> h;
+
+            variableSection(model + "-" + adaptationName, &h);
+
+            QHash<QString, QString>::const_iterator i = h.constBegin();
+            while (i != h.constEnd()) {
+                storageHash->insert(i.key(), i.value());
+                i++;
+            }
+        }
     }
     return adaptationName;
 }

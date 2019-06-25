@@ -26,6 +26,17 @@ void DeviceInfoTest::testAdaptationVariables()
     QCOMPARE(repoName, QString("adaptation"));
 }
 
+void DeviceInfoTest::testFeatureVariables()
+{
+    SsuDeviceInfo deviceInfo("N950");
+    QHash<QString, QString> featureVariables;
+    QString repoName = deviceInfo.adaptationVariables("feature1", &featureVariables);
+    QHash<QString, QString> featureVariablesExpected;
+    featureVariablesExpected["feature"] = "test";
+    QCOMPARE(featureVariables, featureVariablesExpected);
+    QCOMPARE(repoName, QString("feature1"));
+}
+
 void DeviceInfoTest::testDeviceUid()
 {
     QVERIFY2(!SsuDeviceInfo().deviceUid().isEmpty(), "No method to get device UID on this platform");

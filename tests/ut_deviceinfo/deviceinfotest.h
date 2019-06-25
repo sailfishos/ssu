@@ -16,6 +16,7 @@ class DeviceInfoTest: public QObject
 
 private slots:
     void testAdaptationVariables();
+    void testFeatureVariables();
     void testDeviceUid();
     void testVariableSection();
     void testValue();
