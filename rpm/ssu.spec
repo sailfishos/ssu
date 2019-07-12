@@ -37,7 +37,7 @@ Requires: ssu-network-proxy
 # them for the vendor data packages to use
 %attr(0755, -, -) %{_oneshotdir}/*
 %{_bindir}/ssud
-/lib/systemd/system/*.service
+/usr/lib/systemd/system/*.service
 %{_datadir}/dbus-1/system-services/*.service
 %dir %{_datarootdir}/%{name}
 %dir %{_datarootdir}/%{name}/board-mappings.d
@@ -183,6 +183,12 @@ mkdir -p %{buildroot}/%{_datarootdir}/%{name}/features.d
 mkdir -p %{buildroot}/%{_docdir}/%{name}
 mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 cd .. && cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
+# Move under /usr
+if [ -e %{buildroot}/lib ]; then
+  mkdir -p %{buildroot}%{_libdir}/systemd/system/
+  mv %{buildroot}/lib/systemd/system/* %{buildroot}%{_libdir}/systemd/system/
+  rm -rf %{buildroot}/lib
+fi
 
 
 %pre
