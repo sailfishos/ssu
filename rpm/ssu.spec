@@ -181,6 +181,9 @@ mkdir -p %{buildroot}/%{_docdir}/%{name}
 mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 cd .. && cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
 
+if [ %{_unitdir} == "/usr/lib/systemd/system" ]; then
+	mv %{buildroot}/lib/systemd/system %{buildroot}%{_unitdir}
+fi
 
 %pre
 groupadd -rf ssu
