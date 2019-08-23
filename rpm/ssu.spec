@@ -3,9 +3,9 @@ Version: 0.43.10
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
-License: GPLv2+ and LGPLv2.1+ and BSD-3-clause
+License: GPLv2+ and LGPLv2+ and BSD-3-clause
 Source0: %{name}-%{version}.tar.gz
-URL: https://git.merproject.org/mer-core/ssu
+URL: https://git.sailfishos.org/mer-core/ssu
 BuildRequires: pkgconfig(Qt5Core)
 BuildRequires: pkgconfig(Qt5DBus)
 BuildRequires: pkgconfig(Qt5Network)
@@ -17,6 +17,7 @@ BuildRequires: pkgconfig(libshadowutils)
 BuildRequires: pkgconfig(connman-qt5)
 BuildRequires: oneshot
 BuildRequires: doxygen
+BuildRequires: systemd
 Requires(pre): shadow-utils
 Requires(pre): /usr/bin/groupadd-user
 Requires(postun): shadow-utils
@@ -32,23 +33,23 @@ Requires: ssu-network-proxy
 %{_bindir}/ssu
 %{_libdir}/libssu.so.*
 %{_libdir}/ssu/libsandboxhook.so
+%dir %{_libdir}/ssu
 %dir %{_sysconfdir}/zypp/credentials.d
 # ssu itself does not use the package-update triggers, but provides
 # them for the vendor data packages to use
 %attr(0755, -, -) %{_oneshotdir}/*
 %{_bindir}/ssud
-/lib/systemd/system/*.service
+%{_unitdir}/*.service
 %{_datadir}/dbus-1/system-services/*.service
 %dir %{_datarootdir}/%{name}
 %dir %{_datarootdir}/%{name}/board-mappings.d
 %dir %{_datarootdir}/%{name}/features.d
 %dir %{_sysconfdir}/%{name}/
 %{_sysconfdir}/dbus-1/system.d/*.conf
-%doc COPYING.GPL COPYING.LGPL COPYING.BSD
+%license COPYING.GPL COPYING.LGPL COPYING.BSD
 
 %package network-proxy-plugin
 Summary: Network Proxy support for ssu
-Group: System/Base
 Provides: ssu-network-proxy
 
 %description network-proxy-plugin
@@ -60,7 +61,6 @@ Provides: ssu-network-proxy
 
 %package vendor-data-example
 Summary: Sample vendor configuration data
-Group: System/Base
 Provides: ssu-vendor-data
 
 %description vendor-data-example
@@ -74,7 +74,6 @@ Provides: ssu-vendor-data
 
 %package ks
 Summary: Kickstart generator using %{name} data
-Group: System/Base
 # required for QA to pick up new macros
 Provides: rpm-macros
 
@@ -88,7 +87,6 @@ Provides: rpm-macros
 
 %package slipstream
 Summary: %{name} OS factory snapshot download provider
-Group: System/Base
 
 %description slipstream
 Helper utility to authenticate downloads of factory snapshot manifests.
@@ -99,14 +97,13 @@ Helper utility to authenticate downloads of factory snapshot manifests.
 
 %package declarative
 Summary: QML plugin for libssu
-Group: System/Base
 BuildRequires: pkgconfig(Qt5Qml)
 
 %description declarative
 %{summary}
 
 %files declarative
-%{_libdir}/qt5/qml/Nemo/Ssu/*
+%{_libdir}/qt5/qml/Nemo/Ssu
 
 %package devel
 Summary: Development files for %{name}
