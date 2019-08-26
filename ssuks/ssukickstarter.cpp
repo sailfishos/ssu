@@ -244,9 +244,12 @@ bool SsuKickstarter::write(const QString &kickstart)
             rndMode = false;
     }
 
+    if (repoOverride.contains("domain")) {
+        ssu.setDomain(repoOverride.value("domain"));
+    }
+
     QHash<QString, QString> defaults;
-    // get generic repo variables; domain and adaptation specific bits are not interesting
-    // in the kickstart
+    // get generic repo variables; adaptation specific bits are not interesting in the kickstart
     SsuRepoManager repoManager;
     repoManager.repoVariables(&defaults, rndMode);
 
