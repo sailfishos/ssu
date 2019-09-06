@@ -31,7 +31,7 @@ SOURCES = \
 
 CONFIG += link_pkgconfig
 QT += network xml dbus
-PKGCONFIG += libsystemd-journal libshadowutils
+PKGCONFIG += libsystemd-journal libshadowutils libzypp
 
 install_headers.files = $${public_headers}
 

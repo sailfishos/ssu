@@ -9,6 +9,9 @@
 #include <QRegExp>
 #include <QDirIterator>
 
+#include <zypp/RepoManager.h>
+#include <zypp/RepoInfo.h>
+
 #include "sandbox_p.h"
 #include "ssudeviceinfo.h"
 #include "ssurepomanager.h"
@@ -259,35 +262,37 @@ void SsuRepoManager::update()
     // get list of device-specific repositories...
     QStringList repositoryList = repos(rndMode);
 
+    zypp::RepoManager zyppManager;
+    std::list<zypp::RepoInfo> zyppRepos = zyppManager.knownRepositories();
+
     // strict mode enabled -> delete all repositories not prefixed by ssu
     // assume configuration error if there are no device repos, and don't delete
     // anything, even in strict mode
     if ((deviceMode & Ssu::LenientMode) != Ssu::LenientMode && !repositoryList.isEmpty()) {
-        QDirIterator it(Sandbox::map(ZYPP_REPO_PATH), QDir::AllEntries | QDir::NoDot | QDir::NoDotDot);
-        while (it.hasNext()) {
-            it.next();
-            if (it.fileName().left(4) != "ssu_") {
-                ssuLog->print(LOG_INFO, "Strict mode enabled, removing unmanaged repository " + it.fileName());
-                QFile(it.filePath()).remove();
+        foreach (zypp::RepoInfo zyppRepo, zyppRepos) {
+            if (zyppRepo.filepath().basename().substr(0, 4) != "ssu_") {
+                ssuLog->print(LOG_INFO, "Strict mode enabled, removing unmanaged repository " + QString::fromStdString(zyppRepo.name()));
+                zyppManager.removeRepository(zyppRepo);
             }
         }
     }
 
     // ... delete all ssu-managed repositories not valid for this device ...
-    QStringList ssuFilters;
-    ssuFilters.append("ssu_*");
-    QDirIterator it(Sandbox::map(ZYPP_REPO_PATH), ssuFilters);
-    while (it.hasNext()) {
-        it.next();
-
-        QStringList parts = it.fileName().split("_");
-        // repo file structure is ssu_<reponame>_<rnd|release>.repo -> splits to 3 parts
-        if (parts.count() == 3) {
-            if (!repositoryList.contains(parts.at(1)) ||
-                    parts.at(2) != (rndMode ? "rnd.repo" : "release.repo" ))
-                QFile(it.filePath()).remove();
-        } else {
-            QFile(it.filePath()).remove();
+    zyppRepos = zyppManager.knownRepositories();
+    foreach (zypp::RepoInfo zyppRepo, zyppRepos) {
+        if (zyppRepo.filepath().basename().substr(0, 4) == "ssu_") {
+            QStringList parts = QString::fromStdString(zyppRepo.filepath().basename()).split("_");
+            // repo file structure is ssu_<reponame>_<rnd|release>.repo -> splits to 3 parts
+            if (parts.count() == 3) {
+                if (!repositoryList.contains(parts.at(1)) ||
+                        parts.at(2) != (rndMode ? "rnd.repo" : "release.repo" )) {
+                    // This will also remove metadata and cached packages from this repo
+                    zyppManager.removeRepository(zyppRepo);
+                }
+            } else {
+                // This will also remove metadata and cached packages from this repo
+                zyppManager.removeRepository(zyppRepo);
+            }
         }
     }
 
@@ -302,6 +307,8 @@ void SsuRepoManager::update()
             repoName = repo.left(repo.size() - 10);
         }
 
+        // Not using libzypp to create repo files because it does not support
+        // file name being different than the repo name/alias (ssu_ prefix)
         QString repoFilePath = QString("%1/ssu_%2_%3.repo")
                                .arg(Sandbox::map(ZYPP_REPO_PATH))
                                .arg(repo)
