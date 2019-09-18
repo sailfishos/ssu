@@ -1,5 +1,5 @@
 Name: ssu
-Version: 0.43.10
+Version: 0.44.6
 Release: 1
 Summary: SSU enabler for RND
 Group: System/Base
@@ -42,6 +42,7 @@ Requires: ssu-network-proxy
 %dir %{_datarootdir}/%{name}
 %dir %{_datarootdir}/%{name}/board-mappings.d
 %dir %{_datarootdir}/%{name}/features.d
+%dir %{_datarootdir}/%{name}/repos.d
 %dir %{_sysconfdir}/%{name}/
 %{_sysconfdir}/dbus-1/system.d/*.conf
 %doc COPYING.GPL COPYING.LGPL COPYING.BSD
@@ -180,6 +181,7 @@ cd build && make INSTALL_ROOT=%{buildroot} install
 mkdir -p %{buildroot}/%{_sysconfdir}/zypp/credentials.d
 mkdir -p %{buildroot}/%{_datarootdir}/%{name}/board-mappings.d
 mkdir -p %{buildroot}/%{_datarootdir}/%{name}/features.d
+mkdir -p %{buildroot}/%{_datarootdir}/%{name}/repos.d
 mkdir -p %{buildroot}/%{_docdir}/%{name}
 mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
 cd .. && cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
@@ -208,4 +210,7 @@ if [ -f /usr/share/ssu/board-mappings.ini ]; then
 fi
 if [ -f /usr/share/ssu/features.ini ]; then
     rm -f /usr/share/ssu/features.ini
+fi
+if [ -f /usr/share/ssu/repos.ini ]; then
+    rm -f /usr/share/ssu/repos.ini
 fi

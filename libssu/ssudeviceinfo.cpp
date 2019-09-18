@@ -426,7 +426,7 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter)
             result.append(QString("adaptation%1").arg(i));
 
         // now read the release/rnd repos
-        SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+        SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
         QString repoKey = (rnd ? "default-repos/rnd" : "default-repos/release");
         if (repoSettings.contains(repoKey))
             result.append(repoSettings.value(repoKey).toStringList());
