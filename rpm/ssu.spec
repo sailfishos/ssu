@@ -68,7 +68,7 @@ Provides: ssu-vendor-data
 
 %files vendor-data-example
 %defattr(-,root,root,-)
-%attr(0664, root, ssu) %config(noreplace) %{_sysconfdir}/ssu/ssu.ini
+%attr(0664, root, ssu) %config %{_sysconfdir}/ssu/ssu.ini
 %{_datadir}/ssu/*.ini
 
 
