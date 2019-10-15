@@ -10,8 +10,10 @@
 
 /// The group ID ssu expects to run as. This is usually the GID of the main phone user
 #define SSU_GROUP_ID 1000
-/// Path to the main ssu configuration file
-#define SSU_REPO_CONFIGURATION "/usr/share/ssu/repos.ini"
+/// Path to the ssu domain configuration file
+#define SSU_REPO_CONFIGURATION "/var/cache/ssu/repos.ini"
+/// Path to config.d for ssu domain configurations
+#define SSU_REPO_CONFIGURATION_DIR "/usr/share/ssu/repos.d"
 /// Path to board / device family mappings file
 #define SSU_BOARD_MAPPING_CONFIGURATION "/var/cache/ssu/board-mappings.ini"
 /// Path to config.d for board mappings

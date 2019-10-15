@@ -61,7 +61,7 @@ int SsuRepoManager::add(const QString &repo, const QString &repoUrl)
 QString SsuRepoManager::caCertificatePath(const QString &domain)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
-    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
 
     QString ca = SsuVariables::variable(&repoSettings,
                                         (domain.isEmpty() ? settings->domain() : domain) + "-domain",
@@ -352,7 +352,7 @@ QStringList SsuRepoManager::repoVariables(QHash<QString, QString> *storageHash, 
     SsuVariables var;
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     QStringList configSections;
-    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
 
     // fill in all arbitrary repo specific variables from ssu.ini
     var.variableSection(settings, "repository-url-variables", storageHash);
@@ -431,7 +431,7 @@ QString SsuRepoManager::url(const QString &repoName, bool rndRepo,
     repoParameters.insert("brand", settings->brand());
 
     // variableSection does autodetection for the domain default section
-    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
     SsuVariables var;
     var.variableSection(&repoSettings, domain + "-domain", &repoParameters);
 

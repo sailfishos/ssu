@@ -85,7 +85,7 @@ QPair<QString, QString> Ssu::credentials(const QString &scope)
 QString Ssu::credentialsScope(const QString &repoName, bool rndRepo)
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
-    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, QSettings::IniFormat);
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
 
     // hardcoded magic for doing special privileges store repositories
     if (repoName == "store" || repoName.startsWith("store-c-"))
