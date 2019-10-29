@@ -204,4 +204,4 @@ fi
 %post
 /sbin/ldconfig
 # make sure an old ssud isn't still running
-killall ssud
+killall ssud || :
