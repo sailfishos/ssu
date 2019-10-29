@@ -84,14 +84,42 @@ void SsuCli::optBrand(QStringList opt)
 void SsuCli::optDomain(QStringList opt)
 {
     QTextStream qout(stdout);
+    QTextStream qerr(stderr);
 
     if (opt.count() == 3 && opt.at(2) == "-s") {
         qout << ssu.domain();
         state = Idle;
+    } else if (opt.count() > 2 && opt.at(2) == "-c") {
+        if (opt.count() == 3) { // dump all domain config
+            QVariantMap config = ssu.getDomainConfig(ssu.domain());
+            for (QVariantMap::iterator i = config.begin(); i != config.end(); i++) {
+                qout << i.key() << ": " << i.value().toString() << endl;
+            }
+            state = Idle;
+        } else if (opt.count() == 4) { // dump one domain config value
+            QVariantMap config = ssu.getDomainConfig(ssu.domain());
+            qout << config.value(opt.at(3)).toString() << endl;
+            state = Idle;
+        } else if (opt.count() == 5) { // set one domain config value
+                QVariantMap config = ssu.getDomainConfig(ssu.domain());
+                config.insert(opt.at(3), opt.at(4));
+                QDBusPendingReply<> reply = ssuProxy->setDomainConfig(ssu.domain(), config);
+                reply.waitForFinished();
+                if (reply.isError()) {
+                    qerr << fallingBackToDirectUse(reply.error()) << endl;
+                    ssu.setDomainConfig(ssu.domain(), config);
+                }
+        }
     } else if (opt.count() == 3) {
-        qout << "Changing domain from " << ssu.domain()
-             << " to " << opt.at(2) << endl;
-        ssu.setDomain(opt.at(2));
+        if (ssu.listDomains().contains(opt.at(2))) {
+            qout << "Changing domain from " << ssu.domain()
+                             << " to " << opt.at(2) << endl;
+            ssu.setDomain(opt.at(2));
+        }
+        else {
+            qout << "Domain " << opt.at(2) << " does not exist" << endl;
+            state = Idle;
+        }
 
         state = Idle;
     } else if (opt.count() == 2) {
