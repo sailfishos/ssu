@@ -262,6 +262,35 @@ bool Ssu::registerDevice(QDomDocument *response)
     return true;
 }
 
+QStringList Ssu::listDomains() {
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
+    QRegExp domainFilter("-domain$");
+    return repoSettings.childGroups().filter(domainFilter).replaceInStrings(domainFilter, "");
+}
+
+void Ssu::setDomainConfig(const QString &domain, QVariantMap config) {
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
+    repoSettings.beginGroup(domain + "-domain");
+    repoSettings.remove("");
+
+    for (QVariantMap::iterator i = config.begin(); i != config.end(); i++) {
+        repoSettings.setValue(i.key(), i.value());
+    }
+    repoSettings.endGroup();
+    repoSettings.sync();
+}
+
+QVariantMap Ssu::getDomainConfig(const QString &domain) {
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
+    QVariantMap config;
+    repoSettings.beginGroup(domain + "-domain");
+    foreach(QString key, repoSettings.allKeys()) {
+        config.insert(key, repoSettings.value(key).toString());
+    }
+    repoSettings.endGroup();
+    return config;
+}
+
 // RND repos have flavour (devel, testing, release), and release (latest, next)
 // Release repos only have release (latest, next, version number)
 QString Ssu::repoUrl(const QString &repoName, bool rndRepo,

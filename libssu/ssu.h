@@ -160,6 +160,9 @@ public:
     /// See SsuCoreConfig::useSslVerify
     Q_INVOKABLE bool useSslVerify();
 
+    Q_INVOKABLE QStringList listDomains();
+    Q_INVOKABLE void setDomainConfig(const QString &domain, QVariantMap config);
+    Q_INVOKABLE QVariantMap getDomainConfig(const QString &domain);
 private:
     QString errorString;
     bool errorFlag;

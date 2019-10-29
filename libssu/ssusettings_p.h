@@ -32,7 +32,7 @@ public:
 
 private:
     QString defaultSettingsFile, settingsd;
-    void merge(bool keepOld = false);
+    void merge(bool keepOld = true);
     static void merge(QSettings *masterSettings, const QStringList &settingsFiles);
     void upgrade();
 

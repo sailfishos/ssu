@@ -256,3 +256,21 @@ QList<SsuRepo> Ssud::listRepos(bool rnd)
     autoclose.start();
     return reposList;
 }
+
+QStringList Ssud::listDomains()
+{
+    autoclose.start();
+    return ssu.listDomains();
+}
+
+void Ssud::setDomainConfig(const QString &domain, QVariantMap config)
+{
+    ssu.setDomainConfig(domain, config);
+    autoclose.start();
+}
+
+QVariantMap Ssud::getDomainConfig(const QString &domain)
+{
+    autoclose.start();
+    return ssu.getDomainConfig(domain);
+}

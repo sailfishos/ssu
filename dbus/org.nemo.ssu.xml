@@ -4,8 +4,9 @@
 <!--
 /**
  * DBus service for interfacing with ssu management
- * Copyright (C) 2013 Jolla Ltd.
- * Contact: Bernd Wachter <bernd.wachter@jollamobile.com>
+ * Copyright (C) 2013-2019 Jolla Ltd.
+ * Copyright (C) 2019 Open Mobile Platform LLC
+ * Contact: Andrew Branson <andrew.branson@jolla.com>
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -102,6 +103,20 @@
       <arg name="rnd" type="b" direction="in"/>
     </method>
     <method name="updateRepos">
+    </method>
+    <method name="listDomains">
+      <arg direction="out" type="a(s)"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QStringList"/>
+    </method>
+    <method name="setDomainConfig">
+      <arg direction="in" type="s" name="domain"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QVariantMap"/>
+      <arg direction="in" type="a{ss}" name="config"/>
+    </method>
+    <method name="getDomainConfig">
+      <arg direction="in" type="s" name="domain"/>
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+      <arg direction="out" type="a{ss}"/>
     </method>
 
     <method name="error">

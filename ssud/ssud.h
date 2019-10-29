@@ -48,6 +48,9 @@ public slots:
     void addRepo(const QString &repo, const QString &url);
     void updateRepos();
     QList<SsuRepo> listRepos(bool rnd);
+    QStringList listDomains();
+    void setDomainConfig(const QString &domain, QVariantMap config);
+    QVariantMap getDomainConfig(const QString &domain);
 
     bool error();
     QString lastError();
