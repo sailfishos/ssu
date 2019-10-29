@@ -98,14 +98,20 @@ int SsuRepoManager::enable(const QString &repo)
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
     QStringList disabledRepos;
 
-    if (ssuSettings->contains("disabled-repos"))
+    if (ssuSettings->contains("disabled-repos")) {
         disabledRepos = ssuSettings->value("disabled-repos").toStringList();
 
-    disabledRepos.removeAll(repo);
-    disabledRepos.removeDuplicates();
+        disabledRepos.removeAll(repo);
+        disabledRepos.removeDuplicates();
 
-    ssuSettings->setValue("disabled-repos", disabledRepos);
-    ssuSettings->sync();
+        if (disabledRepos.size() > 0)
+            ssuSettings->setValue("disabled-repos", disabledRepos);
+        else
+            ssuSettings->remove("disabled-repos");
+
+        ssuSettings->sync();
+    }
+
 
     return 0;
 }
@@ -125,15 +131,21 @@ int SsuRepoManager::remove(const QString &repo)
     if (ssuSettings->contains("repository-urls/" + repo))
         ssuSettings->remove("repository-urls/" + repo);
 
-    if (ssuSettings->contains("enabled-repos")) {
-        QStringList enabledRepos = ssuSettings->value("enabled-repos").toStringList();
-        if (enabledRepos.contains(repo)) {
-            enabledRepos.removeAll(repo);
-            enabledRepos.removeDuplicates();
-            ssuSettings->setValue("enabled-repos", enabledRepos);
+    QStringList sections;
+    sections << "enabled-repos" << "disabled-repos";
+    foreach(QString section, sections) {
+        if (ssuSettings->contains(section)) {
+            QStringList repos = ssuSettings->value(section).toStringList();
+            if (repos.contains(repo)) {
+                repos.removeAll(repo);
+                repos.removeDuplicates();
+                if (repos.size() > 0)
+                    ssuSettings->setValue(section, repos);
+                else
+                    ssuSettings->remove(section);
+            }
         }
     }
-
     ssuSettings->sync();
 
     return 0;
