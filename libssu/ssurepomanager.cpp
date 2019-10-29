@@ -133,17 +133,15 @@ int SsuRepoManager::remove(const QString &repo)
 
     QStringList sections;
     sections << "enabled-repos" << "disabled-repos";
-    foreach(QString section, sections) {
+    for (const QString &section: sections) {
         if (ssuSettings->contains(section)) {
             QStringList repos = ssuSettings->value(section).toStringList();
-            if (repos.contains(repo)) {
-                repos.removeAll(repo);
-                repos.removeDuplicates();
-                if (repos.size() > 0)
-                    ssuSettings->setValue(section, repos);
-                else
-                    ssuSettings->remove(section);
-            }
+            repos.removeAll(repo);
+            repos.removeDuplicates();
+            if (repos.size() > 0)
+                ssuSettings->setValue(section, repos);
+            else
+                ssuSettings->remove(section);
         }
     }
     ssuSettings->sync();
