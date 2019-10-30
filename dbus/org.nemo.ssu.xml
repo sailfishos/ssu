@@ -4,9 +4,8 @@
 <!--
 /**
  * DBus service for interfacing with ssu management
- * Copyright (C) 2013-2019 Jolla Ltd.
- * Copyright (C) 2019 Open Mobile Platform LLC
- * Contact: Andrew Branson <andrew.branson@jolla.com>
+ * Copyright (C) 2013 - 2019 Jolla Ltd.
+ * Copyright (C) 2019 Open Mobile Platform LLC.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
