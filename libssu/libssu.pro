@@ -1,12 +1,18 @@
 TARGET = ssu
 include(../ssulibrary.pri)
 
+ssu_dbus_interface.files = ../dbus/org.nemo.ssu.xml
+ssu_dbus_interface.source_flags = -c SsuProxy
+ssu_dbus_interface.header_flags = -c SsuProxy -i ssud/ssud_dbus.h
+DBUS_INTERFACES += ssu_dbus_interface
+
 # TODO: which headers are public? i.e. to be installed
 public_headers = \
         ssu.h \
         ssudeviceinfo.h \
         ssurepomanager.h \
-        ssufeaturemodel.h
+        ssufeaturemodel.h \
+        ssu_interface.h
 
 HEADERS = \
         $${public_headers} \

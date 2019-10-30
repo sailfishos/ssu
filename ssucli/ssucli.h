@@ -31,7 +31,7 @@
 #include <QDebug>
 
 #include "libssu/ssu.h"
-#include "ssu_interface.h"
+#include "../libssu/ssu_interface.h"
 
 class SsuCli: public QObject
 {
