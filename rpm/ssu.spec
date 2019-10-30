@@ -17,6 +17,7 @@ BuildRequires: pkgconfig(libshadowutils)
 BuildRequires: pkgconfig(connman-qt5)
 BuildRequires: oneshot
 BuildRequires: doxygen
+Requires(pre): sailfish-setup
 Requires(pre): shadow-utils
 Requires(pre): /usr/bin/groupadd-user
 Requires(postun): shadow-utils
@@ -188,8 +189,6 @@ cd .. && cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
 
 
 %pre
-groupadd -rf ssu
-groupadd-user ssu
 if [ -f /etc/ssu/ssu.ini ]; then
   chgrp ssu /etc/ssu/ssu.ini
   chmod 664 /etc/ssu/ssu.ini
