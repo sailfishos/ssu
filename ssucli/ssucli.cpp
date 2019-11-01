@@ -780,6 +780,11 @@ void SsuCli::usage(const QString &message)
          << "\t  [-r]               \toperate on repository only variables" << endl
          << "\t  <variable>         \tdisplay value of <variable>" << endl
          << "\t  <variable> <value> \tset value of <variable> to <value>" << endl
+         << "\tdomain do            \tdisplay current device domain" << endl
+         << "\t  [newdomain]        \tset new domain" << endl
+         << "\t  [-c]               \tshow domain configuration" << endl
+         << "\t  -c <variable>      \tshow single domain variable" << endl
+         << "\t  -c <variable> <val>\tset single domain variable" << endl
          << endl
          << "Device management:" << endl
          << "\tstatus, s     \tprint registration status and device information" << endl
