@@ -45,7 +45,7 @@ SsuCli::SsuCli()
     connect(&ssu, SIGNAL(done()),
             this, SLOT(handleResponse()));
 
-    ssuProxy = new SsuProxy("org.nemo.ssu", "/org/nemo/ssu", QDBusConnection::systemBus(), 0);
+    ssuProxy = new SsuProxy();
 
     connect(ssuProxy, SIGNAL(done()),
             this, SLOT(handleDBusResponse()));
