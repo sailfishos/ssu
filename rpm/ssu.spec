@@ -1,11 +1,11 @@
 Name: ssu
 Version: 0.44.6
 Release: 1
-Summary: SSU enabler for RND
+Summary: Seamless Software Upgrade
 Group: System/Base
 License: GPLv2+ and LGPLv2.1+ and BSD-3-clause
 Source0: %{name}-%{version}.tar.gz
-URL: https://git.merproject.org/mer-core/ssu
+URL: https://git.sailfishos.org/mer-core/ssu
 BuildRequires: pkgconfig(Qt5Core)
 BuildRequires: pkgconfig(Qt5DBus)
 BuildRequires: pkgconfig(Qt5Network)
@@ -25,7 +25,10 @@ Requires: ssu-vendor-data
 Requires: ssu-network-proxy
 
 %description
-%{summary}.
+%{summary} repository management tool. Manages software repositories, 
+including hardware adaptation and other optional features, and repository 
+user credentials. Alternative repository configurations may be specified for
+RnD mode.
 
 %files
 %defattr(-,root,root,-)
@@ -204,4 +207,4 @@ fi
 %post
 /sbin/ldconfig
 # make sure an old ssud isn't still running
-killall ssud
+killall ssud || :

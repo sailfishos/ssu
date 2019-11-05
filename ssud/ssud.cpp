@@ -1,8 +1,25 @@
 /**
  * @file ssud.cpp
- * @copyright 2013 Jolla Ltd.
- * @author Bernd Wachter <bwachter@lart.info>
- * @date 2013
+ * @copyright 2013 - 2019 Jolla Ltd.
+ * @copyright 2019 Open Mobile Platform LLC.
+ * @copyright LGPLv2+
+ * @date 2013 - 2019
+ */
+
+/*
+ *  This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #include "ssud.h"
@@ -255,4 +272,22 @@ QList<SsuRepo> Ssud::listRepos(bool rnd)
     }
     autoclose.start();
     return reposList;
+}
+
+QStringList Ssud::listDomains()
+{
+    autoclose.start();
+    return ssu.listDomains();
+}
+
+void Ssud::setDomainConfig(const QString &domain, QVariantMap config)
+{
+    ssu.setDomainConfig(domain, config);
+    autoclose.start();
+}
+
+QVariantMap Ssud::getDomainConfig(const QString &domain)
+{
+    autoclose.start();
+    return ssu.getDomainConfig(domain);
 }

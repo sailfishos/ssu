@@ -1,10 +1,26 @@
 /**
  * @file ssu.cpp
- * @copyright 2012 Jolla Ltd.
- * @author Bernd Wachter <bernd.wachter@jollamobile.com>
- * @date 2012
+ * @copyright 2012 - 2019 Jolla Ltd.
+ * @copyright 2019 Open Mobile Platform LLC.
+ * @copyright LGPLv2+
+ * @date 2012 - 2019
  */
 
+/*
+ *  This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 #include <QtNetwork>
 #include <QtXml/QDomDocument>
 #include <QDBusConnection>
@@ -260,6 +276,35 @@ bool Ssu::registerDevice(QDomDocument *response)
 
     emit registrationStatusChanged();
     return true;
+}
+
+QStringList Ssu::listDomains() {
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
+    QRegExp domainFilter("-domain$");
+    return repoSettings.childGroups().filter(domainFilter).replaceInStrings(domainFilter, "");
+}
+
+void Ssu::setDomainConfig(const QString &domain, QVariantMap config) {
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
+    repoSettings.beginGroup(domain + "-domain");
+    repoSettings.remove("");
+
+    for (QVariantMap::iterator i = config.begin(); i != config.end(); i++) {
+        repoSettings.setValue(i.key(), i.value());
+    }
+    repoSettings.endGroup();
+    repoSettings.sync();
+}
+
+QVariantMap Ssu::getDomainConfig(const QString &domain) {
+    SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
+    QVariantMap config;
+    repoSettings.beginGroup(domain + "-domain");
+    foreach(QString key, repoSettings.allKeys()) {
+        config.insert(key, repoSettings.value(key).toString());
+    }
+    repoSettings.endGroup();
+    return config;
 }
 
 // RND repos have flavour (devel, testing, release), and release (latest, next)

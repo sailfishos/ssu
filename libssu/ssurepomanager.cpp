@@ -1,8 +1,25 @@
 /**
  * @file ssurepomanager.cpp
- * @copyright 2013 Jolla Ltd.
- * @author Bernd Wachter <bwachter@lart.info>
- * @date 2013
+ * @copyright 2013 - 2019 Jolla Ltd.
+ * @copyright 2019 Open Mobile Platform Ltd.
+ * @copyright LGPLv2+
+ * @date 2013 - 2019
+ */
+
+/*
+ *  This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ *
  */
 
 #include <QStringList>
@@ -98,14 +115,20 @@ int SsuRepoManager::enable(const QString &repo)
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
     QStringList disabledRepos;
 
-    if (ssuSettings->contains("disabled-repos"))
+    if (ssuSettings->contains("disabled-repos")) {
         disabledRepos = ssuSettings->value("disabled-repos").toStringList();
 
-    disabledRepos.removeAll(repo);
-    disabledRepos.removeDuplicates();
+        disabledRepos.removeAll(repo);
+        disabledRepos.removeDuplicates();
 
-    ssuSettings->setValue("disabled-repos", disabledRepos);
-    ssuSettings->sync();
+        if (disabledRepos.size() > 0)
+            ssuSettings->setValue("disabled-repos", disabledRepos);
+        else
+            ssuSettings->remove("disabled-repos");
+
+        ssuSettings->sync();
+    }
+
 
     return 0;
 }
@@ -125,15 +148,19 @@ int SsuRepoManager::remove(const QString &repo)
     if (ssuSettings->contains("repository-urls/" + repo))
         ssuSettings->remove("repository-urls/" + repo);
 
-    if (ssuSettings->contains("enabled-repos")) {
-        QStringList enabledRepos = ssuSettings->value("enabled-repos").toStringList();
-        if (enabledRepos.contains(repo)) {
-            enabledRepos.removeAll(repo);
-            enabledRepos.removeDuplicates();
-            ssuSettings->setValue("enabled-repos", enabledRepos);
+    QStringList sections;
+    sections << "enabled-repos" << "disabled-repos";
+    for (const QString &section: sections) {
+        if (ssuSettings->contains(section)) {
+            QStringList repos = ssuSettings->value(section).toStringList();
+            repos.removeAll(repo);
+            repos.removeDuplicates();
+            if (repos.size() > 0)
+                ssuSettings->setValue(section, repos);
+            else
+                ssuSettings->remove(section);
         }
     }
-
     ssuSettings->sync();
 
     return 0;

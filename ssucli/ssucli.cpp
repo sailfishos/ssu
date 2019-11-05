@@ -1,10 +1,26 @@
 /**
  * @file ssucli.cpp
- * @copyright 2012 Jolla Ltd.
- * @author Bernd Wachter <bernd.wachter@jollamobile.com>
- * @date 2012
+ * @copyright 2012 - 2019 Jolla Ltd.
+ * @copyright 2019 Open Mobile Platform LLC.
+ * @copyright LGPLv2+
+ * @date 2012 - 2019
  */
 
+/*
+ *  This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
+ *
+ */
 #include <QCoreApplication>
 
 #include <termios.h>
@@ -29,7 +45,7 @@ SsuCli::SsuCli()
     connect(&ssu, SIGNAL(done()),
             this, SLOT(handleResponse()));
 
-    ssuProxy = new SsuProxy("org.nemo.ssu", "/org/nemo/ssu", QDBusConnection::systemBus(), 0);
+    ssuProxy = new SsuProxy();
 
     connect(ssuProxy, SIGNAL(done()),
             this, SLOT(handleDBusResponse()));
@@ -84,14 +100,42 @@ void SsuCli::optBrand(QStringList opt)
 void SsuCli::optDomain(QStringList opt)
 {
     QTextStream qout(stdout);
+    QTextStream qerr(stderr);
 
     if (opt.count() == 3 && opt.at(2) == "-s") {
         qout << ssu.domain();
         state = Idle;
+    } else if (opt.count() > 2 && opt.at(2) == "-c") {
+        if (opt.count() == 3) { // dump all domain config
+            QVariantMap config = ssu.getDomainConfig(ssu.domain());
+            for (QVariantMap::iterator i = config.begin(); i != config.end(); i++) {
+                qout << i.key() << ": " << i.value().toString() << endl;
+            }
+            state = Idle;
+        } else if (opt.count() == 4) { // dump one domain config value
+            QVariantMap config = ssu.getDomainConfig(ssu.domain());
+            qout << config.value(opt.at(3)).toString() << endl;
+            state = Idle;
+        } else if (opt.count() == 5) { // set one domain config value
+                QVariantMap config = ssu.getDomainConfig(ssu.domain());
+                config.insert(opt.at(3), opt.at(4));
+                QDBusPendingReply<> reply = ssuProxy->setDomainConfig(ssu.domain(), config);
+                reply.waitForFinished();
+                if (reply.isError()) {
+                    qerr << fallingBackToDirectUse(reply.error()) << endl;
+                    ssu.setDomainConfig(ssu.domain(), config);
+                }
+        }
     } else if (opt.count() == 3) {
-        qout << "Changing domain from " << ssu.domain()
-             << " to " << opt.at(2) << endl;
-        ssu.setDomain(opt.at(2));
+        if (ssu.listDomains().contains(opt.at(2))) {
+            qout << "Changing domain from " << ssu.domain()
+                             << " to " << opt.at(2) << endl;
+            ssu.setDomain(opt.at(2));
+        }
+        else {
+            qout << "Domain " << opt.at(2) << " does not exist" << endl;
+            state = Idle;
+        }
 
         state = Idle;
     } else if (opt.count() == 2) {
@@ -736,6 +780,11 @@ void SsuCli::usage(const QString &message)
          << "\t  [-r]               \toperate on repository only variables" << endl
          << "\t  <variable>         \tdisplay value of <variable>" << endl
          << "\t  <variable> <value> \tset value of <variable> to <value>" << endl
+         << "\tdomain do            \tdisplay current device domain" << endl
+         << "\t  [newdomain]        \tset new domain" << endl
+         << "\t  [-c]               \tshow domain configuration" << endl
+         << "\t  -c <variable>      \tshow single domain variable" << endl
+         << "\t  -c <variable> <val>\tset single domain variable" << endl
          << endl
          << "Device management:" << endl
          << "\tstatus, s     \tprint registration status and device information" << endl
