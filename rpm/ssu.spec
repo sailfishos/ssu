@@ -1,5 +1,5 @@
 Name: ssu
-Version: 0.44.6
+Version: 1.0.0
 Release: 1
 Summary: Seamless Software Upgrade
 Group: System/Base
