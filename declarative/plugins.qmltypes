@@ -125,13 +125,14 @@ Module {
         Method { name: "useSslVerify"; type: "bool" }
         Method { name: "listDomains"; type: "QStringList" }
         Method {
-            name: "getDomainConfig"; type: "QVariantMap"
-            Parameter { name: "domain"; type: "string" }
-        }
-        Method {
             name: "setDomainConfig"
             Parameter { name: "domain"; type: "string" }
             Parameter { name: "config"; type: "QVariantMap" }
+        }
+        Method {
+            name: "getDomainConfig"
+            type: "QVariantMap"
+            Parameter { name: "domain"; type: "string" }
         }
     }
     Component {
