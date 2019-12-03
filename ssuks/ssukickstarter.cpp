@@ -377,13 +377,27 @@ bool SsuKickstarter::write(const QString &kickstart)
     QString kickstartType = QString("# KickstartType: %1")
                             .arg((rndMode ? "rnd" : "release"));
 
+    const QString deviceModel = deviceInfo.deviceModel();
+
     QTextStream kout;
     kout.setDevice(&ks);
     kout << displayName << endl;
     kout << kickstartType << endl;
-    kout << "# DeviceModel: " << deviceInfo.deviceModel() << endl;
+    kout << "# DeviceModel: " << deviceModel << endl;
     kout << "# DeviceVariant: " << deviceInfo.deviceVariant(true) << endl;
     kout << "# Brand: " << repoOverride.value("brand") << endl;
+
+    // Repository-specific variables in format "# Var@<repo>@<var>: <value>"
+    for (auto const &repo : deviceInfo.value("repository-specific-variables").toStringList()) {
+        if (!repo.startsWith(deviceModel + '-'))
+            continue;
+
+        QHash<QString, QString> section;
+        deviceInfo.variableSection(repo, &section);
+        for (auto var = section.cbegin(); var != section.cend(); ++var)
+            kout << "# Var@" << repo.mid(deviceModel.size() + 1) << '@' << var.key() << ": " << var.value() << endl;
+    }
+
     if (!suggestedFeatures.isEmpty())
         kout << suggestedFeatures << endl;
     kout << "# SuggestedImageType: " << imageType << endl;
