@@ -54,6 +54,7 @@ private:
     void optBrand(QStringList opt);
     void optDomain(QStringList opt);
     void optFlavour(QStringList opt);
+    QString getModeString(int mode);
     void optMode(QStringList opt);
     void optModel(QStringList opt);
     void optRegister(QStringList opt);
