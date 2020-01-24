@@ -174,32 +174,35 @@ void SsuCli::optFlavour(QStringList opt)
     }
 }
 
+QString SsuCli::getModeString(int mode) {
+    QStringList modeList;
+
+    if ((mode & Ssu::DisableRepoManager) == Ssu::DisableRepoManager)
+        modeList.append("DisableRepoManager");
+    if ((mode & Ssu::RndMode) == Ssu::RndMode)
+        modeList.append("RndMode");
+    if ((mode & Ssu::ReleaseMode) == Ssu::ReleaseMode)
+        modeList.append("ReleaseMode");
+    if ((mode & Ssu::LenientMode) == Ssu::LenientMode)
+        modeList.append("LenientMode");
+    if ((mode & Ssu::UpdateMode) == Ssu::UpdateMode)
+        modeList.append("UpdateMode");
+    if ((mode & Ssu::AppInstallMode) == Ssu::AppInstallMode)
+        modeList.append("AppInstallMode");
+
+    return modeList.join(" | ");
+}
+
 void SsuCli::optMode(QStringList opt)
 {
     QTextStream qout(stdout);
     QTextStream qerr(stderr);
 
-    // TODO: allow setting meaningful names instead of numbers
+    int deviceMode = ssu.deviceMode();
 
     if (opt.count() == 2) {
-        QStringList modeList;
-        int deviceMode = ssu.deviceMode();
-
-        if ((deviceMode & Ssu::DisableRepoManager) == Ssu::DisableRepoManager)
-            modeList.append("DisableRepoManager");
-        if ((deviceMode & Ssu::RndMode) == Ssu::RndMode)
-            modeList.append("RndMode");
-        if ((deviceMode & Ssu::ReleaseMode) == Ssu::ReleaseMode)
-            modeList.append("ReleaseMode");
-        if ((deviceMode & Ssu::LenientMode) == Ssu::LenientMode)
-            modeList.append("LenientMode");
-        if ((deviceMode & Ssu::UpdateMode) == Ssu::UpdateMode)
-            modeList.append("UpdateMode");
-        if ((deviceMode & Ssu::AppInstallMode) == Ssu::AppInstallMode)
-            modeList.append("AppInstallMode");
-
-        qout << "Device mode is: " << ssu.deviceMode()
-             << " (" << modeList.join(" | ") << ")" << endl;
+        qout << "Device mode is: " << deviceMode
+             << " (" << getModeString(deviceMode) << ")" << endl;
 
         if ((deviceMode & Ssu::RndMode) == Ssu::RndMode &&
                 (deviceMode & Ssu::ReleaseMode) == Ssu::ReleaseMode)
@@ -207,25 +210,53 @@ void SsuCli::optMode(QStringList opt)
 
         state = Idle;
     } else if (opt.count() == 3 && opt.at(2) == "-s") {
-        qout << ssu.deviceMode();
+        qout << deviceMode;
         state = Idle;
-    } else if (opt.count() == 3) {
-        qout << "Setting device mode from " << ssu.deviceMode()
-             << " to " << opt.at(2) << endl;
+        return;
+    } else if (opt.count() >= 3) {
+        bool isInt;
+        int newMode = opt.at(2).toInt(&isInt);
 
-        QDBusPendingReply<> reply = ssuProxy->setDeviceMode(opt.at(2).toInt());
+        if (!isInt) {
+            for (int i=2; i<opt.size(); i++) {
+                if (opt.at(i) == "DisableRepoManager")
+                    newMode |= Ssu::DisableRepoManager;
+                else if (opt.at(i) == "RndMode")
+                    newMode |= Ssu::RndMode;
+                else if (opt.at(i) == "ReleaseMode")
+                    newMode |= Ssu::ReleaseMode;
+                else if (opt.at(i) == "LenientMode")
+                    newMode |= Ssu::LenientMode;
+                else if (opt.at(i) == "UpdateMode")
+                    newMode |= Ssu::UpdateMode;
+                else if (opt.at(i) == "AppInstallMode")
+                    newMode |= Ssu::AppInstallMode;
+                else {
+                    qout << "Unknown mode: " << opt.at(i) << endl;
+                    state = Idle;
+                    return;
+                }
+            }
+        }
+
+        qout << "Setting device mode from " << deviceMode
+             << " (" << getModeString(deviceMode)
+             << ") to " << newMode
+             << " (" << getModeString(newMode) << ")" << endl;
+
+        QDBusPendingReply<> reply = ssuProxy->setDeviceMode(newMode);
         reply.waitForFinished();
         if (reply.isError()) {
             qerr << fallingBackToDirectUse(reply.error()) << endl;
-            ssu.setDeviceMode(Ssu::DeviceModeFlags(opt.at(2).toInt()));
+            ssu.setDeviceMode(Ssu::DeviceModeFlags(newMode));
 
             SsuRepoManager repoManager;
             repoManager.update();
             uidWarning();
         }
-
-        state = Idle;
     }
+
+    state = Idle;
 }
 
 void SsuCli::optModel(QStringList opt)
@@ -758,12 +789,16 @@ void SsuCli::usage(const QString &message)
     qout << "\nUsage: ssu <command> [-command-options] [arguments]" << endl
          << endl
          << "Repository management:" << endl
+         << "\tmode, m                \tShow repository mode information." << endl
+         << "\t           <int>       \tSet repository mode as an integer (see docs)." << endl
+         << "\t           <modes>     \tCombo of modes to set from: DisableRepoManager RndMode " << endl
+         << "\t                       \tReleaseMode LenientMode UpdateMode AppInstallMode" << endl
          << "\tupdaterepos, ur        \tupdate repository files" << endl
          << "\trepos, lr              \tlist configured repositories" << endl
          << "\t           [-m]        \tformat output suitable for kickstart" << endl
          << "\t           [device]    \tuse repos for 'device'" << endl
          << "\t           [flags]     \tadditional flags" << endl
-         << "\t           rnd=<true|false> \tset rnd or release mode (default: take from host)" << endl
+         << "\t           rnd=<bool>  \tset rnd or release mode (default: take from host)" << endl
          << "\taddrepo, ar <repo>     \tadd this repository" << endl
          << "\t           [url]       \tspecify URL, if not configured" << endl
          << "\tremoverepo, rr <repo>  \tremove this repository from configuration" << endl
