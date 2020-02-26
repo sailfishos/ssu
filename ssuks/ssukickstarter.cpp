@@ -208,9 +208,9 @@ QStringList SsuKickstarter::scriptletSection(const QString &name, int flags)
                        .arg(rndMode ? "rnd" : "release"));
 
         if ((flags & NoChroot) == NoChroot)
-            result.prepend("%" + name + " --nochroot");
+            result.prepend("%" + name + " --nochroot --erroronfail");
         else
-            result.prepend("%" + name);
+            result.prepend("%" + name + " --erroronfail");
 
         result.append("%end");
     }
