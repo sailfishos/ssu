@@ -38,7 +38,7 @@ SOURCES = \
 
 CONFIG += link_pkgconfig
 QT += network xml dbus
-PKGCONFIG += libsystemd-journal libshadowutils libzypp
+PKGCONFIG += libsystemd libshadowutils libzypp
 
 install_headers.files = $${public_headers}
 
@@ -57,6 +57,6 @@ QMAKE_PKGCONFIG_VERSION = $$VERSION
 QMAKE_PKGCONFIG_LIBDIR = $$target.path
 QMAKE_PKGCONFIG_INCDIR = $$install_headers.path
 QMAKE_PKGCONFIG_DESTDIR = pkgconfig
-QMAKE_PKGCONFIG_REQUIRES = Qt5Network Qt5Xml Qt5DBus libsystemd-journal libshadowutils libzypp
+QMAKE_PKGCONFIG_REQUIRES = Qt5Network Qt5Xml Qt5DBus libsystemd libshadowutils libzypp
 
 INSTALLS += pkgconfig

@@ -12,4 +12,4 @@ HEADERS += ssuslipstream.h
 SOURCES += main.cpp
 
 CONFIG += link_pkgconfig
-PKGCONFIG += libsystemd-journal
+PKGCONFIG += libsystemd
