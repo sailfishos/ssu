@@ -17,4 +17,4 @@ SOURCES = main.cpp \
         ssuurlresolver.cpp
 
 CONFIG += link_pkgconfig
-PKGCONFIG += libzypp libsystemd-journal
+PKGCONFIG += libzypp libsystemd

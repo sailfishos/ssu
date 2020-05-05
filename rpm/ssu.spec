@@ -12,7 +12,7 @@ BuildRequires: pkgconfig(Qt5Network)
 BuildRequires: pkgconfig(Qt5Xml)
 BuildRequires: pkgconfig(Qt5Test)
 BuildRequires: pkgconfig(libzypp)
-BuildRequires: pkgconfig(libsystemd-journal)
+BuildRequires: pkgconfig(libsystemd)
 BuildRequires: pkgconfig(libshadowutils)
 BuildRequires: pkgconfig(connman-qt5)
 BuildRequires: oneshot
