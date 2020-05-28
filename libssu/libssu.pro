@@ -49,7 +49,7 @@ ssuconfhack {
 CONFIG += create_pc create_prl no_install_prl
 
 pkgconfig.files = $$PWD/pkgconfig/ssu.pc
-pkgconfig.path = /usr/lib/pkgconfig
+pkgconfig.path = $$[QT_INSTALL_LIBS]/pkgconfig
 
 QMAKE_PKGCONFIG_NAME = $$TARGET
 QMAKE_PKGCONFIG_DESCRIPTION = ssu development files
