@@ -10,5 +10,5 @@ SOURCES = sandboxhook.cpp
 
 DESTDIR = $$DESTDIR_LIB
 
-target.path = /usr/lib/ssu
+target.path = $$[QT_INSTALL_LIBS]/ssu
 INSTALLS += target

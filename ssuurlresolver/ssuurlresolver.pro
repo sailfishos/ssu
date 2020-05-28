@@ -4,7 +4,7 @@ include(ssuurlresolver_dependencies.pri)
 
 # We do not build a typical application - override defaults from ../ssuapplication.pri
 DESTDIR = $$DESTDIR_LIB/zypp/plugins/urlresolver
-target.path = /usr/lib/zypp/plugins/urlresolver
+target.path = $$[QT_INSTALL_LIBS]/zypp/plugins/urlresolver
 
 QT += network
 CONFIG += link_pkgconfig

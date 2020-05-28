@@ -2,7 +2,6 @@ Name: ssu
 Version: 1.0.0
 Release: 1
 Summary: Seamless Software Upgrade
-Group: System/Base
 License: GPLv2+ and LGPLv2.1+ and BSD-3-clause
 Source0: %{name}-%{version}.tar.gz
 URL: https://git.sailfishos.org/mer-core/ssu
@@ -41,7 +40,7 @@ RnD mode.
 # them for the vendor data packages to use
 %attr(0755, -, -) %{_oneshotdir}/*
 %{_bindir}/ssud
-/lib/systemd/system/*.service
+%{_unitdir}/*.service
 %{_datadir}/dbus-1/system-services/*.service
 %dir %{_datarootdir}/%{name}
 %dir %{_datarootdir}/%{name}/board-mappings.d
@@ -53,7 +52,6 @@ RnD mode.
 
 %package network-proxy-plugin
 Summary: Network Proxy support for ssu
-Group: System/Base
 Provides: ssu-network-proxy
 
 %description network-proxy-plugin
@@ -65,7 +63,6 @@ Provides: ssu-network-proxy
 
 %package vendor-data-example
 Summary: Sample vendor configuration data
-Group: System/Base
 Provides: ssu-vendor-data
 
 %description vendor-data-example
@@ -79,7 +76,6 @@ Provides: ssu-vendor-data
 
 %package ks
 Summary: Kickstart generator using %{name} data
-Group: System/Base
 # required for QA to pick up new macros
 Provides: rpm-macros
 
@@ -93,7 +89,6 @@ Provides: rpm-macros
 
 %package slipstream
 Summary: %{name} OS factory snapshot download provider
-Group: System/Base
 
 %description slipstream
 Helper utility to authenticate downloads of factory snapshot manifests.
@@ -104,7 +99,6 @@ Helper utility to authenticate downloads of factory snapshot manifests.
 
 %package declarative
 Summary: QML plugin for libssu
-Group: System/Base
 BuildRequires: pkgconfig(Qt5Qml)
 
 %description declarative
@@ -115,7 +109,6 @@ BuildRequires: pkgconfig(Qt5Qml)
 
 %package devel
 Summary: Development files for %{name}
-Group: Development/Libraries
 Requires: %{name} = %{version}-%{release}
 
 %description devel
@@ -130,7 +123,6 @@ Requires: %{name} = %{version}-%{release}
 
 %package tests
 Summary: Unit tests for %{name}
-Group: Development/Libraries
 Requires: testrunner-lite
 
 %description tests
@@ -143,7 +135,6 @@ Requires: testrunner-lite
 
 %package tools
 Summary: Tools for %{name}
-Group: Development/Libraries
 Requires: rpm
 
 %description tools
@@ -156,7 +147,6 @@ Requires: rpm
 
 %package doc
 Summary: Documentation for %{name}
-Group: Documentation
 
 %description doc
 %{summary}.

@@ -5,7 +5,7 @@ TEMPLATE = lib
 
 DESTDIR = $$DESTDIR_LIB
 
-target.path = /usr/lib
+target.path = $$[QT_INSTALL_LIBS]
 INSTALLS += target
 
 install_headers.path = /usr/include
