@@ -31,7 +31,7 @@ RnD mode.
 
 %files
 %defattr(-,root,root,-)
-%{_libdir}/zypp/plugins/urlresolver/*
+%{_libexecdir}/zypp/plugins/urlresolver/*
 %{_bindir}/ssu
 %{_libdir}/libssu.so.*
 %{_libdir}/ssu/libsandboxhook.so
