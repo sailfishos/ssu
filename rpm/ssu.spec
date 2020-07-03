@@ -2,7 +2,7 @@ Name: ssu
 Version: 1.0.0
 Release: 1
 Summary: Seamless Software Upgrade
-License: GPLv2+ and LGPLv2.1+ and BSD-3-clause
+License: GPLv2+ and LGPLv2+ and BSD
 Source0: %{name}-%{version}.tar.gz
 URL: https://git.sailfishos.org/mer-core/ssu
 BuildRequires: pkgconfig(Qt5Core)
@@ -31,6 +31,7 @@ RnD mode.
 
 %files
 %defattr(-,root,root,-)
+%license COPYING COPYING.GPL COPYING.LGPL COPYING.BSD
 %{_libexecdir}/zypp/plugins/urlresolver/*
 %{_bindir}/ssu
 %{_libdir}/libssu.so.*
@@ -48,7 +49,6 @@ RnD mode.
 %dir %{_datarootdir}/%{name}/repos.d
 %dir %{_sysconfdir}/%{name}/
 %{_sysconfdir}/dbus-1/system.d/*.conf
-%doc COPYING.GPL COPYING.LGPL COPYING.BSD
 
 %package network-proxy-plugin
 Summary: Network Proxy support for ssu
