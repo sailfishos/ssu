@@ -490,11 +490,11 @@ void Ssu::sendRegistration(const QString &usernameDomain, const QString &passwor
     manager->post(request, form.query(QUrl::FullyEncoded).toStdString().c_str());
     // we could expose downloadProgress() from reply in case we want progress info
 
-    QString homeUrl = settings->value("home-url").toString().arg(username);
+    QString homeUrl = settings->value("home-url").toString();
     if (!homeUrl.isEmpty()) {
         // clear header, the other request bits are reusable
         request.setHeader(QNetworkRequest::ContentTypeHeader, 0);
-        request.setUrl(homeUrl + "/authorized_keys");
+        request.setUrl(homeUrl.arg(username) + "/authorized_keys");
         ssuLog->print(LOG_DEBUG, QString("Trying to get SSH keys from %1").arg(request.url().toString()));
         pendingRequests++;
         manager->get(request);
