@@ -148,10 +148,11 @@ QStringList SsuKickstarter::packagesSection(const QString &name)
     QStringList result;
 
     if (name == "packages") {
-        // insert @vendor configuration device
-        QString configuration = QString("@%1 Configuration %2")
-                                .arg(repoOverride.value("brand"))
-                                .arg(deviceModel);
+        // insert patterns-sailfish-device-configuration-<device>
+        QString dashedDeviceModel = deviceModel;
+        dashedDeviceModel.replace(' ', '-');
+        QString configuration = QString("patterns-sailfish-device-configuration-%1")
+                                .arg(dashedDeviceModel);
         result.append(configuration);
 
         result.sort();
