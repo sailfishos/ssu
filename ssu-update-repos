@@ -1,8 +1,9 @@
 #!/bin/sh
 
-if [ -z "$MIC_RUN" ]; then
-    touch /usr/share/ssu/board-mappings.d/*.ini 2>/dev/null
-    /usr/bin/ssu updaterepos
-else
-    exit 1
+if [ "$MIC_RUN" != "" ]; then
+	echo "ssu-update-repos - returning FAIL to postpone oneshot to first boot"
+	exit 1
 fi
+
+touch /usr/share/ssu/board-mappings.d/*.ini 2>/dev/null
+/usr/bin/ssu updaterepos
