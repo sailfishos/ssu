@@ -57,6 +57,6 @@ QMAKE_PKGCONFIG_VERSION = $$VERSION
 QMAKE_PKGCONFIG_LIBDIR = $$target.path
 QMAKE_PKGCONFIG_INCDIR = $$install_headers.path
 QMAKE_PKGCONFIG_DESTDIR = pkgconfig
-QMAKE_PKGCONFIG_REQUIRES = Qt5Network Qt5Xml Qt5DBus libsystemd libshadowutils libzypp
+QMAKE_PKGCONFIG_REQUIRES = Qt5Core
 
 INSTALLS += pkgconfig
