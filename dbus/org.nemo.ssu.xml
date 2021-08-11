@@ -110,12 +110,12 @@
     <method name="setDomainConfig">
       <arg direction="in" type="s" name="domain"/>
       <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QVariantMap"/>
-      <arg direction="in" type="a{ss}" name="config"/>
+      <arg direction="in" type="a{sv}" name="config"/>
     </method>
     <method name="getDomainConfig">
       <arg direction="in" type="s" name="domain"/>
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
-      <arg direction="out" type="a{ss}"/>
+      <arg direction="out" type="a{sv}"/>
     </method>
 
     <method name="error">
