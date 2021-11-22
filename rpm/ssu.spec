@@ -196,5 +196,30 @@ fi
 
 %post
 /sbin/ldconfig
-# make sure an old ssud isn't still running
-killall ssud || :
+
+%transfiletriggerin -- %{_datarootdir}/%{name}
+# Touch all modified repo config files so they will be newer than the cache
+grep \.ini$ | xargs -r touch
+%{_bindir}/add-oneshot --now ssu-update-repos
+
+%transfiletriggerun -- %{_datarootdir}/%{name}/features.d/
+if [ "$1" == 0 ]; then
+  echo "Removing ssu feature cache"
+  rm -f /var/cache/ssu/features.ini
+fi
+
+%transfiletriggerun -- %{_datarootdir}/%{name}/board-mappings.d/
+if [ "$1" == 0 ]; then
+  echo "Removing ssu board-mappings cache"
+  rm -f /var/cache/ssu/board-mappings.ini
+fi
+
+%transfiletriggerun -- %{_datarootdir}/%{name}/repos.d/
+if [ "$1" == 0 ]; then
+  echo "Removing ssu main cache"
+  rm -f /var/cache/ssu/repos.ini
+fi
+
+%transfiletriggerpostun -- %{_datarootdir}/%{name}
+%{_bindir}/add-oneshot --now ssu-update-repos
+
