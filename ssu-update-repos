@@ -5,5 +5,6 @@ if [ "$MIC_RUN" != "" ]; then
 	exit 1
 fi
 
-touch /usr/share/ssu/board-mappings.d/*.ini 2>/dev/null
+# Update repos
+killall ssud 2>/dev/null || :
 /usr/bin/ssu updaterepos
