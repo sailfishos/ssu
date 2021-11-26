@@ -652,6 +652,19 @@ void SsuCli::optStatus(QStringList opt)
         qout << "Release: " << ssu.release() << endl;
     qout << "Domain: " <<  ssu.domain() << endl;
     qout << "Brand: " << (ssu.brand().isEmpty() ? "N/A" : ssu.brand()) << endl;
+
+    SsuCoreConfig *settings = SsuCoreConfig::instance();
+    QHash<QString, QString> storageHash;
+    SsuVariables var;
+    var.variableSection(settings, "global-variables", &storageHash);
+    if (!storageHash.isEmpty()) {
+        qout << "Global variables: " << endl;
+        QHash<QString, QString>::const_iterator i = storageHash.constBegin();
+        while (i != storageHash.constEnd()) {
+            qout << i.key() << "=" << i.value() << endl;
+            i++;
+        }
+    }
 }
 
 void SsuCli::optUpdateCredentials(QStringList opt)
