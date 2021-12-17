@@ -9,7 +9,6 @@
 #include <QTranslator>
 #include <QLocale>
 #include <QLibraryInfo>
-#include "libssunetworkproxy/ssunetworkproxy.h"
 #include "ssud.h"
 
 int main(int argc, char **argv)
@@ -23,8 +22,6 @@ int main(int argc, char **argv)
     qtTranslator.load("qt_" + QLocale::system().name(),
                       QLibraryInfo::location(QLibraryInfo::TranslationsPath));
     app.installTranslator(&qtTranslator);
-
-    set_application_proxy_factory();
 
     Ssud ssud;
 

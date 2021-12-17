@@ -21,7 +21,6 @@ Requires(pre): shadow-utils
 Requires(pre): /usr/bin/groupadd-user
 Requires(postun): shadow-utils
 Requires: ssu-vendor-data
-Requires: ssu-network-proxy
 
 %description
 %{summary} repository management tool. Manages software repositories, 
@@ -49,17 +48,6 @@ RnD mode.
 %dir %{_datarootdir}/%{name}/repos.d
 %dir %{_sysconfdir}/%{name}/
 %{_sysconfdir}/dbus-1/system.d/*.conf
-
-%package network-proxy-plugin
-Summary: Network Proxy support for ssu
-Provides: ssu-network-proxy
-
-%description network-proxy-plugin
-%{summary}.
-
-%files network-proxy-plugin
-%defattr(-,root,root,-)
-%{_libdir}/libssunetworkproxy.so
 
 %package vendor-data-example
 Summary: Sample vendor configuration data
