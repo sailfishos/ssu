@@ -17,7 +17,7 @@
 
 typedef QStringList Args; // improve readability
 
-void SsuCliTest::init()
+void SsuCliTest::initTestCase()
 {
     Q_ASSERT(m_sandbox == 0);
 
@@ -49,7 +49,7 @@ void SsuCliTest::init()
     }
 }
 
-void SsuCliTest::cleanup()
+void SsuCliTest::cleanupTestCase()
 {
     if (m_ssud->state() != QProcess::Running) {
         QFAIL("Sandboxed ssud instance exited unexpectedly");
