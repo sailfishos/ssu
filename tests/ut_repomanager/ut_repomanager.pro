@@ -10,7 +10,10 @@ SOURCES = \
         repomanagertest.cpp \
 
 test_data_etc.files = \
-	testdata/ssu.ini \
+        testdata/ssu.ini \
 
 test_data_usr_share.files = \
-	testdata/ssu-defaults.ini \
+        testdata/ssu-defaults.ini \
+
+test_data_usr_share_repos_d.files = \
+        testdata/repos.ini \
