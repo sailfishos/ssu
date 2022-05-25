@@ -30,7 +30,8 @@
 #include "libssu/ssurepomanager.h"
 #include "libssu/ssucoreconfig_p.h"
 #include "libssu/ssuvariables_p.h"
-
+#include "libssu/ssusettings_p.h"
+#include "constants.h"
 #include <QDebug>
 
 #include "ssucli.h"
@@ -276,9 +277,27 @@ void SsuCli::optModel(QStringList opt)
 void SsuCli::optModifyRepo(enum Actions action, QStringList opt)
 {
     SsuRepoManager repoManager;
+    QStringList systemRepos = repoManager.repos(Ssu::BoardFilter | Ssu::Available);
     QTextStream qerr(stderr);
 
     if (opt.count() == 3) {
+        // Repo without URL must be defined in config
+        if (action == Add && !systemRepos.contains(opt.at(2))) {
+            qerr << "Repository not defined: " << opt.at(2) <<  endl;
+            return;
+        }
+        // Don't add a repo if it is already present
+        if (action == Add && repoManager.repos(Ssu::NoFilter).contains(opt.at(2))) {
+            qerr << "Repository already added: " << opt.at(2) << endl;
+            return;
+        }
+        // Refuse to remove default repos except in DisableRepoManager mode
+        if (action == Remove && ((ssu.deviceMode() & Ssu::DisableRepoManager) != Ssu::DisableRepoManager)
+                        &&  repoManager.repos(Ssu::BoardFilter).contains(opt.at(2))) {
+            qerr << "Cannot remove default repository: " << opt.at(2) << endl;
+            return;
+        }
+
         QDBusPendingReply<> reply = ssuProxy->modifyRepo(action, opt.at(2));
         reply.waitForFinished();
         if (reply.isError()) {
@@ -318,6 +337,17 @@ void SsuCli::optModifyRepo(enum Actions action, QStringList opt)
             repo = opt.at(2);
         } else {
             qerr << "Invalid parameters for 'ssu ar': URL required." << endl;
+            return;
+        }
+
+        if (systemRepos.contains(repo)) {
+            qerr << "Cannot override system repository: " << repo << endl;
+            return;
+        }
+
+        // Don't add a repo if it is already present
+        if (action == Add && repoManager.repos(Ssu::NoFilter).contains(repo)) {
+            qerr << "Repository already added: " << repo << endl;
             return;
         }
 
@@ -518,7 +548,7 @@ void SsuCli::optRepos(QStringList opt)
     }
 
     if (device.isEmpty()) {
-        repos = repoManager.repos(rndRepo, deviceInfo, Ssu::BoardFilterUserBlacklist);
+        repos = repoManager.repos(rndRepo, deviceInfo, Ssu::BoardFilter | Ssu::UserBlacklist);
     } else {
         qout << "Printing repository configuration for '" << device << "'" << endl << endl;
         repos = repoManager.repos(rndRepo, deviceInfo, Ssu::BoardFilter);
@@ -526,7 +556,9 @@ void SsuCli::optRepos(QStringList opt)
 
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
 
-    qout << "Enabled repositories (global): " << endl;
+    if (!repos.isEmpty()) {
+        qout << "Enabled repositories (global): " << endl;
+    }
     for (int i = 0; i <= 3; i++) {
         // for each repository, print repo and resolve url
         int longestField = 0;
@@ -553,21 +585,27 @@ void SsuCli::optRepos(QStringList opt)
                 repos.clear();
                 continue;
             }
-            repos = repoManager.repos(rndRepo, deviceInfo, Ssu::UserFilter);
-            qout << endl << "Enabled repositories (user): " << endl;
+            repos = repoManager.repos(rndRepo, deviceInfo, Ssu::UserFilter | Ssu::UserBlacklist);
+            if (!repos.isEmpty()) { 
+                qout << endl << "Enabled repositories (user): " << endl;
+            }
         } else if (i == 1) {
             repos = deviceInfo.disabledRepos();
-            if (device.isEmpty())
-                qout << endl << "Disabled repositories (global, might be overridden by user config): " << endl;
-            else
-                qout << endl << "Disabled repositories (global): " << endl;
+            if (!repos.isEmpty()) { 
+                if (device.isEmpty())
+                    qout << endl << "Disabled repositories (global, might be overridden by user config): " << endl;
+                else
+                    qout << endl << "Disabled repositories (global): " << endl;
+            }
         } else if (i == 2) {
             repos.clear();
             if (!device.isEmpty())
                 continue;
             if (ssuSettings->contains("disabled-repos"))
                 repos.append(ssuSettings->value("disabled-repos").toStringList());
-            qout << endl << "Disabled repositories (user): " << endl;
+            if (!repos.isEmpty()) { 
+                qout << endl << "Disabled repositories (user): " << endl;
+            }
         }
     }
 

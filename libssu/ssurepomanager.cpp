@@ -49,6 +49,8 @@ SsuRepoManager::SsuRepoManager()
 int SsuRepoManager::add(const QString &repo, const QString &repoUrl)
 {
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+    SsuLog *ssuLog = SsuLog::instance();
+    QStringList systemRepos = repos(Ssu::BoardFilter | Ssu::Available);
 
     // adding a repo is a noop when device is in update mode...
     if ((ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode)
@@ -58,16 +60,24 @@ int SsuRepoManager::add(const QString &repo, const QString &repoUrl)
     if ((ssuSettings->deviceMode() & Ssu::AppInstallMode) == Ssu::AppInstallMode)
         return -1;
 
-    if (repoUrl.isEmpty()) {
-        // just enable a repository which has URL in repos.ini
+    // Ignore if already added
+    if (repos(Ssu::NoFilter).contains(repo)) {
+        ssuLog->print(LOG_ERR, "Repository already added: "+repo);
+        return -1;
+    }
+
+    if (repoUrl.isEmpty() && systemRepos.contains(repo)) {
+        // Enable a repository if it has URL in repos.ini
         QStringList enabledRepos;
         if (ssuSettings->contains("enabled-repos"))
             enabledRepos = ssuSettings->value("enabled-repos").toStringList();
-
-        enabledRepos.append(repo);
-        enabledRepos.removeDuplicates();
-        ssuSettings->setValue("enabled-repos", enabledRepos);
-    } else {
+        if (systemRepos.contains(repo) && !repos(Ssu::BoardFilter).contains(repo)) {
+            // optional global repo - don't add default repos here or they'll get listed twice
+            enabledRepos.append(repo);
+            enabledRepos.removeDuplicates();
+            ssuSettings->setValue("enabled-repos", enabledRepos);
+        }
+    } else if (!systemRepos.contains(repo)) {
         ssuSettings->setValue("repository-urls/" + repo, repoUrl);
     }
 
@@ -136,6 +146,7 @@ int SsuRepoManager::enable(const QString &repo)
 int SsuRepoManager::remove(const QString &repo)
 {
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
+    SsuLog *ssuLog = SsuLog::instance();
 
     // removing a repo is a noop when device is in update mode...
     if ((ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode)
@@ -144,6 +155,13 @@ int SsuRepoManager::remove(const QString &repo)
     // ... or AppInstallMode
     if ((ssuSettings->deviceMode() & Ssu::AppInstallMode) == Ssu::AppInstallMode)
         return -1;
+
+    // don't remove system repos except in DisableRepoManager mode
+    if ((ssuSettings->deviceMode() & Ssu::DisableRepoManager) != Ssu::DisableRepoManager 
+                    && repos(Ssu::BoardFilter).contains(repo)) {
+        ssuLog->print(LOG_ERR, "Will not remove system repository: "+repo);
+        return -1;
+    }
 
     if (ssuSettings->contains("repository-urls/" + repo))
         ssuSettings->remove("repository-urls/" + repo);
@@ -208,37 +226,21 @@ QStringList SsuRepoManager::repos(bool rnd, SsuDeviceInfo &deviceInfo, int filte
     // TODO: in strict mode, filter the repository list from there
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
 
-    bool updateMode = false;
-    bool appInstallMode = false;
-
-    if ((ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode)
-        updateMode = true;
-
-    if ((ssuSettings->deviceMode() & Ssu::AppInstallMode) == Ssu::AppInstallMode) {
-        updateMode = true;
-        appInstallMode = true;
-    }
-
-    if (filter == Ssu::NoFilter || filter == Ssu::UserFilter) {
-        // user defined repositories, or ones overriding URLs for default ones
-        // -> in update mode we need to check for each of those if it already
-        //    exists. If it exists, keep it, if it does not, disable it
-        ssuSettings->beginGroup("repository-urls");
-        QStringList repoUrls = ssuSettings->allKeys();
-        ssuSettings->endGroup();
-
-        if (updateMode) {
-            foreach (const QString &key, repoUrls) {
-                if (result.contains(key))
-                    result.append(key);
-            }
-        } else {
+    bool appInstallMode = (ssuSettings->deviceMode() & Ssu::AppInstallMode) == Ssu::AppInstallMode;
+    bool updateMode = appInstallMode || (ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode;
+    
+    if ((filter & Ssu::UserFilter) == Ssu::UserFilter) {
+        if (!updateMode) {
+            // Add user defined repositories (unless in update or appinstall modes)
+            ssuSettings->beginGroup("repository-urls");
+            QStringList repoUrls = ssuSettings->allKeys();
+            ssuSettings->endGroup();
             result.append(repoUrls);
-        }
 
-        // read user-enabled repositories from ssu.ini
-        if (ssuSettings->contains("enabled-repos") && !updateMode)
-            result.append(ssuSettings->value("enabled-repos").toStringList());
+            // Plus user-enabled system repos
+            if (ssuSettings->contains("enabled-repos"))
+                result.append(ssuSettings->value("enabled-repos").toStringList());
+        }
 
         // if the store repository is enabled keep it enabled in AppInstallMode
         if (ssuSettings->contains("enabled-repos") && appInstallMode) {
@@ -248,20 +250,16 @@ QStringList SsuRepoManager::repos(bool rnd, SsuDeviceInfo &deviceInfo, int filte
         }
     }
 
-    if (filter == Ssu::NoFilter ||
-            filter == Ssu::UserFilter ||
-            filter == Ssu::BoardFilterUserBlacklist) {
+    // Remove user disabled repos (unless in update mode)
+    if (!updateMode && (filter & Ssu::UserBlacklist) == Ssu::UserBlacklist && ssuSettings->contains("disabled-repos")) {
         // read the disabled repositories from user configuration
-        if (ssuSettings->contains("disabled-repos") && !updateMode) {
             foreach (const QString &key, ssuSettings->value("disabled-repos").toStringList())
                 result.removeAll(key);
-        }
     }
 
-
+    // Clean up list and return
     result.sort();
     result.removeDuplicates();
-
     return result;
 }
 
@@ -470,18 +468,14 @@ QString SsuRepoManager::url(const QString &repoName, bool rndRepo,
     }
 
     // search for URLs for repositories. Lookup order is:
-    // 1. overrides in ssu.ini
-    // 2. URLs from features
-    // 3. URLs from repos.ini
+    // 1. URLs from features
+    // 2. URLs from repos.ini
+    // 3. User URLs in ssu.ini (no override)
 
     SsuFeatureManager featureManager;
-    QString r;
+    QString r = featureManager.url(adaptationRepoName, rndRepo);
 
-    if (settings->contains("repository-urls/" + adaptationRepoName)) {
-        r = settings->value("repository-urls/" + adaptationRepoName).toString();
-    } else if (!featureManager.url(adaptationRepoName, rndRepo).isEmpty()) {
-        r = featureManager.url(adaptationRepoName, rndRepo);
-    } else {
+    if (r.isEmpty()) {
         foreach (const QString &section, configSections) {
             repoSettings.beginGroup(section);
             if (repoSettings.contains(adaptationRepoName)) {
@@ -491,6 +485,10 @@ QString SsuRepoManager::url(const QString &repoName, bool rndRepo,
             }
             repoSettings.endGroup();
         }
+    }
+    
+    if (r.isEmpty() && settings->contains("repository-urls/" + adaptationRepoName)) {
+        r = settings->value("repository-urls/" + adaptationRepoName).toString();
     }
 
     return var.resolveString(r, &repoParameters);

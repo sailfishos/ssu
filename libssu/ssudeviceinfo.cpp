@@ -413,24 +413,26 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter)
     int adaptationCount = adaptationRepos().size();
     QStringList result;
 
-
-    ///@TODO move this to a hash, containing repo and enabled|disabled
-    ///      write repos with enabled/disabled to disks
-    ///      for the compat functions providing a stringlist, do the filtering
-    ///      run only when creating the list, based on the enabled|disabled flags
-    if (filter == Ssu::NoFilter ||
-            filter == Ssu::BoardFilter ||
-            filter == Ssu::BoardFilterUserBlacklist) {
+    if ((filter & Ssu::BoardFilter) == Ssu::BoardFilter) {
+        SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
+        QString repoKey;
         // for repo names we have adaptation0, adaptation1, ..., adaptationN
         for (int i = 0; i < adaptationCount; i++)
             result.append(QString("adaptation%1").arg(i));
 
-        // now read the release/rnd repos
-        SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
-        QString repoKey = (rnd ? "default-repos/rnd" : "default-repos/release");
-        if (repoSettings.contains(repoKey))
-            result.append(repoSettings.value(repoKey).toStringList());
-
+        if ((filter & Ssu::Available) == Ssu::Available) {
+            // Read *all* defined repos
+            QString group = (rnd ? "rnd" : "release");
+            repoSettings.beginGroup(group);
+            result.append(repoSettings.allKeys());
+            repoSettings.endGroup();
+        } else {
+            // Just take the default repos
+            repoKey = (rnd ? "default-repos/rnd" : "default-repos/release");
+            if (repoSettings.contains(repoKey))
+                result.append(repoSettings.value(repoKey).toStringList());
+        }
+        
         // TODO: add specific repos (developer, sdk, ..)
 
         // add device configured repos
@@ -442,10 +444,12 @@ QStringList SsuDeviceInfo::repos(bool rnd, int filter)
         if (boardMappings->contains(deviceVariant(true) + repoKey))
             result.append(boardMappings->value(deviceVariant(true) + repoKey).toStringList());
 
-        // read the disabled repositories for this device
-        // user can override repositories disabled here in the user configuration
-        foreach (const QString &key, disabledRepos())
-            result.removeAll(key);
+        if ((filter & Ssu::Available) != Ssu::Available) {
+            // read the disabled repositories for this device
+            // user can override repositories disabled here in the user configuration
+            foreach (const QString &key, disabledRepos())
+                result.removeAll(key);
+        }
     }
 
     result.removeDuplicates();

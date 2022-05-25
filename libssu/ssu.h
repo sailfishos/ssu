@@ -47,10 +47,11 @@ public:
      * Filters to control the output of the repository lookup methods
      */
     enum RepoFilter {
-        NoFilter,                 ///< All repositories (global + user)
-        UserFilter,               ///< Only user configured repositories
-        BoardFilter,              ///< Only global repositories, with user blacklist ignored
-        BoardFilterUserBlacklist, ///< Only global repositories, with user blacklist applied
+        UserFilter              = 0x1,              ///< Only user configured repositories
+        BoardFilter             = 0x2,              ///< Only global repositories
+        NoFilter                = 0x3,              ///< All repositories (global | user)
+        UserBlacklist           = 0x4,              ///< User blacklist applied
+        Available               = 0x8,              ///< Include all defined repos, including disabled
     };
 
     /**
