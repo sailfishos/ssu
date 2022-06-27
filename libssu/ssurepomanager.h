@@ -66,18 +66,18 @@ public:
     /**
      * Collect the list of repositories from different submodules
      */
-    QStringList repos(int filter = Ssu::NoFilter);
+    QStringList repos(int filter = Ssu::NoFilter | Ssu::UserBlacklist);
     /**
      * Collect the list of repositories from different submodules.
      * This form allows overriding rnd mode setting.
      */
-    QStringList repos(bool rnd, int filter = Ssu::NoFilter);
+    QStringList repos(bool rnd, int filter = Ssu::NoFilter | Ssu::UserBlacklist);
     /**
      * Collect the list of repositories from different submodules.
      * This form takes a reference to a custom device info instance
      * to allow overrides.
      */
-    QStringList repos(bool rnd, SsuDeviceInfo &deviceInfo, int filter = Ssu::NoFilter);
+    QStringList repos(bool rnd, SsuDeviceInfo &deviceInfo, int filter = Ssu::NoFilter | Ssu::UserBlacklist);
     /**
      * Resolve repository specific variables, and store them in storageHash. Does
      * not include adaptation specific variables, see SsuDeviceInfo::adaptationVariables

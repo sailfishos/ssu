@@ -36,25 +36,22 @@ QStringList SsuFeatureManager::repos(bool rndRepo, int filter)
 {
     QStringList r;
 
-    // @TODO features currently can't be blacklisted, but just ignoring user filter
-    // is still the best way atm
-    if (filter == Ssu::UserFilter)
-        return r;
+    if ((filter & Ssu::BoardFilter) == Ssu::BoardFilter) {
+        QString repoHeader = QString("repositories-%1/")
+                             .arg(rndRepo ? "rnd" : "release");
 
-    QString repoHeader = QString("repositories-%1/")
-                         .arg(rndRepo ? "rnd" : "release");
+        // take the global groups
+        featureSettings->beginGroup("repositories");
+        r.append(featureSettings->allKeys());
+        featureSettings->endGroup();
 
-    // take the global groups
-    featureSettings->beginGroup("repositories");
-    r.append(featureSettings->allKeys());
-    featureSettings->endGroup();
+        // and override with rnd/release specific groups
+        featureSettings->beginGroup(repoHeader);
+        r.append(featureSettings->allKeys());
+        featureSettings->endGroup();
 
-    // and override with rnd/release specific groups
-    featureSettings->beginGroup(repoHeader);
-    r.append(featureSettings->allKeys());
-    featureSettings->endGroup();
-
-    r.removeDuplicates();
+        r.removeDuplicates();
+    }
     return r;
 }
 
