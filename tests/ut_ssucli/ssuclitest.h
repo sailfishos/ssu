@@ -22,8 +22,8 @@ public:
     SsuCliTest(): m_sandbox(0) {}
 
 private slots:
-    void init();
-    void cleanup();
+    void initTestCase();
+    void cleanupTestCase();
 
     void testSubcommandFlavour();
     void testSubcommandRelease();

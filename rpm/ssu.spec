@@ -124,6 +124,7 @@ Requires: %{name} = %{version}-%{release}
 %package tests
 Summary: Unit tests for %{name}
 Requires: testrunner-lite
+Requires: blts-tools
 
 %description tests
 %{summary}.

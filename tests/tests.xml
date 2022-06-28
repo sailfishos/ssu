@@ -15,7 +15,7 @@
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_ssu</step>
       </case>
       <case name="ut_ssucli" type="Functional" description="ssu command line utility test" timeout="1000" subfeature="">
-        <step expected_result="0">/opt/tests/ssu/runtest.sh ut_ssucli</step>
+        <step expected_result="0">/usr/sbin/run-blts-root /opt/tests/ssu/runtest.sh ut_ssucli</step>
       </case>
       <case name="ut_sandbox" type="Functional" description="Sandboxing test" timeout="1000" subfeature="">
         <step expected_result="0">/opt/tests/ssu/runtest.sh ut_sandbox</step>
