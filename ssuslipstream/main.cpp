@@ -21,16 +21,12 @@
 #include <QCoreApplication>
 #include <QTimer>
 
-#include "libssunetworkproxy/ssunetworkproxy.h"
-
 #include "ssuslipstream.h"
 
 
 int main(int argc, char *argv[])
 {
     QCoreApplication app(argc, argv);
-
-    set_application_proxy_factory();
 
     SsuSlipstream slipstream;
     QTimer::singleShot(0, &slipstream, SLOT(run()));

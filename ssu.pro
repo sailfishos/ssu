@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS = libssu libssunetworkproxy ssud
+SUBDIRS = libssu ssud
 SUBDIRS += ssucli ssuurlresolver ssuks
 SUBDIRS += ssuslipstream declarative
 
