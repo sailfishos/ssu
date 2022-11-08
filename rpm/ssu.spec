@@ -153,7 +153,7 @@ Summary: Documentation for %{name}
 
 %files doc
 %defattr(-,root,root,-)
-%{_docdir}/%{name}
+%{_docdir}/%{name}/html
 
 
 %prep
@@ -179,7 +179,7 @@ mkdir -p %{buildroot}/%{_datarootdir}/%{name}/features.d
 mkdir -p %{buildroot}/%{_datarootdir}/%{name}/repos.d
 mkdir -p %{buildroot}/%{_docdir}/%{name}
 mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
-cd .. && cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
+cd .. && cp -R doc/html/ %{buildroot}/%{_docdir}/%{name}/
 
 
 %pre
