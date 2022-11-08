@@ -20,7 +20,6 @@ Requires(pre): sailfish-setup
 Requires(pre): shadow-utils
 Requires(pre): /usr/bin/groupadd-user
 Requires(postun): shadow-utils
-Requires: ssu-vendor-data
 Requires: ssu-network-proxy
 
 %description
