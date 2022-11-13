@@ -19,7 +19,7 @@ ssuslipstream.depends = libssu
 declarative.depends = libssu
 
 config.files = examples/ssu.ini
-config.path  = /etc/ssu
+config.path  = /usr/share/doc/ssu/examples
 
 oneshot.files = ssu-update-repos
 oneshot.path = /usr/lib/oneshot.d
@@ -30,6 +30,6 @@ macros.path  = /etc/rpm/
 static_config.files = examples/repos.ini \
                       examples/ssu-defaults.ini \
                       examples/board-mappings.ini
-static_config.path  = /usr/share/ssu
+static_config.path  = /usr/share/doc/ssu/examples
 
 INSTALLS += config static_config oneshot macros

@@ -457,6 +457,7 @@ void SsuCli::optRelease(QStringList opt)
 void SsuCli::optRepos(QStringList opt)
 {
     QTextStream qout(stdout);
+    QTextStream qerr(stderr);
     SsuRepoManager repoManager;
     SsuDeviceInfo deviceInfo;
     QHash<QString, QString> repoParameters, repoOverride;
@@ -547,6 +548,8 @@ void SsuCli::optRepos(QStringList opt)
         return;
     }
 
+    bool hasRepos = false;
+
     if (device.isEmpty()) {
         repos = repoManager.repos(rndRepo, deviceInfo, Ssu::BoardFilter | Ssu::UserBlacklist);
     } else {
@@ -569,6 +572,7 @@ void SsuCli::optRepos(QStringList opt)
         qout.setFieldAlignment(QTextStream::AlignLeft);
 
         foreach (const QString &repo, repos) {
+            hasRepos = true;
             QString repoName = repo;
             if (repo.endsWith("-debuginfo")) {
                 repoName = repo.left(repo.size() - 10);
@@ -608,6 +612,9 @@ void SsuCli::optRepos(QStringList opt)
             }
         }
     }
+
+    if (!hasRepos)
+        qerr << "No repositories defined" << endl;
 
     state = Idle;
 }

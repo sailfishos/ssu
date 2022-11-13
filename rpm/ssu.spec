@@ -20,7 +20,6 @@ Requires(pre): sailfish-setup
 Requires(pre): shadow-utils
 Requires(pre): /usr/bin/groupadd-user
 Requires(postun): shadow-utils
-Requires: ssu-vendor-data
 Requires: ssu-network-proxy
 
 %description
@@ -60,19 +59,6 @@ Provides: ssu-network-proxy
 %files network-proxy-plugin
 %defattr(-,root,root,-)
 %{_libdir}/libssunetworkproxy.so
-
-%package vendor-data-example
-Summary: Sample vendor configuration data
-Provides: ssu-vendor-data
-
-%description vendor-data-example
-%{summary}. A vendor (including Nemo) is supposed to put those configuration on device.
-
-%files vendor-data-example
-%defattr(-,root,root,-)
-%attr(0664, root, ssu) %config %{_sysconfdir}/ssu/ssu.ini
-%{_datadir}/ssu/*.ini
-
 
 %package ks
 Summary: Kickstart generator using %{name} data
@@ -153,7 +139,8 @@ Summary: Documentation for %{name}
 
 %files doc
 %defattr(-,root,root,-)
-%{_docdir}/%{name}
+%{_docdir}/%{name}/html
+%{_docdir}/%{name}/examples
 
 
 %prep
@@ -179,7 +166,7 @@ mkdir -p %{buildroot}/%{_datarootdir}/%{name}/features.d
 mkdir -p %{buildroot}/%{_datarootdir}/%{name}/repos.d
 mkdir -p %{buildroot}/%{_docdir}/%{name}
 mkdir -p %{buildroot}/%{_sysconfdir}/%{name}
-cd .. && cp -R doc/html/* %{buildroot}/%{_docdir}/%{name}/
+cd .. && cp -R doc/html/ %{buildroot}/%{_docdir}/%{name}/
 
 
 %pre
