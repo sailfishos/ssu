@@ -64,6 +64,7 @@ Provides: ssu-network-proxy
 Summary: Kickstart generator using %{name} data
 # required for QA to pick up new macros
 Provides: rpm-macros
+Requires: ssu-vendor-data
 
 %description ks
 %{summary}. With ponies!
