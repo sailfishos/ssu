@@ -20,7 +20,7 @@ Requires(pre): sailfish-setup
 Requires(pre): shadow-utils
 Requires(pre): /usr/bin/groupadd-user
 Requires(postun): shadow-utils
-Obsoletes: network-proxy-plugin <= 1.0.22
+Obsoletes: ssu-network-proxy-plugin <= 1.0.22
 
 %description
 %{summary} repository management tool. Manages software repositories, 
