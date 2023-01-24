@@ -58,7 +58,7 @@ public:
                 settings.endGroup();
             }
         }
-        qSort(features.begin(), features.end(), featureLessThan);
+        std::sort(features.begin(), features.end(), featureLessThan);
     }
 
     QString path;
