@@ -4,7 +4,7 @@ Release: 1
 Summary: Seamless Software Upgrade
 License: GPLv2+ and LGPLv2+ and BSD
 Source0: %{name}-%{version}.tar.gz
-URL: https://git.sailfishos.org/mer-core/ssu
+URL: https://github.com/sailfishos/ssu
 BuildRequires: pkgconfig(Qt5Core)
 BuildRequires: pkgconfig(Qt5DBus)
 BuildRequires: pkgconfig(Qt5Network)
