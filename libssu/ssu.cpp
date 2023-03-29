@@ -434,12 +434,6 @@ void Ssu::sendRegistration(const QString &usernameDomain, const QString &passwor
             setDomain(settings->value("default-rnd-domain").toString());
     }
 
-    QString ssuCaCertificate = SsuRepoManager::caCertificatePath();
-    if (ssuCaCertificate.isEmpty()) {
-        setError("CA certificate for ssu not set ('_ca-certificate in domain')");
-        return;
-    }
-
     if (!settings->contains("register-url")) {
         ssuRegisterUrl = repoUrl("register-url");
         if (ssuRegisterUrl.isEmpty()) {
@@ -460,7 +454,10 @@ void Ssu::sendRegistration(const QString &usernameDomain, const QString &passwor
     if (!useSslVerify())
         sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
 
-    sslConfiguration.setCaCertificates(QSslCertificate::fromPath(ssuCaCertificate));
+    QString ssuCaCertificate = SsuRepoManager::caCertificatePath();
+    if (!ssuCaCertificate.isEmpty()) {
+        sslConfiguration.setCaCertificates(QSslCertificate::fromPath(ssuCaCertificate));
+    }
 
     request.setUrl(QUrl(QString(ssuRegisterUrl)
                         .arg(IMEI)
@@ -640,10 +637,6 @@ void Ssu::updateCredentials(bool force)
 
     QString ssuCaCertificate, ssuCredentialsUrl;
     ssuCaCertificate = SsuRepoManager::caCertificatePath();
-    if (ssuCaCertificate.isEmpty()) {
-        setError("CA certificate for ssu not set ('_ca-certificate in domain')");
-        return;
-    }
 
     if (!settings->contains("credentials-url")) {
         ssuCredentialsUrl = repoUrl("credentials-url");
@@ -684,7 +677,15 @@ void Ssu::updateCredentials(bool force)
     QSslCertificate certificate(settings->value("certificate").toByteArray());
 
     QList<QSslCertificate> caCertificates;
-    caCertificates << QSslCertificate::fromPath(ssuCaCertificate);
+    if (ssuCaCertificate.isEmpty()) {
+        // When the localCertificate is set, it seems that the system CA
+        // certificates are not used by default and need to be added explicitly
+        // (if we are not using a custom CA certificate).
+        // Could not track down why this happens exactly.
+        caCertificates << sslConfiguration.systemCaCertificates();
+    } else {
+        caCertificates << QSslCertificate::fromPath(ssuCaCertificate);
+    }
     sslConfiguration.setCaCertificates(caCertificates);
 
     sslConfiguration.setPrivateKey(privateKey);
