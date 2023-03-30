@@ -678,10 +678,12 @@ void Ssu::updateCredentials(bool force)
 
     QList<QSslCertificate> caCertificates;
     if (ssuCaCertificate.isEmpty()) {
-        // When the localCertificate is set, it seems that the system CA
-        // certificates are not used by default and need to be added explicitly
-        // (if we are not using a custom CA certificate).
-        // Could not track down why this happens exactly.
+        // When the localCertificate (i.e. client certificate) is used, the
+        // system CA certificates are not loaded automatically, like they
+        // normally are when CA certificates are not set in the configuration.
+        // So we add them here explicitly. This is possibly a bug in Qt or it's
+        // internaction with OpenSSL, something similar to what is described in
+        // https://bugreports.qt.io/browse/QTBUG-7200
         caCertificates << sslConfiguration.systemCaCertificates();
     } else {
         caCertificates << QSslCertificate::fromPath(ssuCaCertificate);
