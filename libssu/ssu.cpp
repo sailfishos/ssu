@@ -434,12 +434,6 @@ void Ssu::sendRegistration(const QString &usernameDomain, const QString &passwor
             setDomain(settings->value("default-rnd-domain").toString());
     }
 
-    QString ssuCaCertificate = SsuRepoManager::caCertificatePath();
-    if (ssuCaCertificate.isEmpty()) {
-        setError("CA certificate for ssu not set ('_ca-certificate in domain')");
-        return;
-    }
-
     if (!settings->contains("register-url")) {
         ssuRegisterUrl = repoUrl("register-url");
         if (ssuRegisterUrl.isEmpty()) {
@@ -460,7 +454,10 @@ void Ssu::sendRegistration(const QString &usernameDomain, const QString &passwor
     if (!useSslVerify())
         sslConfiguration.setPeerVerifyMode(QSslSocket::VerifyNone);
 
-    sslConfiguration.setCaCertificates(QSslCertificate::fromPath(ssuCaCertificate));
+    QString ssuCaCertificate = SsuRepoManager::caCertificatePath();
+    if (!ssuCaCertificate.isEmpty()) {
+        sslConfiguration.setCaCertificates(QSslCertificate::fromPath(ssuCaCertificate));
+    }
 
     request.setUrl(QUrl(QString(ssuRegisterUrl)
                         .arg(IMEI)
@@ -640,10 +637,6 @@ void Ssu::updateCredentials(bool force)
 
     QString ssuCaCertificate, ssuCredentialsUrl;
     ssuCaCertificate = SsuRepoManager::caCertificatePath();
-    if (ssuCaCertificate.isEmpty()) {
-        setError("CA certificate for ssu not set ('_ca-certificate in domain')");
-        return;
-    }
 
     if (!settings->contains("credentials-url")) {
         ssuCredentialsUrl = repoUrl("credentials-url");
@@ -684,7 +677,17 @@ void Ssu::updateCredentials(bool force)
     QSslCertificate certificate(settings->value("certificate").toByteArray());
 
     QList<QSslCertificate> caCertificates;
-    caCertificates << QSslCertificate::fromPath(ssuCaCertificate);
+    if (ssuCaCertificate.isEmpty()) {
+        // When the localCertificate (i.e. client certificate) is used, the
+        // system CA certificates are not loaded automatically, like they
+        // normally are when CA certificates are not set in the configuration.
+        // So we add them here explicitly. This is possibly a bug in Qt or it's
+        // internaction with OpenSSL, something similar to what is described in
+        // https://bugreports.qt.io/browse/QTBUG-7200
+        caCertificates << sslConfiguration.systemCaCertificates();
+    } else {
+        caCertificates << QSslCertificate::fromPath(ssuCaCertificate);
+    }
     sslConfiguration.setCaCertificates(caCertificates);
 
     sslConfiguration.setPrivateKey(privateKey);
