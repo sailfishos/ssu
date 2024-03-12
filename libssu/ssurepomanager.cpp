@@ -378,6 +378,7 @@ QStringList SsuRepoManager::repoVariables(QHash<QString, QString> *storageHash, 
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     QStringList configSections;
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
+    QString release = settings->release(rnd);
 
     // fill in all arbitrary repo specific variables from ssu.ini
     var.variableSection(settings, "repository-url-variables", storageHash);
@@ -406,7 +407,10 @@ QStringList SsuRepoManager::repoVariables(QHash<QString, QString> *storageHash, 
         configSections << "release" << "all";
     }
 
-    storageHash->insert("release", settings->release(rnd));
+    storageHash->insert("release", release);
+    storageHash->insert("releaseMajor", release.section('.', 0, 0));
+    storageHash->insert("releaseMinor", release.section('.', 1, 1));
+    storageHash->insert("releaseMajorMinor", release.section('.', 0, 1));
 
     if (!storageHash->contains("debugSplit"))
         storageHash->insert("debugSplit", "packages");
