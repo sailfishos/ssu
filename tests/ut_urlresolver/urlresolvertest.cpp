@@ -28,9 +28,12 @@ void UrlResolverTest::initTestCase()
     /*
       rndRepos["non-oss"] = "";
     */
-    releaseRepos["nemo"] = QString("https://packages.example.com/releases/0.1/nemo/platform/%1/").arg(arch);
-    releaseRepos["mer-core"] = QString("https://packages.example.com/0.1/mer/%1/packages/").arg(arch);
-    releaseRepos["jolla"] = QString("https://packages.example.com/releases/0.1/jolla/%1/").arg(arch);
+    releaseRepos["nemo"] = QString("https://packages.example.com/releases/1.2.3/nemo/platform/%1/").arg(arch);
+    releaseRepos["mer-core"] = QString("https://packages.example.com/1.2.3/mer/%1/packages/").arg(arch);
+    releaseRepos["jolla"] = QString("https://packages.example.com/releases/1.2.3/jolla/%1/").arg(arch);
+    releaseRepos["major"] = QString("https://packages.example.com/releases/1/major/%1/").arg(arch);
+    releaseRepos["minor"] = QString("https://packages.example.com/releases/2/minor/%1/").arg(arch);
+    releaseRepos["majmin"] = QString("https://packages.example.com/releases/1.2/majmin/%1/").arg(arch);
 }
 
 void UrlResolverTest::cleanupTestCase()
@@ -115,6 +118,7 @@ void UrlResolverTest::simpleRepoUrlLookup()
 
 void UrlResolverTest::checkReleaseRepoUrls()
 {
+    ssu.setRelease("1.2.3");
     QHashIterator<QString, QString> i(releaseRepos);
     while (i.hasNext()) {
         QString url;
