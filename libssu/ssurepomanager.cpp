@@ -456,6 +456,7 @@ QString SsuRepoManager::url(const QString &repoName, bool rndRepo,
     } else {
         domain = settings->domain();
     }
+    repoParameters.insert("ssuDomain", domain);
 
     repoParameters.insert("brand", settings->brand());
 
