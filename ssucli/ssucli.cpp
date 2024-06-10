@@ -128,15 +128,8 @@ void SsuCli::optDomain(QStringList opt)
                 }
         }
     } else if (opt.count() == 3) {
-        if (ssu.listDomains().contains(opt.at(2))) {
-            qout << "Changing domain from " << ssu.domain()
-                             << " to " << opt.at(2) << endl;
-            ssu.setDomain(opt.at(2));
-        }
-        else {
-            qout << "Domain " << opt.at(2) << " does not exist" << endl;
-            state = Idle;
-        }
+        qout << "Changing domain from " << ssu.domain() << " to " << opt.at(2) << endl;
+        ssu.setDomain(opt.at(2));
 
         state = Idle;
     } else if (opt.count() == 2) {
