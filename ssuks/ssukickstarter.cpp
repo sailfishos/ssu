@@ -407,26 +407,7 @@ bool SsuKickstarter::write(const QString &kickstart)
     foreach (const QString &section, commandSections) {
         kout << commandSection(section).join("\n") << endl << endl;
     }
-
-    // this allows simple search and replace postprocessing of the repos section
-    // to overcome shortcomings of the "keep image creation simple token based"
-    // approach
-    // TODO: QHash looks messy in the config, provide tool to edit it
     QString repoSection = repos().join("\n");
-    if (deviceInfo.variable("kickstart-defaults", "urlPostprocess")
-            .canConvert(QMetaType::QVariantHash)) {
-        QHash<QString, QVariant> postproc =
-            deviceInfo.variable("kickstart-defaults", "urlPostprocess").toHash();
-
-        QHash<QString, QVariant>::const_iterator it = postproc.constBegin();
-        while (it != postproc.constEnd()) {
-            QRegExp regex(it.key(), Qt::CaseSensitive, QRegExp::RegExp2);
-
-            repoSection.replace(regex, it.value().toString());
-            it++;
-        }
-    }
-
     kout << repoSection << endl << endl;
     kout << packagesSection("packages").join("\n") << endl << endl;
     kout << packagesSection("attachment").join("\n") << endl << endl;
