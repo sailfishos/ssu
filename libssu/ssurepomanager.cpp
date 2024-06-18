@@ -391,13 +391,11 @@ QStringList SsuRepoManager::repoVariables(QHash<QString, QString> *storageHash, 
 
     // add/overwrite some of the variables with sane ones
     if (rnd) {
-        storageHash->insert("flavour",
-                            repoSettings.value(
-                                settings->flavour() + "-flavour/flavour-pattern").toString());
+        storageHash->insert("flavour", settings->flavour());
+        storageHash->insert("flavourName", settings->flavour());
         storageHash->insert("flavourPattern",
                             repoSettings.value(
                                 settings->flavour() + "-flavour/flavour-pattern").toString());
-        storageHash->insert("flavourName", settings->flavour());
         configSections << settings->flavour() + "-flavour" << "rnd" << "all";
 
         // Make it possible to give any values with the flavour as well.
