@@ -122,8 +122,7 @@ QStringList SsuKickstarter::repos()
             result.append(QString("repo --name=%1-%2-%3%4 --baseurl=%5")
                           .arg(repo)
                           .arg(replaceSpaces(deviceModel))
-                          .arg((rndMode ? repoOverride.value("rndRelease")
-                                        : repoOverride.value("release")))
+                          .arg(repoOverride.value("release"))
                           .arg((rndMode ? "-" + repoOverride.value("flavourName")
                                         : QString()))
                           .arg(repoUrl)
@@ -131,8 +130,7 @@ QStringList SsuKickstarter::repos()
         } else {
             result.append(QString("repo --name=%1-%2%3 --baseurl=%4")
                           .arg(repo)
-                          .arg((rndMode ? repoOverride.value("rndRelease")
-                                        : repoOverride.value("release")))
+                          .arg(repoOverride.value("release"))
                           .arg((rndMode ? "-" + repoOverride.value("flavourName")
                                         : QString()))
                           .arg(repoUrl)
@@ -269,11 +267,6 @@ bool SsuKickstarter::write(const QString &kickstart)
             repoOverride.insert(it.key(), it.value());
         it++;
     }
-
-    // in rnd mode both rndRelease an release should be the same,
-    // as the variable name used is %(release)
-    if (rndMode && repoOverride.contains("rndRelease"))
-        repoOverride.insert("release", repoOverride.value("rndRelease"));
 
     // release mode variables should not contain flavourName
     if (!rndMode && repoOverride.contains("flavourName"))
