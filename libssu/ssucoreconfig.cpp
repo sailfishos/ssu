@@ -102,10 +102,8 @@ QDateTime SsuCoreConfig::lastCredentialsUpdate()
 
 QString SsuCoreConfig::release(bool rnd)
 {
-    if (rnd)
-        return value("rndRelease").toString();
-    else
-        return value("release").toString();
+    Q_UNUSED(rnd)
+    return value("release").toString();
 }
 
 void SsuCoreConfig::setDeviceMode(Ssu::DeviceModeFlags mode, enum Ssu::EditMode editMode)
@@ -134,14 +132,9 @@ void SsuCoreConfig::setFlavour(const QString &flavour)
 
 void SsuCoreConfig::setRelease(const QString &release, bool rnd)
 {
-    if (rnd) {
-        setValue("rndRelease", release);
-        // switch rndMode on/off when setting releases
-        setDeviceMode(Ssu::RndMode, Ssu::Add);
-    } else {
-        setValue("release", release);
-        setDeviceMode(Ssu::RndMode, Ssu::Remove);
-    }
+    // switch rndMode on/off when setting releases
+    setDeviceMode(Ssu::RndMode, rnd ? Ssu::Add : Ssu::Remove);
+    setValue("release", release);
     sync();
 }
 

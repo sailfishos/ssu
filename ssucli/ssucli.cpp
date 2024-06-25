@@ -466,7 +466,6 @@ void SsuCli::optRepos(QStringList opt)
         // TODO: read the default mic override variables from some config
         /*
         repoOverride.insert("release", "@RELEASE@");
-        repoOverride.insert("rndRelease", "@RNDRELEASE@");
         repoOverride.insert("flavour", "@FLAVOUR@");
         repoOverride.insert("arch", "@ARCH@");
         */
@@ -533,8 +532,7 @@ void SsuCli::optRepos(QStringList opt)
 
             QString repoUrl = ssu.repoUrl(repoName, rndRepo, repoParameters, repoOverride);
             qout << "repo --name=" << repo << "-"
-                 << (rndRepo ? repoOverride.value("rndRelease")
-                     : repoOverride.value("release"))
+                 << repoOverride.value("release")
                  << " --baseurl=" << repoUrl << endl;
         }
         state = Idle;

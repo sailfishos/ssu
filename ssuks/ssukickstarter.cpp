@@ -122,18 +122,16 @@ QStringList SsuKickstarter::repos()
             result.append(QString("repo --name=%1-%2-%3%4 --baseurl=%5")
                           .arg(repo)
                           .arg(replaceSpaces(deviceModel))
-                          .arg((rndMode ? repoOverride.value("rndRelease")
-                                        : repoOverride.value("release")))
-                          .arg((rndMode ? "-" + repoOverride.value("flavourName")
+                          .arg(repoOverride.value("release"))
+                          .arg((rndMode ? "-" + repoOverride.value("flavour")
                                         : QString()))
                           .arg(repoUrl)
                          );
         } else {
             result.append(QString("repo --name=%1-%2%3 --baseurl=%4")
                           .arg(repo)
-                          .arg((rndMode ? repoOverride.value("rndRelease")
-                                        : repoOverride.value("release")))
-                          .arg((rndMode ? "-" + repoOverride.value("flavourName")
+                          .arg(repoOverride.value("release"))
+                          .arg((rndMode ? "-" + repoOverride.value("flavour")
                                         : QString()))
                           .arg(repoUrl)
                          );
@@ -269,15 +267,26 @@ bool SsuKickstarter::write(const QString &kickstart)
             repoOverride.insert(it.key(), it.value());
         it++;
     }
-
-    // in rnd mode both rndRelease an release should be the same,
-    // as the variable name used is %(release)
-    if (rndMode && repoOverride.contains("rndRelease"))
-        repoOverride.insert("release", repoOverride.value("rndRelease"));
-
-    // release mode variables should not contain flavourName
-    if (!rndMode && repoOverride.contains("flavourName"))
-        repoOverride.remove("flavourName");
+        
+    if (rndMode) {
+        // Ensure flavour is set correctly
+        if (repoOverride.contains("flavour")) {
+            repoOverride.insert("flavourName", repoOverride.value("flavour"));
+        } else if (repoOverride.contains("flavourName")) {
+            qerr << "Warning: Should use flavour instead of flavourName" << endl;
+            repoOverride.insert("flavour", repoOverride.value("flavourName"));
+        } else {
+            qerr << "Warning: RND mode but flavour is not set" << endl;
+        }
+    } else {
+        // release mode variables should not contain flavour
+        if (repoOverride.remove("flavour")) {
+            qerr << "Warning: Unset flavour in release mode." << endl;
+        }
+        if (repoOverride.remove("flavourName")) {
+            qerr << "Warning: Unset flavourName in release mode." << endl;
+        }
+    }
 
     //TODO: check for mandatory keys, ..
     if (!repoOverride.contains("deviceModel"))
