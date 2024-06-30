@@ -60,7 +60,7 @@ Requires: ssu-vendor-data
 
 %files ks
 %defattr(-,root,root,-)
-%config %{_sysconfdir}/rpm/macros.ssuks
+%{_rpmmacrodir}/macros.ssuks
 %{_bindir}/ssuks
 
 %package slipstream
