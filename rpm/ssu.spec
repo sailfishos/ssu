@@ -29,7 +29,6 @@ user credentials. Alternative repository configurations may be specified for
 RnD mode.
 
 %files
-%defattr(-,root,root,-)
 %license COPYING COPYING.GPL COPYING.LGPL COPYING.BSD
 %{_libexecdir}/zypp/plugins/urlresolver/*
 %{_bindir}/ssu
@@ -38,7 +37,7 @@ RnD mode.
 %dir %{_sysconfdir}/zypp/credentials.d
 # ssu itself does not use the package-update triggers, but provides
 # them for the vendor data packages to use
-%attr(0755, -, -) %{_oneshotdir}/*
+%{_oneshotdir}/*
 %{_bindir}/ssud
 %{_unitdir}/*.service
 %{_datadir}/dbus-1/system-services/*.service
@@ -59,7 +58,6 @@ Requires: ssu-vendor-data
 %{summary}. With ponies!
 
 %files ks
-%defattr(-,root,root,-)
 %{_rpmmacrodir}/macros.ssuks
 %{_bindir}/ssuks
 
@@ -70,7 +68,6 @@ Summary: %{name} OS factory snapshot download provider
 Helper utility to authenticate downloads of factory snapshot manifests.
 
 %files slipstream
-%defattr(-,root,root,-)
 %{_bindir}/ssuslipstream
 
 %package declarative
@@ -91,7 +88,6 @@ Requires: %{name} = %{version}-%{release}
 %{summary}.
 
 %files devel
-%defattr(-,root,root,-)
 %{_libdir}/libssu.so
 %{_includedir}/ssu*.h
 %{_libdir}/pkgconfig/ssu.pc
@@ -105,37 +101,35 @@ Requires: testrunner-lite
 %{summary}.
 
 %files tests
-%defattr(-,root,root,-)
 /opt/tests/%{name}
 
 
 %package tools
 Summary: Tools for %{name}
+BuildArch: noarch
 Requires: rpm
 
 %description tools
 %{summary}.
 
 %files tools
-%defattr(-,root,root,-)
-%attr(0755, -, -) /usr/sbin/ssu-repos.sh
+%{_sbindir}/ssu-repos.sh
 
 
 %package doc
 Summary: Documentation for %{name}
+BuildArch: noarch
 
 %description doc
 %{summary}.
 
 %files doc
-%defattr(-,root,root,-)
 %{_docdir}/%{name}/html
 %{_docdir}/%{name}/examples
 
 
 %prep
-%setup -q -n %{name}-%{version}
-
+%autosetup -p1
 
 %build
 mkdir -p build && cd build
@@ -171,8 +165,7 @@ if [ "$1" == 0 ]; then
   getent group ssu >/dev/null && groupdel ssu
 fi
 
-%post
-/sbin/ldconfig
+%post -p /sbin/ldconfig
 
 %transfiletriggerin -- %{_datarootdir}/%{name}
 # Touch all modified repo config files so they will be newer than the cache
