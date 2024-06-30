@@ -47,7 +47,7 @@ RnD mode.
 %dir %{_datarootdir}/%{name}/features.d
 %dir %{_datarootdir}/%{name}/repos.d
 %dir %{_sysconfdir}/%{name}/
-%{_sysconfdir}/dbus-1/system.d/*.conf
+%{_datadir}/dbus-1/system.d/*.conf
 
 %package ks
 Summary: Kickstart generator using %{name} data
