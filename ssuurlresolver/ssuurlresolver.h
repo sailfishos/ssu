@@ -15,7 +15,12 @@
 #include <QFile>
 
 #include <iostream>
+#include  <zypp/APIConfig.h>
+#if LIBZYPP_VERSION >= 173402
+#include <zypp-core/rpc/PluginFrame.h>
+#else
 #include <zypp/PluginFrame.h>
+#endif
 
 #include "libssu/ssu.h"
 
