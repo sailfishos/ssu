@@ -25,7 +25,7 @@ oneshot.files = ssu-update-repos
 oneshot.path = /usr/lib/oneshot.d
 
 macros.files = macros.ssuks
-macros.path  = /etc/rpm/
+macros.path  = /usr/lib/rpm/macros.d
 
 static_config.files = examples/repos.ini \
                       examples/ssu-defaults.ini \
