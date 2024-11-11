@@ -80,6 +80,8 @@ signals:
     void registrationStatusChanged();
 
 private:
+    void startAutoclose();
+
     Ssu ssu;
     static const char *SERVICE_NAME;
     static const char *OBJECT_PATH;

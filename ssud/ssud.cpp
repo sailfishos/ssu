@@ -33,6 +33,10 @@
 const char *Ssud::SERVICE_NAME = "org.nemo.ssu";
 const char *Ssud::OBJECT_PATH = "/org/nemo/ssu";
 
+// prepare for controlled suicide on boredom
+static const int AUTOCLOSE_TIMEOUT_MS = 180 * 1000;
+static const int SHORT_AUTOCLOSE_TIMEOUT_MS = 5 * 1000;
+
 Ssud::Ssud(QObject *parent)
     : QObject(parent)
 {
@@ -47,14 +51,10 @@ Ssud::Ssud(QObject *parent)
         qFatal("Cannot register D-Bus service at %s", SERVICE_NAME);
     }
 
-    // prepare for controlled suicide on boredom
-    const int AUTOCLOSE_TIMEOUT_MS = 180 * 1000;
-
     autoclose.setSingleShot(true);
-    autoclose.setInterval(AUTOCLOSE_TIMEOUT_MS);
 
-    connect(&autoclose, SIGNAL(timeout()),
-            this, SLOT(quit()));
+    connect(&autoclose, &QTimer::timeout,
+            QCoreApplication::instance(), &QCoreApplication::quit);
 
     new SsuAdaptor(this);
 
@@ -66,7 +66,7 @@ Ssud::Ssud(QObject *parent)
             this, SIGNAL(registrationStatusChanged()));
 
     // a cry for help everytime we do something to prevent suicide
-    autoclose.start();
+    startAutoclose();
 }
 
 Ssud::~Ssud()
@@ -75,7 +75,7 @@ Ssud::~Ssud()
 
 QString Ssud::brand()
 {
-    autoclose.start();
+    startAutoclose();
     return ssu.brand();
 }
 
@@ -83,7 +83,7 @@ QString Ssud::deviceModel()
 {
     SsuDeviceInfo deviceInfo;
 
-    autoclose.start();
+    startAutoclose();
     return deviceInfo.deviceModel();
 }
 
@@ -91,7 +91,7 @@ QString Ssud::deviceFamily()
 {
     SsuDeviceInfo deviceInfo;
 
-    autoclose.start();
+    startAutoclose();
     return deviceInfo.deviceFamily();
 }
 
@@ -99,7 +99,7 @@ QString Ssud::deviceUid()
 {
     SsuDeviceInfo deviceInfo;
 
-    autoclose.start();
+    startAutoclose();
     return deviceInfo.deviceUid();
 }
 
@@ -107,7 +107,7 @@ QString Ssud::deviceVariant()
 {
     SsuDeviceInfo deviceInfo;
 
-    autoclose.start();
+    startAutoclose();
     return deviceInfo.deviceVariant();
 }
 
@@ -115,30 +115,33 @@ QString Ssud::displayName(int type)
 {
     SsuDeviceInfo deviceInfo;
 
-    autoclose.start();
+    startAutoclose();
     return deviceInfo.displayName(type);
 }
 
 bool Ssud::error()
 {
-    autoclose.start();
+    startAutoclose();
     return ssu.error();
 }
 
 QString Ssud::lastError()
 {
-    autoclose.start();
+    startAutoclose();
     return ssu.lastError();
 }
 
 void Ssud::quit()
 {
-    QCoreApplication::quit();
+    if (!autoclose.isActive() || autoclose.remainingTime() > SHORT_AUTOCLOSE_TIMEOUT_MS) {
+        autoclose.setInterval(SHORT_AUTOCLOSE_TIMEOUT_MS);
+        autoclose.start();
+    }
 }
 
 bool Ssud::isRegistered()
 {
-    autoclose.start();
+    startAutoclose();
     return ssu.isRegistered();
 }
 
@@ -146,25 +149,25 @@ void Ssud::registerDevice(const QString &username, const QString &password)
 {
     autoclose.stop();
     ssu.sendRegistration(username, password);
-    autoclose.start();
+    startAutoclose();
 }
 
 void Ssud::unregisterDevice()
 {
-    autoclose.start();
+    startAutoclose();
     ssu.unregister();
 };
 
 QString Ssud::domain()
 {
-    autoclose.start();
+    startAutoclose();
     return ssu.domain();
 }
 
 // called by DBus Adaptor, return integer instead of enum Ssu::DeviceModeFlags
 int Ssud::deviceMode()
 {
-    autoclose.start();
+    startAutoclose();
     return ssu.deviceMode();
 }
 
@@ -182,12 +185,12 @@ void Ssud::setDeviceMode(int mode, int editMode)
 
     SsuRepoManager repoManager;
     repoManager.update();
-    autoclose.start();
+    startAutoclose();
 }
 
 QString Ssud::flavour()
 {
-    autoclose.start();
+    startAutoclose();
     return ssu.flavour();
 }
 
@@ -197,12 +200,12 @@ void Ssud::setFlavour(const QString &flavour)
 
     SsuRepoManager repoManager;
     repoManager.update();
-    autoclose.start();
+    startAutoclose();
 }
 
 QString Ssud::release(bool rnd)
 {
-    autoclose.start();
+    startAutoclose();
     return ssu.release(rnd);
 }
 
@@ -212,7 +215,7 @@ void Ssud::setRelease(const QString &release, bool rnd)
 
     SsuRepoManager repoManager;
     repoManager.update();
-    autoclose.start();
+    startAutoclose();
 }
 
 void Ssud::modifyRepo(int action, const QString &repo)
@@ -237,7 +240,7 @@ void Ssud::modifyRepo(int action, const QString &repo)
     }
 
     repoManager.update();
-    autoclose.start();
+    startAutoclose();
 }
 
 void Ssud::addRepo(const QString &repo, const QString &url)
@@ -245,7 +248,7 @@ void Ssud::addRepo(const QString &repo, const QString &url)
     SsuRepoManager repoManager;
     repoManager.add(repo, url);
     repoManager.update();
-    autoclose.start();
+    startAutoclose();
 }
 
 void Ssud::updateRepos()
@@ -253,7 +256,7 @@ void Ssud::updateRepos()
     SsuRepoManager repoManager;
     autoclose.stop();
     repoManager.update();
-    autoclose.start();
+    startAutoclose();
 }
 
 QList<SsuRepo> Ssud::listRepos(bool rnd)
@@ -270,24 +273,30 @@ QList<SsuRepo> Ssud::listRepos(bool rnd)
 
         reposList.append(ssuRepo);
     }
-    autoclose.start();
+    startAutoclose();
     return reposList;
 }
 
 QStringList Ssud::listDomains()
 {
-    autoclose.start();
+    startAutoclose();
     return ssu.listDomains();
 }
 
 void Ssud::setDomainConfig(const QString &domain, QVariantMap config)
 {
     ssu.setDomainConfig(domain, config);
-    autoclose.start();
+    startAutoclose();
 }
 
 QVariantMap Ssud::getDomainConfig(const QString &domain)
 {
-    autoclose.start();
+    startAutoclose();
     return ssu.getDomainConfig(domain);
+}
+
+void Ssud::startAutoclose()
+{
+    autoclose.setInterval(AUTOCLOSE_TIMEOUT_MS);
+    autoclose.start();
 }
