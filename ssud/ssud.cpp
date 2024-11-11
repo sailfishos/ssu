@@ -73,7 +73,8 @@ Ssud::~Ssud()
 {
 }
 
-QString Ssud::brand() {
+QString Ssud::brand()
+{
     autoclose.start();
     return ssu.brand();
 }
@@ -198,7 +199,6 @@ void Ssud::setFlavour(const QString &flavour)
     repoManager.update();
     autoclose.start();
 }
-
 
 QString Ssud::release(bool rnd)
 {

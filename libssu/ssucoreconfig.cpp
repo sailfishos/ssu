@@ -82,7 +82,8 @@ QString SsuCoreConfig::domain(bool pretty)
     }
 }
 
-QString SsuCoreConfig::brand() {
+QString SsuCoreConfig::brand()
+{
     return value("brand").toString();
 }
 

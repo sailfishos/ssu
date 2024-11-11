@@ -74,7 +74,6 @@ public slots:
 
     void quit();
 
-
 signals:
     void done();
     void credentialsChanged();

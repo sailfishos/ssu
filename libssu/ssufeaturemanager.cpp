@@ -37,8 +37,7 @@ QStringList SsuFeatureManager::repos(bool rndRepo, int filter)
     QStringList r;
 
     if ((filter & Ssu::BoardFilter) == Ssu::BoardFilter) {
-        QString repoHeader = QString("repositories-%1/")
-                             .arg(rndRepo ? "rnd" : "release");
+        QString repoHeader = QString("repositories-%1/").arg(rndRepo ? "rnd" : "release");
 
         // take the global groups
         featureSettings->beginGroup("repositories");
@@ -57,8 +56,7 @@ QStringList SsuFeatureManager::repos(bool rndRepo, int filter)
 
 QString SsuFeatureManager::url(const QString &repo, bool rndRepo)
 {
-    QString repoHeader = QString("repositories-%1/")
-                         .arg(rndRepo ? "rnd" : "release");
+    QString repoHeader = QString("repositories-%1/").arg(rndRepo ? "rnd" : "release");
 
     if (featureSettings->contains(repoHeader + repo))
         return featureSettings->value(repoHeader + repo).toString();
