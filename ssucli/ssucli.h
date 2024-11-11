@@ -46,9 +46,11 @@ public slots:
 
 private:
     Ssu ssu;
-    SsuProxy *ssuProxy;
+    SsuProxy *ssuProxy = nullptr;
     QSettings settings;
     int state;
+
+    SsuProxy *getSsuProxy();
     void usage(const QString &message = QString());
     void uidWarning();
     void optBrand(QStringList opt);

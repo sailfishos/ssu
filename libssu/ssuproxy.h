@@ -32,7 +32,7 @@ class SsuProxy: public SsuDBusInterface
     Q_OBJECT
 
 public:
-    SsuProxy();
+    SsuProxy(QObject *parent = nullptr);
 };
 
 #endif // _SSUPROXY_H
