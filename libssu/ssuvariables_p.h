@@ -19,6 +19,7 @@ class SsuVariables: public QObject
 
 public:
     SsuVariables();
+
     /**
      * Return a default variable section, if exists, or an empty string.
      *
@@ -27,22 +28,27 @@ public:
      * "default". You should therefore avoid "-" in section names.
      */
     static QString defaultSection(SsuSettings *settings, const QString &section);
+
     /**
      * Resolve a whole string, containing several variables. Variables inside variables are allowed
      */
     static QString resolveString(const QString &pattern, QHash<QString, QString> *variables, int recursionDepth = 0);
+
     /**
      * Resolve variables; variable can be passed as %(var) or var
      */
     static QString resolveVariable(const QString &variable, QHash<QString, QString> *variables);
+
     /**
      * Set the settings object to use
      */
     void setSettings(SsuSettings *settings);
+
     /*
      * Return the settings object used
      */
     SsuSettings *settings();
+
     /**
      * Return a variable from the given variable section. 'var'- is automatically
      * prepended to the section name if not specified already. Recursive search
@@ -51,6 +57,7 @@ public:
      */
     QVariant variable(const QString &section, const QString &key);
     static QVariant variable(SsuSettings *settings, const QString &section, const QString &key);
+
     /**
      * Return the requested variable section, recursively looking up all variable
      * sections referenced inside with the 'variable' keyword. 'var-' is automatically
@@ -65,6 +72,7 @@ public:
      * the default section with the requested section.
      */
     void variableSection(const QString &section, QHash<QString, QString> *storageHash);
+
     static void variableSection(SsuSettings *settings, const QString &section,
                                 QHash<QString, QString> *storageHash);
 

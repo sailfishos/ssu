@@ -74,13 +74,14 @@ public slots:
 
     void quit();
 
-
 signals:
     void done();
     void credentialsChanged();
     void registrationStatusChanged();
 
 private:
+    void startAutoclose();
+
     Ssu ssu;
     static const char *SERVICE_NAME;
     static const char *OBJECT_PATH;

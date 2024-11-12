@@ -31,5 +31,4 @@ private:
     QString fallbackLogPath;
 };
 
-
 #endif

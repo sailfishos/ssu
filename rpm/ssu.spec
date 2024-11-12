@@ -1,5 +1,5 @@
 Name: ssu
-Version: 1.4.0
+Version: 1.6.1
 Release: 1
 Summary: Seamless Software Upgrade
 License: GPLv2+ and LGPLv2+ and BSD
@@ -28,26 +28,6 @@ including hardware adaptation and other optional features, and repository
 user credentials. Alternative repository configurations may be specified for
 RnD mode.
 
-%files
-%license COPYING COPYING.GPL COPYING.LGPL COPYING.BSD
-%{_libexecdir}/zypp/plugins/urlresolver/*
-%{_bindir}/ssu
-%{_libdir}/libssu.so.*
-%{_libdir}/ssu/libsandboxhook.so
-%dir %{_sysconfdir}/zypp/credentials.d
-# ssu itself does not use the package-update triggers, but provides
-# them for the vendor data packages to use
-%{_oneshotdir}/*
-%{_bindir}/ssud
-%{_unitdir}/*.service
-%{_datadir}/dbus-1/system-services/*.service
-%dir %{_datarootdir}/%{name}
-%dir %{_datarootdir}/%{name}/board-mappings.d
-%dir %{_datarootdir}/%{name}/features.d
-%dir %{_datarootdir}/%{name}/repos.d
-%dir %{_sysconfdir}/%{name}/
-%{_datadir}/dbus-1/system.d/*.conf
-
 %package ks
 Summary: Kickstart generator using %{name} data
 # required for QA to pick up new macros
@@ -57,18 +37,11 @@ Requires: ssu-vendor-data
 %description ks
 %{summary}. With ponies!
 
-%files ks
-%{_rpmmacrodir}/macros.ssuks
-%{_bindir}/ssuks
-
 %package slipstream
 Summary: %{name} OS factory snapshot download provider
 
 %description slipstream
 Helper utility to authenticate downloads of factory snapshot manifests.
-
-%files slipstream
-%{_bindir}/ssuslipstream
 
 %package declarative
 Summary: QML plugin for libssu
@@ -77,9 +50,6 @@ BuildRequires: pkgconfig(Qt5Qml)
 %description declarative
 %{summary}
 
-%files declarative
-%{_libdir}/qt5/qml/Nemo/Ssu/*
-
 %package devel
 Summary: Development files for %{name}
 Requires: %{name} = %{version}-%{release}
@@ -87,22 +57,12 @@ Requires: %{name} = %{version}-%{release}
 %description devel
 %{summary}.
 
-%files devel
-%{_libdir}/libssu.so
-%{_includedir}/ssu*.h
-%{_libdir}/pkgconfig/ssu.pc
-
-
 %package tests
 Summary: Unit tests for %{name}
 Requires: testrunner-lite
 
 %description tests
 %{summary}.
-
-%files tests
-/opt/tests/%{name}
-
 
 %package tools
 Summary: Tools for %{name}
@@ -112,20 +72,12 @@ Requires: rpm
 %description tools
 %{summary}.
 
-%files tools
-%{_sbindir}/ssu-repos.sh
-
-
 %package doc
 Summary: Documentation for %{name}
 BuildArch: noarch
 
 %description doc
 %{summary}.
-
-%files doc
-%{_docdir}/%{name}/html
-%{_docdir}/%{name}/examples
 
 
 %prep
@@ -193,3 +145,47 @@ fi
 %transfiletriggerpostun -- %{_datarootdir}/%{name}
 %{_bindir}/add-oneshot --now ssu-update-repos
 
+%files
+%license COPYING COPYING.GPL COPYING.LGPL COPYING.BSD
+%{_libexecdir}/zypp/plugins/urlresolver/*
+%{_bindir}/ssu
+%{_libdir}/libssu.so.*
+%{_libdir}/ssu/libsandboxhook.so
+%dir %{_sysconfdir}/zypp/credentials.d
+# ssu itself does not use the package-update triggers, but provides
+# them for the vendor data packages to use
+%{_oneshotdir}/*
+%{_bindir}/ssud
+%{_unitdir}/*.service
+%{_datadir}/dbus-1/system-services/*.service
+%dir %{_datarootdir}/%{name}
+%dir %{_datarootdir}/%{name}/board-mappings.d
+%dir %{_datarootdir}/%{name}/features.d
+%dir %{_datarootdir}/%{name}/repos.d
+%dir %{_sysconfdir}/%{name}/
+%{_datadir}/dbus-1/system.d/*.conf
+
+%files ks
+%{_rpmmacrodir}/macros.ssuks
+%{_bindir}/ssuks
+
+%files slipstream
+%{_bindir}/ssuslipstream
+
+%files declarative
+%{_libdir}/qt5/qml/Nemo/Ssu/*
+
+%files devel
+%{_libdir}/libssu.so
+%{_includedir}/ssu*.h
+%{_libdir}/pkgconfig/ssu.pc
+
+%files tests
+/opt/tests/%{name}
+
+%files tools
+%{_sbindir}/ssu-repos.sh
+
+%files doc
+%{_docdir}/%{name}/html
+%{_docdir}/%{name}/examples

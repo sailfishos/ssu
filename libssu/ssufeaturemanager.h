@@ -18,9 +18,9 @@
 class SsuFeatureManager: public QObject
 {
     Q_OBJECT
-
 public:
     SsuFeatureManager();
+
     QStringList repos(bool rndRepo, int filter = Ssu::NoFilter);
     QString url(const QString &repo, bool rndRepo);
 

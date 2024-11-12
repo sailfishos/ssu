@@ -103,6 +103,7 @@ public:
     };
 
     Ssu();
+
     /**
      * Find a username/password pair for the given scope
      * @return a QPair with username and password, or an empty QPair if scope is invalid
@@ -118,22 +119,26 @@ public:
      * @return a string containing the scope; it can be used to look up login credentials using  credentials()
      */
     QString credentialsScope(const QString &repoName, bool rndRepo = false);
+
     /**
      * Return the URL for which credentials scope is valid
      */
     QString credentialsUrl(const QString &scope);
+
     /**
      * Returns if the last operation was successful
      * @retval true last operation was successful
      * @retval false last operation failed, you should check lastError() for details
      */
     Q_INVOKABLE bool error();
+
     /**
      * Return an error message for the last error encountered. The message
      * will not be cleared, check error() to see if the last operation was
      * successful.
      */
     Q_INVOKABLE QString lastError();
+
     /**
      * Resolve a repository url
      * @return the repository URL on success, an empty string on error
@@ -141,6 +146,7 @@ public:
     QString repoUrl(const QString &repoName, bool rndRepo = false,
                     QHash<QString, QString> repoParameters = QHash<QString, QString>(),
                     QHash<QString, QString> parametersOverride = QHash<QString, QString>());
+
     /**
      * Unregister a device. This will clean all registration data from a device,
      * though will not touch the information on ssu server; the information there
@@ -181,6 +187,7 @@ public:
     Q_INVOKABLE QStringList listDomains();
     Q_INVOKABLE void setDomainConfig(const QString &domain, QVariantMap config);
     Q_INVOKABLE QVariantMap getDomainConfig(const QString &domain);
+
 private:
     QString errorString;
     bool errorFlag;
@@ -210,6 +217,7 @@ public slots:
      * error message.
      */
     void sendRegistration(const QString &username, const QString &password);
+
     /**
      * Try to update the RND repository credentials. The device needs to be registered
      * for this to work. updateCredentials remembers the time of the last credentials
@@ -222,6 +230,7 @@ public slots:
      * error message.
      */
     void updateCredentials(bool force = false);
+
     /**
      * Try to update credentials for (Jolla) store
      */

@@ -46,17 +46,14 @@ SsuCli::SsuCli()
     connect(&ssu, SIGNAL(done()),
             this, SLOT(handleResponse()));
 
-    ssuProxy = new SsuProxy();
-
-    connect(ssuProxy, SIGNAL(done()),
-            this, SLOT(handleDBusResponse()));
-
     state = Idle;
 }
 
 SsuCli::~SsuCli()
 {
-    ssuProxy->quit();
+    if (ssuProxy) {
+        ssuProxy->quit();
+    }
 }
 
 void SsuCli::handleResponse()
@@ -76,8 +73,8 @@ void SsuCli::handleDBusResponse()
 {
     QTextStream qout(stdout);
 
-    if (ssuProxy->error()) {
-        qout << "Last operation failed: \n" << ssuProxy->lastError() << endl;
+    if (getSsuProxy()->error()) {
+        qout << "Last operation failed: \n" << getSsuProxy()->lastError() << endl;
         QCoreApplication::exit(1);
     } else {
         qout << "Operation successful" << endl;
@@ -120,7 +117,7 @@ void SsuCli::optDomain(QStringList opt)
         } else if (opt.count() == 5) { // set one domain config value
                 QVariantMap config = ssu.getDomainConfig(ssu.domain());
                 config.insert(opt.at(3), opt.at(4));
-                QDBusPendingReply<> reply = ssuProxy->setDomainConfig(ssu.domain(), config);
+                QDBusPendingReply<> reply = getSsuProxy()->setDomainConfig(ssu.domain(), config);
                 reply.waitForFinished();
                 if (reply.isError()) {
                     qerr << fallingBackToDirectUse(reply.error()) << endl;
@@ -150,7 +147,7 @@ void SsuCli::optFlavour(QStringList opt)
         qout << "Changing flavour from " << ssu.flavour()
              << " to " << opt.at(2) << endl;
 
-        QDBusPendingReply<> reply = ssuProxy->setFlavour(opt.at(2));
+        QDBusPendingReply<> reply = getSsuProxy()->setFlavour(opt.at(2));
         reply.waitForFinished();
         if (reply.isError()) {
             qerr << fallingBackToDirectUse(reply.error()) << endl;
@@ -238,7 +235,7 @@ void SsuCli::optMode(QStringList opt)
              << ") to " << newMode
              << " (" << getModeString(newMode) << ")" << endl;
 
-        QDBusPendingReply<> reply = ssuProxy->setDeviceMode(newMode);
+        QDBusPendingReply<> reply = getSsuProxy()->setDeviceMode(newMode);
         reply.waitForFinished();
         if (reply.isError()) {
             qerr << fallingBackToDirectUse(reply.error()) << endl;
@@ -291,7 +288,7 @@ void SsuCli::optModifyRepo(enum Actions action, QStringList opt)
             return;
         }
 
-        QDBusPendingReply<> reply = ssuProxy->modifyRepo(action, opt.at(2));
+        QDBusPendingReply<> reply = getSsuProxy()->modifyRepo(action, opt.at(2));
         reply.waitForFinished();
         if (reply.isError()) {
             qerr << fallingBackToDirectUse(reply.error()) << endl;
@@ -344,7 +341,7 @@ void SsuCli::optModifyRepo(enum Actions action, QStringList opt)
             return;
         }
 
-        QDBusPendingReply<> reply = ssuProxy->addRepo(repo, url);
+        QDBusPendingReply<> reply = getSsuProxy()->addRepo(repo, url);
         reply.waitForFinished();
         if (reply.isError()) {
             qerr << fallingBackToDirectUse(reply.error()) << endl;
@@ -387,7 +384,7 @@ void SsuCli::optRegister(QStringList opt)
     if (opt.count() == 3 && opt.at(2) == "-h")
         ssuSettings->setValue("repository-url-variables/user", username);
 
-    QDBusPendingReply<> reply = ssuProxy->registerDevice(username, password);
+    QDBusPendingReply<> reply = getSsuProxy()->registerDevice(username, password);
     reply.waitForFinished();
     if (reply.isError()) {
         qerr << fallingBackToDirectUse(reply.error()) << endl;
@@ -411,7 +408,7 @@ void SsuCli::optRelease(QStringList opt)
                  << " to " << opt.at(2) << endl;
             qout << "Your device is now in release mode!" << endl;
 
-            QDBusPendingReply<> reply = ssuProxy->setRelease(opt.at(2), false);
+            QDBusPendingReply<> reply = getSsuProxy()->setRelease(opt.at(2), false);
             reply.waitForFinished();
             if (reply.isError()) {
                 qerr << fallingBackToDirectUse(reply.error()) << endl;
@@ -432,7 +429,7 @@ void SsuCli::optRelease(QStringList opt)
              << " to " << opt.at(3) << endl;
         qout << "Your device is now in RnD mode!" << endl;
 
-        QDBusPendingReply<> reply = ssuProxy->setRelease(opt.at(3), true);
+        QDBusPendingReply<> reply = getSsuProxy()->setRelease(opt.at(3), true);
         reply.waitForFinished();
         if (reply.isError()) {
             qerr << fallingBackToDirectUse(reply.error()) << endl;
@@ -666,7 +663,7 @@ void SsuCli::optStatus(QStringList opt)
 
     QString deviceUid;
 
-    QDBusPendingReply<QString> reply = ssuProxy->deviceUid();
+    QDBusPendingReply<QString> reply = getSsuProxy()->deviceUid();
     reply.waitForFinished();
     if (reply.isError()) {
         qerr << "DBus unavailable, UUID not necessarily connected to reality." << endl;
@@ -730,7 +727,7 @@ void SsuCli::optUpdateRepos(QStringList opt)
 
     QTextStream qerr(stdout);
 
-    QDBusPendingReply<> reply = ssuProxy->updateRepos();
+    QDBusPendingReply<> reply = getSsuProxy()->updateRepos();
     reply.waitForFinished();
     if (reply.isError()) {
         qerr << fallingBackToDirectUse(reply.error()) << endl;
@@ -830,6 +827,18 @@ void SsuCli::uidWarning()
         QTextStream qout(stderr);
         qout << "You're not root. Run 'ssu ur' as root to recreate repository files" << endl;
     }
+}
+
+SsuProxy *SsuCli::getSsuProxy()
+{
+    if (!ssuProxy) {
+        ssuProxy = new SsuProxy(this);
+
+        connect(ssuProxy, SIGNAL(done()),
+                this, SLOT(handleDBusResponse()));
+    }
+
+    return ssuProxy;
 }
 
 void SsuCli::usage(const QString &message)
