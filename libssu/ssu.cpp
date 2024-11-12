@@ -64,8 +64,8 @@ Ssu::Ssu()
     // this is currently required since there's no global gconf,
     // and we migth not yet have users on bootstrap
     QFileInfo settingsInfo(SSU_CONFIGURATION);
-    if (settingsInfo.groupId() != SSU_GROUP_ID ||
-            !settingsInfo.permission(QFile::WriteGroup)) {
+    if (settingsInfo.groupId() != SSU_GROUP_ID
+            || !settingsInfo.permission(QFile::WriteGroup)) {
         QProcess proc;
         proc.start("/usr/bin/ssuconfperm");
         proc.waitForFinished();
@@ -82,8 +82,6 @@ Ssu::Ssu()
 #warning "TARGET_ARCH not defined"
 #endif
     settings->sync();
-
-
 
     manager = new QNetworkAccessManager(this);
     connect(manager, SIGNAL(finished(QNetworkReply *)),
@@ -171,9 +169,10 @@ QString Ssu::domain()
     return settings->domain(true);
 }
 
-QString Ssu::brand() {
-  SsuCoreConfig *settings = SsuCoreConfig::instance();
-  return settings->brand();
+QString Ssu::brand()
+{
+    SsuCoreConfig *settings = SsuCoreConfig::instance();
+    return settings->brand();
 }
 
 bool Ssu::isRegistered()
@@ -223,10 +222,6 @@ bool Ssu::useSslVerify()
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     return settings->useSslVerify();
 }
-
-//...
-
-
 
 QString Ssu::lastError()
 {
@@ -278,13 +273,15 @@ bool Ssu::registerDevice(QDomDocument *response)
     return true;
 }
 
-QStringList Ssu::listDomains() {
+QStringList Ssu::listDomains()
+{
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
     QRegExp domainFilter("-domain$");
     return repoSettings.childGroups().filter(domainFilter).replaceInStrings(domainFilter, "");
 }
 
-void Ssu::setDomainConfig(const QString &domain, QVariantMap config) {
+void Ssu::setDomainConfig(const QString &domain, QVariantMap config)
+{
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
     repoSettings.beginGroup(domain + "-domain");
     repoSettings.remove("");
@@ -296,7 +293,8 @@ void Ssu::setDomainConfig(const QString &domain, QVariantMap config) {
     repoSettings.sync();
 }
 
-QVariantMap Ssu::getDomainConfig(const QString &domain) {
+QVariantMap Ssu::getDomainConfig(const QString &domain)
+{
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
     QVariantMap config;
     repoSettings.beginGroup(domain + "-domain");

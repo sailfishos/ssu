@@ -48,9 +48,9 @@ bool SsuUrlResolver::writeZyppCredentialsIfNeeded(const QString &credentialsScop
 
     /// @TODO: add scope to lastCredentialsUpdate() to allow scope specific update
     ///        tracking
-    if (credentialsFileInfo.exists() &&
-            credentialsFileInfo.lastModified() > ssu.lastCredentialsUpdate() &&
-            credentialsScope != "store") {
+    if (credentialsFileInfo.exists()
+            && credentialsFileInfo.lastModified() > ssu.lastCredentialsUpdate()
+            && credentialsScope != "store") {
         // zypp credentials up to date
         return true;
     }
