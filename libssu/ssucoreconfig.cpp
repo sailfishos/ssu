@@ -15,14 +15,20 @@
 
 #include "ssucoreconfig_p.h"
 
-SsuCoreConfig *SsuCoreConfig::ssuCoreConfig = 0;
+Q_GLOBAL_STATIC(SsuCoreConfig, configInstance)
 
 SsuCoreConfig *SsuCoreConfig::instance()
 {
-    if (!ssuCoreConfig)
-        ssuCoreConfig = new SsuCoreConfig;
+    return configInstance();
+}
 
-    return ssuCoreConfig;
+SsuCoreConfig::SsuCoreConfig()
+    : SsuSettings(SSU_CONFIGURATION, QSettings::IniFormat, SSU_DEFAULT_CONFIGURATION)
+{
+}
+
+SsuCoreConfig::~SsuCoreConfig()
+{
 }
 
 QPair<QString, QString> SsuCoreConfig::credentials(const QString &scope)
