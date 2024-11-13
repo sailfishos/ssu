@@ -73,7 +73,6 @@ public slots:
 
 signals:
     void done();
-
 };
 
 #endif

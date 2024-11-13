@@ -62,7 +62,7 @@ void SsuSettings::merge(bool keepOld)
 
     if (skipMerge) {
         // systemd journal does not seem to allow selective loglevels for different services, disabling for now
-        //ssuLog->print(LOG_DEBUG, QString("Configuration file is newer than all config.d files, skipping merge"));
+        //SsuLog::print(LOG_DEBUG, QString("Configuration file is newer than all config.d files, skipping merge"));
         return;
     }
 
@@ -78,13 +78,11 @@ void SsuSettings::merge(bool keepOld)
 
 void SsuSettings::merge(QSettings *masterSettings, const QStringList &settingsFiles)
 {
-    SsuLog *ssuLog = SsuLog::instance();
-
     foreach (const QString &settingsFile, settingsFiles) {
         QSettings settings(settingsFile, QSettings::IniFormat);
         QStringList groups = settings.childGroups();
 
-        ssuLog->print(LOG_DEBUG, QString("Merging %1 into %2")
+        SsuLog::print(LOG_DEBUG, QString("Merging %1 into %2")
                       .arg(settingsFile)
                       .arg(masterSettings->fileName()));
 
@@ -117,8 +115,6 @@ void SsuSettings::upgrade()
     int configVersion = 0;
     int defaultConfigVersion = 0;
 
-    SsuLog *ssuLog = SsuLog::instance();
-
     QSettings defaultSettings(defaultSettingsFile, QSettings::IniFormat);
 
     if (contains("configVersion"))
@@ -127,14 +123,14 @@ void SsuSettings::upgrade()
         defaultConfigVersion = defaultSettings.value("configVersion").toInt();
 
     if (configVersion < defaultConfigVersion) {
-        ssuLog->print(LOG_DEBUG, QString("Configuration is outdated, updating from %1 to %2")
+        SsuLog::print(LOG_DEBUG, QString("Configuration is outdated, updating from %1 to %2")
                       .arg(configVersion)
                       .arg(defaultConfigVersion));
 
         for (int i = configVersion + 1; i <= defaultConfigVersion; i++) {
             QString currentSection = QString("%1/").arg(i);
 
-            ssuLog->print(LOG_DEBUG, QString("Processing configuration version %1").arg(i));
+            SsuLog::print(LOG_DEBUG, QString("Processing configuration version %1").arg(i));
             defaultSettings.beginGroup(currentSection);
             QStringList defaultKeys = defaultSettings.allKeys();
             defaultSettings.endGroup();
@@ -147,13 +143,13 @@ void SsuSettings::upgrade()
                     foreach (const QString &oldKey, oldKeys) {
                         if (contains(oldKey)) {
                             remove(oldKey);
-                            ssuLog->print(LOG_DEBUG, QString("Removing old key: %1").arg(oldKey));
+                            SsuLog::print(LOG_DEBUG, QString("Removing old key: %1").arg(oldKey));
                         }
                     }
                 } else if (!contains(key)) {
                     // Add new keys..
                     setValue(key, defaultSettings.value(currentSection + key));
-                    ssuLog->print(LOG_DEBUG, QString("Adding key: %1").arg(key));
+                    SsuLog::print(LOG_DEBUG, QString("Adding key: %1").arg(key));
                 } else {
                     // ... or update the ones where default values has changed.
                     QVariant oldValue;
@@ -184,7 +180,7 @@ void SsuSettings::upgrade()
                         if (currentValue == oldValue) {
                             // ...and update the key if it does
                             setValue(key, newValue);
-                            ssuLog->print(LOG_DEBUG, QString("Updating %1 from %2 to %3")
+                            SsuLog::print(LOG_DEBUG, QString("Updating %1 from %2 to %3")
                                           .arg(key)
                                           .arg(currentValue.toString())
                                           .arg(newValue.toString()));
