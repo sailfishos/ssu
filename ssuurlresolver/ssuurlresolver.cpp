@@ -26,8 +26,7 @@ SsuUrlResolver::SsuUrlResolver()
 
 void SsuUrlResolver::error(const QString &message)
 {
-    SsuLog *ssuLog = SsuLog::instance();
-    ssuLog->print(LOG_WARNING, message);
+    SsuLog::print(LOG_WARNING, message);
 
     PluginFrame out("ERROR");
     out.setBody(message.toStdString());
@@ -48,24 +47,23 @@ bool SsuUrlResolver::writeZyppCredentialsIfNeeded(const QString &credentialsScop
 
     /// @TODO: add scope to lastCredentialsUpdate() to allow scope specific update
     ///        tracking
-    if (credentialsFileInfo.exists() &&
-            credentialsFileInfo.lastModified() > ssu.lastCredentialsUpdate() &&
-            credentialsScope != "store") {
+    if (credentialsFileInfo.exists()
+            && credentialsFileInfo.lastModified() > ssu.lastCredentialsUpdate()
+            && credentialsScope != "store") {
         // zypp credentials up to date
         return true;
     }
 
     QFile credentialsFile(filePath);
     QPair<QString, QString> credentials = ssu.credentials(credentialsScope);
-    SsuLog *ssuLog = SsuLog::instance();
 
     if (credentials.first.isEmpty() || credentials.second.isEmpty()) {
-        ssuLog->print(LOG_WARNING, "Returned credentials are empty, skip writing");
+        SsuLog::print(LOG_WARNING, "Returned credentials are empty, skip writing");
         return false;
     }
 
     if (!credentialsFile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
-        ssuLog->print(LOG_WARNING, "Unable to open credentials file for writing");
+        SsuLog::print(LOG_WARNING, "Unable to open credentials file for writing");
         return false;
     }
 
@@ -100,7 +98,6 @@ void SsuUrlResolver::resolve(PluginFrame &in)
     QHash<QString, QString> repoParameters;
     QString repo;
     bool isRnd = false;
-    SsuLog *ssuLog = SsuLog::instance();
 
     if (in.headerEmpty()) {
         error("Received empty header list. Most likely your ssu setup is broken");
@@ -131,9 +128,7 @@ void SsuUrlResolver::resolve(PluginFrame &in)
             if ((*it).second.empty())
                 headerList.append(first);
             else
-                headerList.append(QString("%1=%2")
-                                  .arg(first)
-                                  .arg(second));
+                headerList.append(QString("%1=%2").arg(first).arg(second));
         }
     }
 
@@ -153,7 +148,7 @@ void SsuUrlResolver::resolve(PluginFrame &in)
             error(ssu.lastError());
         }
     } else {
-        ssuLog->print(LOG_DEBUG, "Device not registered -- skipping credential update");
+        SsuLog::print(LOG_DEBUG, "Device not registered -- skipping credential update");
     }
 
     // resolve base url
@@ -165,7 +160,7 @@ void SsuUrlResolver::resolve(PluginFrame &in)
             (ssu.isRegistered() || credentialsScope == "store")) {
         // TODO: check for credentials scope required for repository; check if the file exists;
         //       compare with configuration, and dump credentials to file if necessary
-        ssuLog->print(LOG_DEBUG, QString("Requesting credentials for '%1' with RND status %2...").arg(repo).arg(isRnd));
+        SsuLog::print(LOG_DEBUG, QString("Requesting credentials for '%1' with RND status %2...").arg(repo).arg(isRnd));
 
         // personal store repositories as well as the ones listed in the
         // store-auth-repos domain setting use store credentials. Refresh
@@ -179,7 +174,7 @@ void SsuUrlResolver::resolve(PluginFrame &in)
         headerList.append(QString("credentials=%1").arg(credentialsScope));
         writeZyppCredentialsIfNeeded(credentialsScope);
     } else {
-        ssuLog->print(LOG_DEBUG, QString("Skipping credential for %1 with scope %2").arg(repo).arg(credentialsScope));
+        SsuLog::print(LOG_DEBUG, QString("Skipping credential for %1 with scope %2").arg(repo).arg(credentialsScope));
     }
 
     if (!headerList.isEmpty() && !resolvedUrl.isEmpty()) {
@@ -195,7 +190,7 @@ void SsuUrlResolver::resolve(PluginFrame &in)
 
     // TODO, we should bail out here if the configuration specifies that the repo
     //       is protected, but device is not registered and/or we don't have credentials
-    ssuLog->print(LOG_INFO, QString("%1 resolved to %2").arg(repo).arg(resolvedUrl));
+    SsuLog::print(LOG_INFO, QString("%1 resolved to %2").arg(repo).arg(resolvedUrl));
 
     if (resolvedUrl.isEmpty()) {
         error("URL for repository is not set.");

@@ -50,7 +50,6 @@ QStringList SsuDeviceInfo::adaptationRepos()
 
 QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<QString, QString> *storageHash)
 {
-    SsuLog *ssuLog = SsuLog::instance();
     QStringList adaptationRepoList = adaptationRepos();
     QString model = deviceVariant(true);
 
@@ -68,13 +67,13 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
 
         if (!adaptationRepoList.isEmpty()) {
             if (adaptationRepoList.size() <= n) {
-                ssuLog->print(LOG_INFO, "Note: repo index out of bounds, substituting 0" + adaptationName);
+                SsuLog::print(LOG_INFO, "Note: repo index out of bounds, substituting 0" + adaptationName);
                 n = 0;
             }
 
             QString adaptationRepo = adaptationRepoList.at(n);
             storageHash->insert("adaptation", adaptationRepo);
-            ssuLog->print(LOG_DEBUG, "Found first adaptation " + adaptationName);
+            SsuLog::print(LOG_DEBUG, "Found first adaptation " + adaptationName);
 
             QHash<QString, QString> h;
 
@@ -94,7 +93,7 @@ QString SsuDeviceInfo::adaptationVariables(const QString &adaptationName, QHash<
                 i++;
             }
         } else
-            ssuLog->print(LOG_INFO, "Note: adaptation repo for invalid repo requested " + adaptationName);
+            SsuLog::print(LOG_INFO, "Note: adaptation repo for invalid repo requested " + adaptationName);
 
         return "adaptation";
     }
@@ -319,7 +318,6 @@ normalizeUid(const QString &uid)
 
 QString SsuDeviceInfo::deviceUid()
 {
-    SsuLog *ssuLog = SsuLog::instance();
     QStringList imeis = ofonoGetImeis();
     if (imeis.size() > 0) {
         return imeis[0];
@@ -330,7 +328,7 @@ QString SsuDeviceInfo::deviceUid()
         return normalizeUid(wlanMacs[0]);
     }
 
-    ssuLog->print(LOG_WARNING, "Could not get IMEI(s) from ofono, nor WLAN mac, trying fallback");
+    SsuLog::print(LOG_WARNING, "Could not get IMEI(s) from ofono, nor WLAN mac, trying fallback");
 
     // The fallback list is taken from QtSystems' qdeviceinfo_linux.cpp
     QStringList fallbackFiles;
@@ -347,7 +345,7 @@ QString SsuDeviceInfo::deviceUid()
         }
     }
 
-    ssuLog->print(LOG_CRIT, "Could not read fallback UID - returning empty string");
+    SsuLog::print(LOG_CRIT, "Could not read fallback UID - returning empty string");
     return QString();
 }
 

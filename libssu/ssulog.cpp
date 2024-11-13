@@ -11,17 +11,9 @@
 #include "ssulog_p.h"
 #include "ssucoreconfig_p.h"
 
-SsuLog *SsuLog::ssuLog = 0;
-
-SsuLog *SsuLog::instance()
-{
-    if (!ssuLog) {
-        ssuLog = new SsuLog;
-        ssuLog->fallbackLogPath = "/tmp/ssu.log";
-        ssuLog->ssuLogLevel = -1;
-    }
-
-    return ssuLog;
+namespace {
+int ssuLogLevel = -1 ;
+QString fallbackLogPath = QStringLiteral("/tmp/ssu.log");
 }
 
 void SsuLog::print(int priority, const QString &message)
@@ -32,9 +24,9 @@ void SsuLog::print(int priority, const QString &message)
         QSettings settings(SSU_CONFIGURATION, QSettings::IniFormat);
 
         if (settings.contains("loglevel"))
-            ssuLog->ssuLogLevel = settings.value("loglevel").toInt();
+            ssuLogLevel = settings.value("loglevel").toInt();
         else
-            ssuLog->ssuLogLevel = LOG_ERR;
+            ssuLogLevel = LOG_ERR;
     }
 
     // this is rather dirty, but since systemd does not seem to allow to enable debug
@@ -45,7 +37,7 @@ void SsuLog::print(int priority, const QString &message)
     QByteArray ba = message.toUtf8();
     const char *ca = ba.constData();
 
-    if (sd_journal_print(priority, "ssu: %s", ca) < 0 && !fallbackLogPath.isEmpty()) {
+    if (sd_journal_print(priority, "ssu: %s", ca) < 0) {
         QFile logfile;
         QTextStream logstream;
         logfile.setFileName(fallbackLogPath);

@@ -29,6 +29,9 @@ class SsuCoreConfig: public SsuSettings
     Q_OBJECT
 
 public:
+    SsuCoreConfig();
+    virtual ~SsuCoreConfig();
+
     static SsuCoreConfig *instance();
 
     /**
@@ -129,10 +132,7 @@ public:
     static QDBusConnection userSessionBus();
 
 private:
-    SsuCoreConfig(): SsuSettings(SSU_CONFIGURATION, QSettings::IniFormat, SSU_DEFAULT_CONFIGURATION) {}
     Q_DISABLE_COPY(SsuCoreConfig)
-
-    static SsuCoreConfig *ssuCoreConfig;
 };
 
 #endif

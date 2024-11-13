@@ -49,7 +49,6 @@ SsuRepoManager::SsuRepoManager()
 int SsuRepoManager::add(const QString &repo, const QString &repoUrl)
 {
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
-    SsuLog *ssuLog = SsuLog::instance();
     QStringList systemRepos = repos(Ssu::BoardFilter | Ssu::Available);
 
     // adding a repo is a noop when device is in update mode...
@@ -62,7 +61,7 @@ int SsuRepoManager::add(const QString &repo, const QString &repoUrl)
 
     // Ignore if already added
     if (repos(Ssu::NoFilter).contains(repo)) {
-        ssuLog->print(LOG_ERR, "Repository already added: "+repo);
+        SsuLog::print(LOG_ERR, "Repository already added: "+repo);
         return -1;
     }
 
@@ -146,7 +145,6 @@ int SsuRepoManager::enable(const QString &repo)
 int SsuRepoManager::remove(const QString &repo)
 {
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
-    SsuLog *ssuLog = SsuLog::instance();
 
     // removing a repo is a noop when device is in update mode...
     if ((ssuSettings->deviceMode() & Ssu::UpdateMode) == Ssu::UpdateMode)
@@ -159,7 +157,7 @@ int SsuRepoManager::remove(const QString &repo)
     // don't remove system repos except in DisableRepoManager mode
     if ((ssuSettings->deviceMode() & Ssu::DisableRepoManager) != Ssu::DisableRepoManager 
                     && repos(Ssu::BoardFilter).contains(repo)) {
-        ssuLog->print(LOG_ERR, "Will not remove system repository: "+repo);
+        SsuLog::print(LOG_ERR, "Will not remove system repository: "+repo);
         return -1;
     }
 
@@ -271,10 +269,8 @@ void SsuRepoManager::update()
     SsuCoreConfig *ssuSettings = SsuCoreConfig::instance();
     int deviceMode = ssuSettings->deviceMode();
 
-    SsuLog *ssuLog = SsuLog::instance();
-
     if ((deviceMode & Ssu::DisableRepoManager) == Ssu::DisableRepoManager) {
-        ssuLog->print(LOG_INFO, "Repo management requested, but not enabled (option 'deviceMode')");
+        SsuLog::print(LOG_INFO, "Repo management requested, but not enabled (option 'deviceMode')");
         return;
     }
 
@@ -296,7 +292,7 @@ void SsuRepoManager::update()
     if ((deviceMode & Ssu::LenientMode) != Ssu::LenientMode && !repositoryList.isEmpty()) {
         foreach (zypp::RepoInfo zyppRepo, zyppRepos) {
             if (zyppRepo.filepath().basename().substr(0, 4) != "ssu_") {
-                ssuLog->print(LOG_INFO, "Strict mode enabled, removing unmanaged repository " + QString::fromStdString(zyppRepo.name()));
+                SsuLog::print(LOG_INFO, "Strict mode enabled, removing unmanaged repository " + QString::fromStdString(zyppRepo.name()));
                 zyppManager.removeRepository(zyppRepo);
             }
         }

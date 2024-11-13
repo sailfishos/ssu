@@ -64,8 +64,8 @@ Ssu::Ssu()
     // this is currently required since there's no global gconf,
     // and we migth not yet have users on bootstrap
     QFileInfo settingsInfo(SSU_CONFIGURATION);
-    if (settingsInfo.groupId() != SSU_GROUP_ID ||
-            !settingsInfo.permission(QFile::WriteGroup)) {
+    if (settingsInfo.groupId() != SSU_GROUP_ID
+            || !settingsInfo.permission(QFile::WriteGroup)) {
         QProcess proc;
         proc.start("/usr/bin/ssuconfperm");
         proc.waitForFinished();
@@ -82,8 +82,6 @@ Ssu::Ssu()
 #warning "TARGET_ARCH not defined"
 #endif
     settings->sync();
-
-
 
     manager = new QNetworkAccessManager(this);
     connect(manager, SIGNAL(finished(QNetworkReply *)),
@@ -171,9 +169,10 @@ QString Ssu::domain()
     return settings->domain(true);
 }
 
-QString Ssu::brand() {
-  SsuCoreConfig *settings = SsuCoreConfig::instance();
-  return settings->brand();
+QString Ssu::brand()
+{
+    SsuCoreConfig *settings = SsuCoreConfig::instance();
+    return settings->brand();
 }
 
 bool Ssu::isRegistered()
@@ -224,10 +223,6 @@ bool Ssu::useSslVerify()
     return settings->useSslVerify();
 }
 
-//...
-
-
-
 QString Ssu::lastError()
 {
     return errorString;
@@ -237,7 +232,6 @@ bool Ssu::registerDevice(QDomDocument *response)
 {
     QString certificateString = response->elementsByTagName("certificate").at(0).toElement().text();
     QSslCertificate certificate(certificateString.toLatin1());
-    SsuLog *ssuLog = SsuLog::instance();
     SsuCoreConfig *settings = SsuCoreConfig::instance();
 
     if (certificate.isNull()) {
@@ -263,7 +257,7 @@ bool Ssu::registerDevice(QDomDocument *response)
     // oldUser is just for reference purposes, in case we want to notify
     // about owner changes for the device
     QString oldUser = response->elementsByTagName("user").at(0).toElement().text();
-    ssuLog->print(LOG_DEBUG, QString("Old user for your device was: %1").arg(oldUser));
+    SsuLog::print(LOG_DEBUG, QString("Old user for your device was: %1").arg(oldUser));
 
     // if we came that far everything required for device registration is done
     settings->setValue("registered", true);
@@ -278,13 +272,15 @@ bool Ssu::registerDevice(QDomDocument *response)
     return true;
 }
 
-QStringList Ssu::listDomains() {
+QStringList Ssu::listDomains()
+{
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
     QRegExp domainFilter("-domain$");
     return repoSettings.childGroups().filter(domainFilter).replaceInStrings(domainFilter, "");
 }
 
-void Ssu::setDomainConfig(const QString &domain, QVariantMap config) {
+void Ssu::setDomainConfig(const QString &domain, QVariantMap config)
+{
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
     repoSettings.beginGroup(domain + "-domain");
     repoSettings.remove("");
@@ -296,7 +292,8 @@ void Ssu::setDomainConfig(const QString &domain, QVariantMap config) {
     repoSettings.sync();
 }
 
-QVariantMap Ssu::getDomainConfig(const QString &domain) {
+QVariantMap Ssu::getDomainConfig(const QString &domain)
+{
     SsuSettings repoSettings(SSU_REPO_CONFIGURATION, SSU_REPO_CONFIGURATION_DIR);
     QVariantMap config;
     repoSettings.beginGroup(domain + "-domain");
@@ -320,17 +317,16 @@ QString Ssu::repoUrl(const QString &repoName, bool rndRepo,
 void Ssu::requestFinished(QNetworkReply *reply)
 {
     QSslConfiguration sslConfiguration = reply->sslConfiguration();
-    SsuLog *ssuLog = SsuLog::instance();
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     QNetworkRequest request = reply->request();
     QVariant originalDomainVariant = request.attribute(SSU_NETWORK_REQUEST_DOMAIN_DATA);
 
-    ssuLog->print(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
+    SsuLog::print(LOG_DEBUG, QString("Certificate used was issued for '%1' by '%2'. Complete chain:")
                   .arg(sslConfiguration.peerCertificate().subjectInfo(QSslCertificate::CommonName).join(""))
                   .arg(sslConfiguration.peerCertificate().issuerInfo(QSslCertificate::CommonName).join("")));
 
     foreach (const QSslCertificate cert, sslConfiguration.peerCertificateChain()) {
-        ssuLog->print(LOG_DEBUG, QString("-> %1").arg(cert.subjectInfo(QSslCertificate::CommonName).join("")));
+        SsuLog::print(LOG_DEBUG, QString("-> %1").arg(cert.subjectInfo(QSslCertificate::CommonName).join("")));
     }
 
     pendingRequests--;
@@ -362,7 +358,7 @@ void Ssu::requestFinished(QNetworkReply *reply)
     }
 
     data = reply->readAll();
-    ssuLog->print(LOG_DEBUG, QString("RequestOutput %1")
+    SsuLog::print(LOG_DEBUG, QString("RequestOutput %1")
                   .arg(data.data()));
 
     if (!doc.setContent(data, &xmlError)) {
@@ -376,7 +372,7 @@ void Ssu::requestFinished(QNetworkReply *reply)
         goto failure;
     }
 
-    ssuLog->print(LOG_DEBUG, QString("Handling request of type %1")
+    SsuLog::print(LOG_DEBUG, QString("Handling request of type %1")
                   .arg(action));
     if (action == "register") {
         if (registerDevice(&doc)) {
@@ -394,13 +390,13 @@ failure:
     // Restore the original domain in case of failures with the registration
     if (!originalDomainVariant.isNull()) {
         QString originalDomain = originalDomainVariant.toString();
-        ssuLog->print(LOG_DEBUG, QString("Restoring domain on error: '%1'").arg(originalDomain));
+        SsuLog::print(LOG_DEBUG, QString("Restoring domain on error: '%1'").arg(originalDomain));
         setDomain(originalDomain);
     }
 
     // Fall through to cleanup handling in success from failure label
 success:
-    ssuLog->print(LOG_DEBUG, QString("Request finished, pending requests: %1").arg(pendingRequests));
+    SsuLog::print(LOG_DEBUG, QString("Request finished, pending requests: %1").arg(pendingRequests));
     if (pendingRequests == 0) {
         emit done();
     }
@@ -413,13 +409,12 @@ void Ssu::sendRegistration(const QString &usernameDomain, const QString &passwor
     QString ssuRegisterUrl;
     QString username, domainName;
 
-    SsuLog *ssuLog = SsuLog::instance();
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     SsuDeviceInfo deviceInfo;
 
     QNetworkRequest request;
     request.setAttribute(SSU_NETWORK_REQUEST_DOMAIN_DATA, domain());
-    ssuLog->print(LOG_DEBUG, QString("Saving current domain before request: '%1'").arg(domain()));
+    SsuLog::print(LOG_DEBUG, QString("Saving current domain before request: '%1'").arg(domain()));
 
     // Username can include also domain, (user@domain), separate those
     if (usernameDomain.contains('@')) {
@@ -480,7 +475,7 @@ void Ssu::sendRegistration(const QString &usernameDomain, const QString &passwor
 
     form.setQuery(q);
 
-    ssuLog->print(LOG_DEBUG, QString("Sending request to %1")
+    SsuLog::print(LOG_DEBUG, QString("Sending request to %1")
                   .arg(request.url().url()));
 
     pendingRequests++;
@@ -492,7 +487,7 @@ void Ssu::sendRegistration(const QString &usernameDomain, const QString &passwor
         // clear header, the other request bits are reusable
         request.setHeader(QNetworkRequest::ContentTypeHeader, 0);
         request.setUrl(homeUrl.arg(username) + "/authorized_keys");
-        ssuLog->print(LOG_DEBUG, QString("Trying to get SSH keys from %1").arg(request.url().toString()));
+        SsuLog::print(LOG_DEBUG, QString("Trying to get SSH keys from %1").arg(request.url().toString()));
         pendingRequests++;
         manager->get(request);
     }
@@ -548,10 +543,8 @@ void Ssu::setError(const QString &errorMessage)
     errorFlag = true;
     errorString = errorMessage;
 
-    SsuLog *ssuLog = SsuLog::instance();
-
     // dump error message to systemd journal for easier debugging
-    ssuLog->print(LOG_WARNING, errorMessage);
+    SsuLog::print(LOG_WARNING, errorMessage);
 
     // assume that we don't even need to wait for other pending requests,
     // and just die. This is only relevant for CLI, which will exit after done()
@@ -561,7 +554,6 @@ void Ssu::setError(const QString &errorMessage)
 void Ssu::storeAuthorizedKeys(const QByteArray &data)
 {
     QDir dir;
-    SsuLog *ssuLog = SsuLog::instance();
 
     int uid_min = getdef_num("UID_MIN", -1);
     QString homePath;
@@ -572,7 +564,7 @@ void Ssu::storeAuthorizedKeys(const QByteArray &data)
         // place authorized_keys in the default users home when run with uid0
         struct passwd *pw = getpwuid(uid_min);
         if (pw == NULL) {
-            ssuLog->print(LOG_DEBUG, QString("Unable to find password entry for uid %1")
+            SsuLog::print(LOG_DEBUG, QString("Unable to find password entry for uid %1")
                           .arg(uid_min));
             return;
         }
@@ -583,7 +575,7 @@ void Ssu::storeAuthorizedKeys(const QByteArray &data)
         // use users uid/gid for creating the directories and files
         setegid(pw->pw_gid);
         seteuid(uid_min);
-        ssuLog->print(LOG_DEBUG, QString("Dropping to %1/%2 for writing authorized keys")
+        SsuLog::print(LOG_DEBUG, QString("Dropping to %1/%2 for writing authorized keys")
                       .arg(uid_min)
                       .arg(pw->pw_gid));
     } else {
@@ -593,7 +585,7 @@ void Ssu::storeAuthorizedKeys(const QByteArray &data)
     homePath = Sandbox::map(homePath);
 
     if (dir.exists(homePath + "/.ssh/authorized_keys")) {
-        ssuLog->print(LOG_DEBUG, QString(".ssh/authorized_keys already exists in %1")
+        SsuLog::print(LOG_DEBUG, QString(".ssh/authorized_keys already exists in %1")
                       .arg(homePath));
         restoreUid();
         return;
@@ -601,7 +593,7 @@ void Ssu::storeAuthorizedKeys(const QByteArray &data)
 
     if (!dir.exists(homePath + "/.ssh")) {
         if (!dir.mkdir(homePath + "/.ssh")) {
-            ssuLog->print(LOG_DEBUG, QString("Unable to create .ssh in %1")
+            SsuLog::print(LOG_DEBUG, QString("Unable to create .ssh in %1")
                           .arg(homePath));
             restoreUid();
             return;
@@ -627,8 +619,6 @@ void Ssu::updateCredentials(bool force)
     SsuCoreConfig *settings = SsuCoreConfig::instance();
     SsuDeviceInfo deviceInfo;
     errorFlag = false;
-
-    SsuLog *ssuLog = SsuLog::instance();
 
     if (deviceInfo.deviceUid().isEmpty()) {
         setError("No valid UID available for your device. For phones: is your modem online?");
@@ -660,7 +650,7 @@ void Ssu::updateCredentials(bool force)
         if (settings->contains("lastCredentialsUpdate")) {
             QDateTime last = settings->value("lastCredentialsUpdate").toDateTime();
             if (last >= now.addSecs(-1800)) {
-                ssuLog->print(LOG_DEBUG, QString("Skipping credentials update, last update was at %1")
+                SsuLog::print(LOG_DEBUG, QString("Skipping credentials update, last update was at %1")
                               .arg(last.toString()));
                 emit done();
                 return;
@@ -696,7 +686,7 @@ void Ssu::updateCredentials(bool force)
     QNetworkRequest request;
     request.setUrl(QUrl(ssuCredentialsUrl.arg(deviceInfo.deviceUid())));
 
-    ssuLog->print(LOG_DEBUG, QString("Sending credential update request to %1")
+    SsuLog::print(LOG_DEBUG, QString("Sending credential update request to %1")
                   .arg(request.url().toString()));
     request.setSslConfiguration(sslConfiguration);
 
@@ -707,7 +697,6 @@ void Ssu::updateCredentials(bool force)
 void Ssu::updateStoreCredentials()
 {
     SsuCoreConfig *settings = SsuCoreConfig::instance();
-    SsuLog *ssuLog = SsuLog::instance();
 
     QDBusMessage message = QDBusMessage::createMethodCall("com.jolla.jollastore",
                                                           "/StoreClient",
@@ -717,8 +706,8 @@ void Ssu::updateStoreCredentials()
     reply.waitForFinished();
     if (reply.isError()) {
         if (settings->value("ignore-credential-errors").toBool() == true) {
-            ssuLog->print(LOG_WARNING, QString("Warning: ignore-credential-errors is set, passing auth errors down to libzypp"));
-            ssuLog->print(LOG_WARNING, QString("Store credentials not received. %1").arg(reply.error().message()));
+            SsuLog::print(LOG_WARNING, QString("Warning: ignore-credential-errors is set, passing auth errors down to libzypp"));
+            SsuLog::print(LOG_WARNING, QString("Store credentials not received. %1").arg(reply.error().message()));
         } else {
             setError(QString("Store credentials not received. %1").arg(reply.error().message()));
         }

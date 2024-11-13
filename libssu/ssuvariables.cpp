@@ -196,10 +196,10 @@ void SsuVariables::readSection(SsuSettings *settings, const QString &section,
                                bool logOverride)
 {
     if (recursionDepth >= SSU_MAX_RECURSION) {
-        SsuLog::instance()->print(LOG_WARNING,
-                                  QString("Maximum recursion depth for resolving section %1 from %2")
-                                  .arg(section)
-                                  .arg(settings->fileName()));
+        SsuLog::print(LOG_WARNING,
+                      QString("Maximum recursion depth for resolving section %1 from %2")
+                      .arg(section)
+                      .arg(settings->fileName()));
         return;
     }
 
@@ -240,11 +240,11 @@ void SsuVariables::readSection(SsuSettings *settings, const QString &section,
             continue;
 
         if (storageHash->contains(key) && logOverride) {
-            SsuLog::instance()->print(LOG_DEBUG,
-                                      QString("Variable %1 overwritten from %2::%3")
-                                      .arg(key)
-                                      .arg(settings->fileName())
-                                      .arg(section));
+            SsuLog::print(LOG_DEBUG,
+                          QString("Variable %1 overwritten from %2::%3")
+                          .arg(key)
+                          .arg(settings->fileName())
+                          .arg(section));
         }
         storageHash->insert(key, settings->value(key).toString());
     }
@@ -259,11 +259,11 @@ QVariant SsuVariables::readVariable(SsuSettings *settings, const QString &sectio
     QVariant value;
 
     if (recursionDepth >= SSU_MAX_RECURSION) {
-        SsuLog::instance()->print(LOG_WARNING,
-                                  QString("Maximum recursion depth for resolving %1 from %2::%3")
-                                  .arg(key)
-                                  .arg(settings->fileName())
-                                  .arg(section));
+        SsuLog::print(LOG_WARNING,
+                      QString("Maximum recursion depth for resolving %1 from %2::%3")
+                      .arg(key)
+                      .arg(settings->fileName())
+                      .arg(section));
         return value;
     }
 
