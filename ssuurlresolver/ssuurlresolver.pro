@@ -9,9 +9,6 @@ target.path = $$[QT_INSTALL_PREFIX]/libexec/zypp/plugins/urlresolver
 QT += network
 CONFIG += link_pkgconfig
 
-# Needed for recent versions of libzypp
-QMAKE_CXXFLAGS += -std=c++11
-
 HEADERS = ssuurlresolver.h
 SOURCES = main.cpp \
         ssuurlresolver.cpp
