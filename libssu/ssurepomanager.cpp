@@ -25,9 +25,11 @@
 #include <QStringList>
 #include <QRegExp>
 #include <QDirIterator>
+#include <QSaveFile>
 
 #include <zypp/RepoManager.h>
 #include <zypp/RepoInfo.h>
+#include <zypp/parser/ParseException.h>
 
 #include "sandbox_p.h"
 #include "ssudeviceinfo.h"
@@ -283,38 +285,51 @@ void SsuRepoManager::update()
     // get list of device-specific repositories...
     QStringList repositoryList = repos(rndMode);
 
-    zypp::RepoManager zyppManager;
-    std::list<zypp::RepoInfo> zyppRepos = zyppManager.knownRepositories();
+    try {
+        zypp::RepoManager zyppManager;
+        std::list<zypp::RepoInfo> zyppRepos = zyppManager.knownRepositories();
 
-    // strict mode enabled -> delete all repositories not prefixed by ssu
-    // assume configuration error if there are no device repos, and don't delete
-    // anything, even in strict mode
-    if ((deviceMode & Ssu::LenientMode) != Ssu::LenientMode && !repositoryList.isEmpty()) {
-        foreach (zypp::RepoInfo zyppRepo, zyppRepos) {
-            if (zyppRepo.filepath().basename().substr(0, 4) != "ssu_") {
-                SsuLog::print(LOG_INFO, "Strict mode enabled, removing unmanaged repository " + QString::fromStdString(zyppRepo.name()));
-                zyppManager.removeRepository(zyppRepo);
+        // strict mode enabled -> delete all repositories not prefixed by ssu
+        // assume configuration error if there are no device repos, and don't delete
+        // anything, even in strict mode
+        if ((deviceMode & Ssu::LenientMode) != Ssu::LenientMode && !repositoryList.isEmpty()) {
+            foreach (zypp::RepoInfo zyppRepo, zyppRepos) {
+                if (zyppRepo.filepath().basename().substr(0, 4) != "ssu_") {
+                    SsuLog::print(LOG_INFO, "Strict mode enabled, removing unmanaged repository " + QString::fromStdString(zyppRepo.name()));
+                    zyppManager.removeRepository(zyppRepo);
+                }
             }
         }
-    }
 
-    // ... delete all ssu-managed repositories not valid for this device ...
-    zyppRepos = zyppManager.knownRepositories();
-    foreach (zypp::RepoInfo zyppRepo, zyppRepos) {
-        if (zyppRepo.filepath().basename().substr(0, 4) == "ssu_") {
-            QStringList parts = QString::fromStdString(zyppRepo.filepath().basename()).split("_");
-            // repo file structure is ssu_<reponame>_<rnd|release>.repo -> splits to 3 parts
-            if (parts.count() == 3) {
-                if (!repositoryList.contains(parts.at(1)) ||
-                        parts.at(2) != (rndMode ? "rnd.repo" : "release.repo" )) {
+        // ... delete all ssu-managed repositories not valid for this device ...
+        zyppRepos = zyppManager.knownRepositories();
+        foreach (zypp::RepoInfo zyppRepo, zyppRepos) {
+            if (zyppRepo.filepath().basename().substr(0, 4) == "ssu_") {
+                QStringList parts = QString::fromStdString(zyppRepo.filepath().basename()).split("_");
+                // repo file structure is ssu_<reponame>_<rnd|release>.repo -> splits to 3 parts
+                if (parts.count() == 3) {
+                    if (!repositoryList.contains(parts.at(1))
+                            || parts.at(2) != (rndMode ? "rnd.repo" : "release.repo" )) {
+                        // This will also remove metadata and cached packages from this repo
+                        zyppManager.removeRepository(zyppRepo);
+                    }
+                } else {
                     // This will also remove metadata and cached packages from this repo
                     zyppManager.removeRepository(zyppRepo);
                 }
-            } else {
-                // This will also remove metadata and cached packages from this repo
-                zyppManager.removeRepository(zyppRepo);
             }
         }
+    } catch (const zypp::parser::ParseException &e) {
+        SsuLog::print(LOG_ERR, "Caught parse exception, just removing all repo files");
+        SsuLog::print(LOG_ERR, QString::fromLatin1("Error: ") + QString::fromStdString(e.msg()));
+        QDir repodir(Sandbox::map(ZYPP_REPO_PATH));
+
+        for (const QString file : repodir.entryList(QStringList() << "*.repo", QDir::Files)) {
+            repodir.remove(file);
+        }
+    } catch (...) {
+        // let's keep going, hoping that writing the ssu repositories again makes it better
+        SsuLog::print(LOG_ERR, "Caught generic exception reading zypper repositories. Ignoring");
     }
 
     // ... and create all repositories required for this device
@@ -345,7 +360,7 @@ void SsuRepoManager::update()
             continue;
         }
 
-        QFile repoFile(repoFilePath);
+        QSaveFile repoFile(repoFilePath);
 
         if (repoFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream out(&repoFile);
@@ -364,6 +379,9 @@ void SsuRepoManager::update()
                 out << "baseurl=plugin:ssu?repo=" << repoName << debugSplit << endl;
 
             out.flush();
+            if (!repoFile.commit()) {
+                SsuLog::print(LOG_ERR, QString::fromLatin1("Error committing repo file for ") + repo);
+            }
         }
     }
 }
