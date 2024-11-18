@@ -25,6 +25,7 @@
 #include <QStringList>
 #include <QRegExp>
 #include <QDirIterator>
+#include <QSaveFile>
 
 #include <zypp/RepoManager.h>
 #include <zypp/RepoInfo.h>
@@ -359,7 +360,7 @@ void SsuRepoManager::update()
             continue;
         }
 
-        QFile repoFile(repoFilePath);
+        QSaveFile repoFile(repoFilePath);
 
         if (repoFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             QTextStream out(&repoFile);
@@ -378,6 +379,9 @@ void SsuRepoManager::update()
                 out << "baseurl=plugin:ssu?repo=" << repoName << debugSplit << endl;
 
             out.flush();
+            if (!repoFile.commit()) {
+                SsuLog::print(LOG_ERR, QString::fromLatin1("Error committing repo file for ") + repo);
+            }
         }
     }
 }
