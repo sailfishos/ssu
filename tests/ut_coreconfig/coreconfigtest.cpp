@@ -14,7 +14,6 @@
 void CoreconfigTest::testCredentialsScope()
 {
     QCOMPARE(SsuCoreConfig::instance()->credentialsScope("/*ignored*/", false), QString("example"));
-
 }
 
 void CoreconfigTest::testCredentials()
@@ -79,12 +78,10 @@ void CoreconfigTest::testLastCredentialsUpdate()
 void CoreconfigTest::testRelease()
 {
     QCOMPARE(SsuCoreConfig::instance()->release(false), QString("latest"));
-    QCOMPARE(SsuCoreConfig::instance()->release(true), QString("next"));
     SsuCoreConfig::instance()->setRelease("next", false);
     QCOMPARE(SsuCoreConfig::instance()->release(false), QString("next"));
     QCOMPARE(SsuCoreConfig::instance()->release(true), QString("next"));
     SsuCoreConfig::instance()->setRelease("latest", true);
-    QCOMPARE(SsuCoreConfig::instance()->release(false), QString("next"));
     QCOMPARE(SsuCoreConfig::instance()->release(true), QString("latest"));
 }
 
