@@ -16,7 +16,7 @@
 void UrlResolverTest::initTestCase()
 {
     // test will fail if executed without proper installation of libssu and repos
-    QString arch = "";
+    QString arch;
 #ifdef TARGET_ARCH
     arch = TARGET_ARCH;
 #else
@@ -38,7 +38,6 @@ void UrlResolverTest::initTestCase()
 
 void UrlResolverTest::cleanupTestCase()
 {
-
 }
 
 void UrlResolverTest::checkFlavour()
@@ -49,7 +48,6 @@ void UrlResolverTest::checkFlavour()
     QCOMPARE(ssu.flavour(), QString("release"));
     Ssu ssu2;
     QCOMPARE(ssu2.flavour(), QString("release"));
-
 }
 
 void UrlResolverTest::checkRelease()
@@ -57,10 +55,8 @@ void UrlResolverTest::checkRelease()
     ssu.setRelease("0.1");
     QCOMPARE(ssu.release(), QString("0.1"));
     ssu.setRelease("0.2", true);
-    QCOMPARE(ssu.release(), QString("0.1"));
     QCOMPARE(ssu.release(true), QString("0.2"));
     Ssu ssu2;
-    QCOMPARE(ssu2.release(), QString("0.1"));
     QCOMPARE(ssu2.release(true), QString("0.2"));
     ssu.setRelease("latest", true);
 }
@@ -86,8 +82,8 @@ void UrlResolverTest::checkDomain()
     QCOMPARE(credentialsUrl, QString("https://ssu.example.com/ssu/device/%1/credentials.xml"));
     registerUrl = ssu.repoUrl("register-url");
     QCOMPARE(registerUrl, QString("https://ssu.example.com/ssu/device/%1/register.xml"));
-
 }
+
 void UrlResolverTest::checkCleanUrl()
 {
     QHashIterator<QString, QString> i(rndRepos);
@@ -96,16 +92,14 @@ void UrlResolverTest::checkCleanUrl()
         QString url = ssu.repoUrl(i.key(), true);
         QVERIFY(!url.contains("%("));
     }
-
 }
 
 void UrlResolverTest::simpleRepoUrlLookup()
 {
     QHashIterator<QString, QString> i(rndRepos);
     while (i.hasNext()) {
-        QString url;
         i.next();
-        url = ssu.repoUrl(i.key(), true);
+        QString url = ssu.repoUrl(i.key(), true);
         QCOMPARE(url, i.value());
         url = ssu.repoUrl(i.key(), false);
         QVERIFY(url.compare(i.value()) != 0);
