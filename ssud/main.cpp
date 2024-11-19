@@ -6,9 +6,6 @@
  */
 
 #include <QCoreApplication>
-#include <QTranslator>
-#include <QLocale>
-#include <QLibraryInfo>
 #include "ssud.h"
 
 int main(int argc, char **argv)
@@ -17,11 +14,6 @@ int main(int argc, char **argv)
     QCoreApplication::setOrganizationName("Jolla");
     QCoreApplication::setOrganizationDomain("http://www.jollamobile.com");
     QCoreApplication::setApplicationName("ssud");
-
-    QTranslator qtTranslator;
-    qtTranslator.load("qt_" + QLocale::system().name(),
-                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    app.installTranslator(&qtTranslator);
 
     Ssud ssud;
 
