@@ -5,11 +5,44 @@
  * @date 2013
  */
 
-#include "deviceinfotest.h"
-
 #include <QtTest/QtTest>
+#include <QObject>
 
 #include "libssu/ssudeviceinfo.h"
+#include "libssu/sandbox_p.h"
+
+class DeviceInfoTest: public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    void testAdaptationVariables();
+    void testFeatureVariables();
+    void testDeviceUid();
+    void testVariableSection();
+    void testValue();
+
+private:
+    Sandbox *m_sandbox = nullptr;
+};
+
+void DeviceInfoTest::initTestCase()
+{
+    m_sandbox = new Sandbox(QString("%1/configroot").arg(LOCATE_DATA_PATH),
+                            Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
+    if (!m_sandbox->activate()) {
+        qFatal("Failed to activate sandbox");
+    }
+}
+
+void DeviceInfoTest::cleanupTestCase()
+{
+    delete m_sandbox;
+    m_sandbox = nullptr;
+}
 
 void DeviceInfoTest::testAdaptationVariables()
 {
@@ -84,3 +117,6 @@ void DeviceInfoTest::testValue()
              QString("n9xx-common,n950-n9").split(','));
     QCOMPARE(deviceInfo.value("foo").toString(), QString("n950-foo"));
 }
+
+QTEST_APPLESS_MAIN(DeviceInfoTest)
+#include "deviceinfotest.moc"

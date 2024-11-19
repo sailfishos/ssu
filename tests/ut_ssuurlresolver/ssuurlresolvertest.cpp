@@ -5,12 +5,11 @@
  * @date 2013
  */
 
-#include "ssuurlresolvertest.h"
-
 #include <stdlib.h>
 #include <zypp/media/UrlResolverPlugin.h>
 
 #include <QtTest/QtTest>
+#include <QObject>
 
 #include "libssu/sandbox_p.h"
 
@@ -20,6 +19,23 @@
  *
  * This test verifies the UrlResolverPlugin works well with installed version of libzypp.
  */
+
+class SsuUrlResolverTest: public QObject
+{
+    Q_OBJECT
+
+public:
+    SsuUrlResolverTest(): m_sandbox(0) {}
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void test_data();
+    void test();
+
+private:
+    Sandbox *m_sandbox;
+};
 
 void SsuUrlResolverTest::initTestCase()
 {
@@ -69,3 +85,6 @@ void SsuUrlResolverTest::test()
 
     QCOMPARE(resolved, expected);
 }
+
+QTEST_APPLESS_MAIN(SsuUrlResolverTest)
+#include "ssuurlresolvertest.moc"

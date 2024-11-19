@@ -7,17 +7,47 @@
  * @todo test repository filtering
  */
 
-#include "repomanagertest.h"
-
 #include <QtTest/QtTest>
+#include <QObject>
+#include <QStringList>
 
 #include "libssu/ssucoreconfig_p.h"
 #include "libssu/ssurepomanager.h"
+#include "libssu/sandbox_p.h"
+
+class RepoManagerTest: public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    void testSettings();
+    void testCustomRepos();
+    void testRepos();
+
+private:
+    QStringList rndRepos, releaseRepos;
+    Sandbox *m_sandbox;
+};
 
 void RepoManagerTest::initTestCase()
 {
+    m_sandbox = new Sandbox(QString("%1/configroot").arg(LOCATE_DATA_PATH),
+                            Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
+    if (!m_sandbox->activate()) {
+        qFatal("Failed to activate sandbox");
+    }
+
     rndRepos << "mer-core" << "adaptation" << "nemo" << "non-oss" << "oss";
     releaseRepos << "vendor" << "apps";
+}
+
+void RepoManagerTest::cleanupTestCase()
+{
+    delete m_sandbox;
+    m_sandbox = nullptr;
 }
 
 void RepoManagerTest::testSettings()
@@ -205,3 +235,6 @@ void RepoManagerTest::testRepos()
     set = rndRepos.toSet().subtract(repoManager.repos().toSet());
     QVERIFY(set.isEmpty());
 }
+
+QTEST_APPLESS_MAIN(RepoManagerTest)
+#include "repomanagertest.moc"

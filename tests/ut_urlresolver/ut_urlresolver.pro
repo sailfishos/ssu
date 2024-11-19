@@ -5,9 +5,7 @@ include(../testutils/testutils.pri)
 
 QT += xml
 
-HEADERS = urlresolvertest.h
-SOURCES = main.cpp \
-        urlresolvertest.cpp
+SOURCES = urlresolvertest.cpp
 
 test_data.files = \
         testdata/mycert.crt \

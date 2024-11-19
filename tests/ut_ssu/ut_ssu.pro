@@ -2,11 +2,7 @@ TARGET = ut_ssu
 include(../testapplication.pri)
 include(../../libssu/libssu.pri)
 
-HEADERS = \
-        ssutest.h \
-
 SOURCES = \
-        main.cpp \
         ssutest.cpp \
 
 test_data_etc.files = \

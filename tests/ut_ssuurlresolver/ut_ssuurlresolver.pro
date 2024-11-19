@@ -6,11 +6,7 @@ include(../../sandboxhook/sandboxhook.pri)
 CONFIG += link_pkgconfig
 PKGCONFIG += libzypp
 
-HEADERS = \
-        ssuurlresolvertest.h \
-
 SOURCES = \
-        main.cpp \
         ssuurlresolvertest.cpp \
 
 test_data_etc.files = \

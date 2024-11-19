@@ -5,11 +5,49 @@
  * @date 2013
  */
 
-#include "coreconfigtest.h"
-
 #include <QtTest/QtTest>
+#include <QObject>
 
 #include "libssu/ssucoreconfig_p.h"
+#include "libssu/sandbox_p.h"
+
+class CoreconfigTest: public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+
+    void testCredentialsScope();
+    void testCredentials();
+    void testCredentialsUrl();
+    void testFlavour();
+    void testDeviceMode();
+    void testDomain();
+    void testRegistered();
+    void testLastCredentialsUpdate();
+    void testRelease();
+    void testSslVerify();
+
+private:
+    Sandbox *m_sandbox = nullptr;
+};
+
+void CoreconfigTest::initTestCase()
+{
+    m_sandbox = new Sandbox(QString("%1/configroot").arg(LOCATE_DATA_PATH),
+                            Sandbox::UseAsSkeleton, Sandbox::ThisProcess);
+    if (!m_sandbox->activate()) {
+        qFatal("Failed to activate sandbox");
+    }
+}
+
+void CoreconfigTest::cleanupTestCase()
+{
+    delete m_sandbox;
+    m_sandbox = nullptr;
+}
 
 void CoreconfigTest::testCredentialsScope()
 {
@@ -91,3 +129,6 @@ void CoreconfigTest::testSslVerify()
     SsuCoreConfig::instance()->setValue("ssl-verify", false);
     QCOMPARE(SsuCoreConfig::instance()->useSslVerify(), false);
 }
+
+QTEST_APPLESS_MAIN(CoreconfigTest)
+#include "coreconfigtest.moc"

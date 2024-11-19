@@ -2,11 +2,7 @@ TARGET = ut_sandbox
 include(../testapplication.pri)
 include(../../libssu/libssu.pri)
 
-HEADERS = \
-        sandboxtest.h \
-
 SOURCES = \
-        main.cpp \
         sandboxtest.cpp \
 
 test_data_world.path = $${TESTS_DATA_PATH}/world

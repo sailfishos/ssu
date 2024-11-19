@@ -3,11 +3,7 @@ include(../testapplication.pri)
 include(../../libssu/libssu.pri)
 include(../testutils/testutils.pri)
 
-HEADERS = \
-        coreconfigtest.h \
-
 SOURCES = \
-        main.cpp \
         coreconfigtest.cpp \
 
 test_data_etc.files = \

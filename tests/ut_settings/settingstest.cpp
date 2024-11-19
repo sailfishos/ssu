@@ -14,12 +14,10 @@
 
 void SettingsTest::initTestCase()
 {
-
 }
 
 void SettingsTest::cleanupTestCase()
 {
-
 }
 
 void SettingsTest::testMerge_data()

@@ -5,17 +5,38 @@
  * @date 2013
  */
 
-#include "ssuclitest.h"
-
 #include <stdlib.h>
 #include <zypp/media/UrlResolverPlugin.h>
 
 #include <QtTest/QtTest>
+#include <QObject>
+#include <QProcess>
 
 #include "libssu/sandbox_p.h"
 #include "testutils/process.h"
 
 typedef QStringList Args; // improve readability
+
+class SsuCliTest: public QObject
+{
+    Q_OBJECT
+
+public:
+    SsuCliTest(): m_sandbox(0) {}
+
+private slots:
+    void init();
+    void cleanup();
+
+    void testSubcommandFlavour();
+    void testSubcommandRelease();
+    void testSubcommandMode();
+
+private:
+    Sandbox *m_sandbox;
+    QProcess *m_bus;
+    QProcess *m_ssud;
+};
 
 void SsuCliTest::init()
 {
@@ -29,8 +50,9 @@ void SsuCliTest::init()
     if (getenv("SSU_SANDBOX_PATH")) {
         qDebug() << "Using in-tree sandbox";
         setenv("LD_PRELOAD", getenv("SSU_SANDBOX_PATH"), 1);
-    } else
+    } else {
         setenv("LD_PRELOAD", SSU_SANDBOX_PATH, 1);
+    }
 
     m_bus = new QProcess(this);
     m_bus->start("dbus-daemon",
@@ -170,3 +192,6 @@ void SsuCliTest::testSubcommandMode()
 
     QCOMPARE(output, QString("Device mode is: 2 (RndMode)"));
 }
+
+QTEST_APPLESS_MAIN(SsuCliTest)
+#include "ssuclitest.moc"

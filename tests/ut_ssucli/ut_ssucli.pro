@@ -4,11 +4,7 @@ include(../../libssu/libssu.pri)
 include(../../sandboxhook/sandboxhook.pri)
 include(../testutils/testutils.pri)
 
-HEADERS = \
-        ssuclitest.h \
-
 SOURCES = \
-        main.cpp \
         ssuclitest.cpp \
 
 test_data_etc.files = \

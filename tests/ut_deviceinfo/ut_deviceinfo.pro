@@ -2,11 +2,7 @@ TARGET = ut_deviceinfo
 include(../testapplication.pri)
 include(../../libssu/libssu.pri)
 
-HEADERS = \
-        deviceinfotest.h \
-
 SOURCES = \
-        main.cpp \
         deviceinfotest.cpp \
 
 test_data_etc.files = \
