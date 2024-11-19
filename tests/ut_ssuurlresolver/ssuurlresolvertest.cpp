@@ -31,8 +31,9 @@ void SsuUrlResolverTest::initTestCase()
     if (getenv("SSU_SANDBOX_PATH")) {
         qDebug() << "Using in-tree sandbox";
         setenv("LD_PRELOAD", getenv("SSU_SANDBOX_PATH"), 1);
-    } else
+    } else {
         setenv("LD_PRELOAD", SSU_SANDBOX_PATH, 1);
+    }
 }
 
 void SsuUrlResolverTest::cleanupTestCase()
@@ -55,10 +56,16 @@ void SsuUrlResolverTest::test()
 {
     QFETCH(QString, input);
     QFETCH(QString, expected);
+    QString resolved;
 
     zypp::media::UrlResolverPlugin::HeaderList customHeaders;
-    const QString resolved = QString::fromStdString(
-                                 zypp::media::UrlResolverPlugin::resolveUrl(input.toStdString(), customHeaders).asString());
+
+    try {
+        resolved = QString::fromStdString(zypp::media::UrlResolverPlugin::resolveUrl(input.toStdString(),
+                                                                                     customHeaders).asString());
+    } catch (const std::exception &e) {
+        qDebug() << "Caught exception" << e.what();
+    }
 
     QCOMPARE(resolved, expected);
 }

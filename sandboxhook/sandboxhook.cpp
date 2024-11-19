@@ -4,7 +4,7 @@
 
 extern "C" void qt_startup_hook()
 {
-    Sandbox *const sandbox = new Sandbox();
+    Sandbox *const sandbox = new Sandbox;
     Q_UNUSED(sandbox);
 
     static void(*next_qt_startup_hook)() = (void (*)()) dlsym(RTLD_NEXT, "qt_startup_hook");

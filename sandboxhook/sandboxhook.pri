@@ -1,2 +1,2 @@
-SSU_SANDBOX_PATH = /usr/lib/ssu/libsandboxhook.so
+SSU_SANDBOX_PATH = $$[QT_INSTALL_LIBS]/ssu/libsandboxhook.so
 DEFINES += SSU_SANDBOX_PATH="'\"$${SSU_SANDBOX_PATH}\"'"
