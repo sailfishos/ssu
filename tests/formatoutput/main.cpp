@@ -9,7 +9,7 @@
 #include <QRegExp>
 #include <getopt.h>
 
-void usage()
+static void usage()
 {
     QTextStream out(stderr);
     out << "Parse QTest output on STDIN and make it shiny" << endl
@@ -25,13 +25,11 @@ void usage()
         << endl;
 }
 
-bool isTrue(char *argument)
+static bool isTrue(char *argument)
 {
-    if (!strcasecmp(argument, "yes") ||
-            !strcasecmp(argument, "true") ||
-            !strcmp(argument, "1"))
-        return true;
-    else return false;
+    return !strcasecmp(argument, "yes")
+            || !strcasecmp(argument, "true")
+            || !strcmp(argument, "1");
 }
 
 int main(int argc, char **argv)
@@ -95,5 +93,4 @@ int main(int argc, char **argv)
                      "Totals: \033[0;32m\\1\033[0;0m, \033[0;31m\\2\033[0;0m, \033[0;33m\\3\033[0;0m");
         out << line << endl;
     }
-
 }
