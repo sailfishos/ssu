@@ -1,7 +1,8 @@
 TARGET = ssuslipstream
 
 include(../ssuapplication.pri)
-include(ssuslipstream_dependencies.pri)
+include(../libssu/libssu.pri)
+include(../libssunetworkproxy/libssunetworkproxy.pri)
 
 QT += network
 CONFIG += link_pkgconfig

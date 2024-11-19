@@ -1,6 +1,7 @@
 TARGET = ssu
 include(../ssuapplication.pri)
-include(ssuurlresolver_dependencies.pri)
+include(../libssu/libssu.pri)
+include(../libssunetworkproxy/libssunetworkproxy.pri)
 
 # We do not build a typical application - override defaults from ../ssuapplication.pri
 DESTDIR = $$DESTDIR_LIB/zypp/plugins/urlresolver

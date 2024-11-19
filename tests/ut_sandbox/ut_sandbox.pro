@@ -1,6 +1,6 @@
 TARGET = ut_sandbox
 include(../testapplication.pri)
-include(ut_sandbox_dependencies.pri)
+include(../../libssu/libssu.pri)
 
 HEADERS = \
         sandboxtest.h \

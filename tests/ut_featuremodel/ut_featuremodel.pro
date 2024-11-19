@@ -1,6 +1,7 @@
 TARGET = ut_featuremodel
 include(../testapplication.pri)
-include(ut_featuremodel_dependencies.pri)
+include(../../libssu/libssu.pri)
+include(../testutils/testutils.pri)
 
 HEADERS = \
         featuremodeltest.h

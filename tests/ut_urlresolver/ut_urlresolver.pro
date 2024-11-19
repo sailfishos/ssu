@@ -1,6 +1,7 @@
 TARGET = ut_urlresolver
 include(../testapplication.pri)
-include(ut_urlresolver_dependencies.pri)
+include(../../libssu/libssu.pri)
+include(../testutils/testutils.pri)
 
 QT += xml
 

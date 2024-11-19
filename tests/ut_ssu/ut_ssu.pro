@@ -1,6 +1,6 @@
 TARGET = ut_ssu
 include(../testapplication.pri)
-include(ut_ssu_dependencies.pri)
+include(../../libssu/libssu.pri)
 
 HEADERS = \
         ssutest.h \
@@ -14,4 +14,3 @@ test_data_etc.files = \
 
 test_data_usr_share_repos_d.files = \
 	testdata/repos.ini \
-

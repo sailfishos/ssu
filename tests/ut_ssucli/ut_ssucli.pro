@@ -1,6 +1,8 @@
 TARGET = ut_ssucli
 include(../testapplication.pri)
-include(ut_ssucli_dependencies.pri)
+include(../../libssu/libssu.pri)
+include(../../sandboxhook/sandboxhook.pri)
+include(../testutils/testutils.pri)
 
 HEADERS = \
         ssuclitest.h \

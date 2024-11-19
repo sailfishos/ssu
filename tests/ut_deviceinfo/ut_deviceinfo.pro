@@ -1,6 +1,6 @@
 TARGET = ut_deviceinfo
 include(../testapplication.pri)
-include(ut_deviceinfo_dependencies.pri)
+include(../../libssu/libssu.pri)
 
 HEADERS = \
         deviceinfotest.h \

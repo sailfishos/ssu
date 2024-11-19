@@ -1,6 +1,7 @@
 TARGET = ut_ssuurlresolver
 include(../testapplication.pri)
-include(ut_ssuurlresolver_dependencies.pri)
+include(../../libssu/libssu.pri)
+include(../../sandboxhook/sandboxhook.pri)
 
 CONFIG += link_pkgconfig
 PKGCONFIG += libzypp

@@ -1,5 +1,5 @@
 include(../ssu_common.pri)
-include(sandboxhook_dependencies.pri)
+include(../libssu/libssu.pri)
 
 TEMPLATE = lib
 TARGET = sandboxhook

@@ -1,6 +1,7 @@
 TARGET = ut_coreconfig
 include(../testapplication.pri)
-include(ut_coreconfig_dependencies.pri)
+include(../../libssu/libssu.pri)
+include(../testutils/testutils.pri)
 
 HEADERS = \
         coreconfigtest.h \
