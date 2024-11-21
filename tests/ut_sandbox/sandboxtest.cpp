@@ -5,15 +5,24 @@
  * @date 2013
  */
 
-#include "sandboxtest.h"
-
 #include <QtTest/QtTest>
+#include <QObject>
 
 #include "libssu/sandbox_p.h"
 
+class SandboxTest: public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void test();
+
+private:
+    static QString readAll(const QString &fileName);
+};
+
 void SandboxTest::test()
 {
-
     const QDir::Filters noHidden = QDir::AllEntries | QDir::NoDotAndDotDot;
 
     QCOMPARE(QDir(Sandbox::map(LOCATE_DATA_PATH, "/world")).entryList(noHidden, QDir::Name),
@@ -37,13 +46,11 @@ void SandboxTest::test()
 
     QVERIFY(!QFileInfo(Sandbox::map(LOCATE_DATA_PATH, "/world/sandbox-only")).exists());
 
-
     Sandbox sandbox(Sandbox::map(LOCATE_DATA_PATH, "/sandbox"),
                     Sandbox::UseAsSkeleton, Sandbox::ThisProcess | Sandbox::ChildProcesses);
     sandbox.addWorldFiles(Sandbox::map(LOCATE_DATA_PATH, "/world"), QDir::AllEntries,
                           QStringList() << "*-to-be-copied-into-sandbox");
     QVERIFY(sandbox.activate());
-
 
     QCOMPARE(QDir(Sandbox::map(LOCATE_DATA_PATH, "/world")).entryList(noHidden, QDir::Name),
              QStringList()
@@ -79,3 +86,6 @@ QString SandboxTest::readAll(const QString &fileName)
 
     return file.readAll();
 }
+
+QTEST_APPLESS_MAIN(SandboxTest)
+#include "sandboxtest.moc"

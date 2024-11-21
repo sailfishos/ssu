@@ -6,9 +6,6 @@
  */
 
 #include <QCoreApplication>
-#include <QTranslator>
-#include <QLocale>
-#include <QLibraryInfo>
 #include <QTimer>
 #include <QStringList>
 #include <QDirIterator>
@@ -107,11 +104,6 @@ int main(int argc, char **argv)
     QCoreApplication::setOrganizationName("Jolla");
     QCoreApplication::setOrganizationDomain("http://www.jollamobile.com");
     QCoreApplication::setApplicationName("ssuks");
-
-    QTranslator qtTranslator;
-    qtTranslator.load("qt_" + QLocale::system().name(),
-                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-    app.installTranslator(&qtTranslator);
 
     SsuKs mw;
     QTimer::singleShot(0, &mw, SLOT(run()));

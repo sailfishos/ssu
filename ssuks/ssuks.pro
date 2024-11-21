@@ -1,6 +1,6 @@
 TARGET = ssuks
 include(../ssuapplication.pri)
-include(ssuks_dependencies.pri)
+include(../libssu/libssu.pri)
 
 HEADERS = ssuks.h \
         ssukickstarter.h

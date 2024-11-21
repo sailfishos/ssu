@@ -1,6 +1,7 @@
 TARGET = ut_settings
 include(../testapplication.pri)
-include(ut_settings_dependencies.pri)
+include(../../libssu/libssu.pri)
+include(../testutils/testutils.pri)
 
 HEADERS = \
         settingstest.h \

@@ -1,12 +1,8 @@
 TARGET = ut_repomanager
 include(../testapplication.pri)
-include(ut_repomanager_dependencies.pri)
-
-HEADERS = \
-        repomanagertest.h \
+include(../../libssu/libssu.pri)
 
 SOURCES = \
-        main.cpp \
         repomanagertest.cpp \
 
 test_data_etc.files = \

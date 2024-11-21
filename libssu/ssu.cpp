@@ -48,8 +48,12 @@
 static void restoreUid()
 {
     if (getuid() == 0) {
-        seteuid(0);
-        setegid(0);
+        if (seteuid(0) < 0) {
+            SsuLog::print(LOG_WARNING, QString("seteuid(0)) failure %1").arg(errno));
+        }
+        if (setegid(0) < 0) {
+            SsuLog::print(LOG_WARNING, QString("setegid(0)) failure %1").arg(errno));
+        }
     }
 }
 
@@ -573,8 +577,13 @@ void Ssu::storeAuthorizedKeys(const QByteArray &data)
         homePath = pw->pw_dir;
 
         // use users uid/gid for creating the directories and files
-        setegid(pw->pw_gid);
-        seteuid(uid_min);
+        if (setegid(pw->pw_gid) < 0) {
+            SsuLog::print(LOG_WARNING, QString("setegid failure %1").arg(errno));
+        }
+        if (seteuid(uid_min) < 0) {
+            SsuLog::print(LOG_WARNING, QString("seteuid failure %1").arg(errno));
+        }
+
         SsuLog::print(LOG_DEBUG, QString("Dropping to %1/%2 for writing authorized keys")
                       .arg(uid_min)
                       .arg(pw->pw_gid));

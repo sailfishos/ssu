@@ -1,2 +1,3 @@
-include(testutils_dependencies.pri)
+include(../../libssu/libssu.pri)
+
 LIBS *= -lssu-testutils

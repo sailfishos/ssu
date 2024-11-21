@@ -1,12 +1,9 @@
 TARGET = ut_featuremodel
 include(../testapplication.pri)
-include(ut_featuremodel_dependencies.pri)
-
-HEADERS = \
-        featuremodeltest.h
+include(../../libssu/libssu.pri)
+include(../testutils/testutils.pri)
 
 SOURCES = \
-        main.cpp \
         featuremodeltest.cpp
 
 RESOURCES = testdata.qrc

@@ -5,20 +5,28 @@
  * @date 2015
  */
 
-#include "featuremodeltest.h"
-
 #include <QtTest/QtTest>
 #include <QtTest/QSignalSpy>
+#include <QObject>
+
 #include "libssu/ssufeaturemodel.h"
+
+class FeatureModelTest: public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void testFeatures();
+};
 
 void FeatureModelTest::initTestCase()
 {
-
 }
 
 void FeatureModelTest::cleanupTestCase()
 {
-
 }
 
 void FeatureModelTest::testFeatures()
@@ -49,3 +57,6 @@ void FeatureModelTest::testFeatures()
     QCOMPARE(featureWithoutVersion.value("name"), QString("Feature without version"));
     QCOMPARE(featureWithoutVersion.value("version"), QString(""));
 }
+
+QTEST_GUILESS_MAIN(FeatureModelTest)
+#include "featuremodeltest.moc"

@@ -1,12 +1,10 @@
 TARGET = ut_ssucli
 include(../testapplication.pri)
-include(ut_ssucli_dependencies.pri)
-
-HEADERS = \
-        ssuclitest.h \
+include(../../libssu/libssu.pri)
+include(../../sandboxhook/sandboxhook.pri)
+include(../testutils/testutils.pri)
 
 SOURCES = \
-        main.cpp \
         ssuclitest.cpp \
 
 test_data_etc.files = \
@@ -18,6 +16,3 @@ test_data_usr_share.files = \
 
 test_data_boardmappings_d.files = \
         testdata/board-mappings.ini \
-
-# Needed for recent versions of libzypp
-QMAKE_CXXFLAGS += -std=c++11

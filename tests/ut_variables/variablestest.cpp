@@ -5,7 +5,27 @@
  * @date 2013
  */
 
-#include "variablestest.h"
+#include <QObject>
+#include <QtTest/QtTest>
+#include <QHash>
+
+#include "libssu/ssu.h"
+#include "libssu/ssuvariables_p.h"
+
+class VariablesTest: public QObject
+{
+    Q_OBJECT
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void checkResolveString();
+
+private:
+    Ssu ssu;
+    SsuVariables var;
+    QHash <QString, QString> variables, urls;
+};
 
 void VariablesTest::initTestCase()
 {
@@ -50,12 +70,10 @@ void VariablesTest::initTestCase()
                 "https://releases.example.com/devel-flavour");
     urls.insert("%(%(rndProtocol):=http?https://%(releaseDomain)/%(release)-%(flavourName)|http://%(releaseDomain)/%(release)-%(flavourName))",
                 "http://releases.example.com/devel-flavour");
-
 }
 
 void VariablesTest::cleanupTestCase()
 {
-
 }
 
 void VariablesTest::checkResolveString()
@@ -69,3 +87,6 @@ void VariablesTest::checkResolveString()
         QCOMPARE(result, i.value());
     }
 }
+
+QTEST_GUILESS_MAIN(VariablesTest)
+#include "variablestest.moc"

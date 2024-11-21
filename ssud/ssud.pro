@@ -1,6 +1,7 @@
 TARGET = ssud
 include(../ssuapplication.pri)
-include(ssud_dependencies.pri)
+include(../libssu/libssu.pri)
+include(../libssunetworkproxy/libssunetworkproxy.pri)
 
 QT += network dbus
 CONFIG += link_pkgconfig

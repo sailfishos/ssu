@@ -5,12 +5,11 @@
  * @date 2013
  */
 
-#include "ssuurlresolvertest.h"
-
 #include <stdlib.h>
 #include <zypp/media/UrlResolverPlugin.h>
 
 #include <QtTest/QtTest>
+#include <QObject>
 
 #include "libssu/sandbox_p.h"
 
@@ -20,6 +19,23 @@
  *
  * This test verifies the UrlResolverPlugin works well with installed version of libzypp.
  */
+
+class SsuUrlResolverTest: public QObject
+{
+    Q_OBJECT
+
+public:
+    SsuUrlResolverTest(): m_sandbox(0) {}
+
+private slots:
+    void initTestCase();
+    void cleanupTestCase();
+    void test_data();
+    void test();
+
+private:
+    Sandbox *m_sandbox;
+};
 
 void SsuUrlResolverTest::initTestCase()
 {
@@ -31,8 +47,9 @@ void SsuUrlResolverTest::initTestCase()
     if (getenv("SSU_SANDBOX_PATH")) {
         qDebug() << "Using in-tree sandbox";
         setenv("LD_PRELOAD", getenv("SSU_SANDBOX_PATH"), 1);
-    } else
+    } else {
         setenv("LD_PRELOAD", SSU_SANDBOX_PATH, 1);
+    }
 }
 
 void SsuUrlResolverTest::cleanupTestCase()
@@ -55,10 +72,19 @@ void SsuUrlResolverTest::test()
 {
     QFETCH(QString, input);
     QFETCH(QString, expected);
+    QString resolved;
 
     zypp::media::UrlResolverPlugin::HeaderList customHeaders;
-    const QString resolved = QString::fromStdString(
-                                 zypp::media::UrlResolverPlugin::resolveUrl(input.toStdString(), customHeaders).asString());
+
+    try {
+        resolved = QString::fromStdString(zypp::media::UrlResolverPlugin::resolveUrl(input.toStdString(),
+                                                                                     customHeaders).asString());
+    } catch (const std::exception &e) {
+        qDebug() << "Caught exception" << e.what();
+    }
 
     QCOMPARE(resolved, expected);
 }
+
+QTEST_APPLESS_MAIN(SsuUrlResolverTest)
+#include "ssuurlresolvertest.moc"

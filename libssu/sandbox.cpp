@@ -22,7 +22,7 @@
  * @class Sandbox
  * @brief Helps to redirect file operations into sandbox directory
  *
- * The term <em>world files</em> is used to reffer files outside sandbox.
+ * The term <em>world files</em> is used to refer files outside sandbox.
  *
  * To write a sandbox aware code, simply use the map() function to process paths
  * before accessing them.
@@ -37,7 +37,7 @@
  * Sandbox instance can be active at any time. Active sandbox is automatically
  * deactivated upon destruction.
  *
- * When constructed without arguments, path to sandbox directory is get from
+ * When constructed without arguments, path to sandbox directory is gotten from
  * @c SSU_SANDBOX_DIR environment variable.
  *
  * @attention When constructed without arguments, it is activated automatically
@@ -49,7 +49,7 @@
  * stay untouched.  Also see addWorldFiles().
  *
  * The argument @scopes allows to control if the sandbox will be used by this
- * process, its children processes (@c SSU_SANDBOX_DIR environment variable
+ * process, its child processes (@c SSU_SANDBOX_DIR environment variable
  * will be exported), or both.
  */
 
