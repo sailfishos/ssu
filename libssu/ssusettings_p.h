@@ -48,6 +48,7 @@ public:
      * style settings are supported in this mode.
      */
     SsuSettings(const QString &fileName, const QString &settingsDirectory, QObject *parent = 0);
+    void resetValue(const QString &key);
 
 private:
     QString defaultSettingsFile, settingsd;
