@@ -394,6 +394,22 @@ void SsuCli::optRegister(QStringList opt)
     state = Busy;
 }
 
+void SsuCli::optUnregister(QStringList opt)
+{
+    Q_UNUSED(opt)
+    QTextStream qout(stdout);
+    QTextStream qerr(stderr);
+    QDBusPendingReply<> reply = getSsuProxy()->unregisterDevice();
+    reply.waitForFinished();
+    if (reply.isError()) {
+        qerr << fallingBackToDirectUse(reply.error()) << endl;
+        ssu.unregister();
+    }
+    qout << "Unregistered" << endl;
+
+    state = Idle;
+}
+
 void SsuCli::optRelease(QStringList opt)
 {
     QTextStream qout(stdout);
@@ -763,6 +779,7 @@ void SsuCli::run()
         // functions accepting no additional arguments
         "status", "s", 0, 0, &SsuCli::optStatus,
         "updaterepos", "ur", 0, 0, &SsuCli::optUpdateRepos,
+        "unregister", "unr", 0, 0, &SsuCli::optUnregister,
 
         // functions requiring at least one argument
         "addrepo", "ar", 1, 2, &SsuCli::optAddRepo,
@@ -883,6 +900,7 @@ void SsuCli::usage(const QString &message)
          << "\tstatus, s     \tprint registration status and device information" << endl
          << "\tregister, r   \tregister this device" << endl
          << "\t      [-h]    \tconfigure user for OBS home" << endl
+         << "\tunregister,   \tunregister this device" << endl
          << "\tupdate, up    \tupdate repository credentials" << endl
          << "\t      [-f]    \tforce update" << endl
          << "\tmodel, mo     \tprint name of device model (like N9)" << endl

@@ -31,6 +31,7 @@ private slots:
     void testSubcommandFlavour();
     void testSubcommandRelease();
     void testSubcommandMode();
+    void testSubcommandUnregister();
 
 private:
     Sandbox *m_sandbox;
@@ -191,6 +192,16 @@ void SsuCliTest::testSubcommandMode()
     QVERIFY2(!ssu.hasError(), qPrintable(ssu.fmtErrorMessage()));
 
     QCOMPARE(output, QString("Device mode is: 2 (RndMode)"));
+}
+
+void SsuCliTest::testSubcommandUnregister()
+{
+    Process ssu;
+    QString output;
+
+    output = ssu.execute("ssu", Args() << "unregister").trimmed();
+    QVERIFY2(!ssu.hasError(), qPrintable(ssu.fmtErrorMessage()));
+    QCOMPARE(output, QString("Unregistered"));
 }
 
 QTEST_APPLESS_MAIN(SsuCliTest)
