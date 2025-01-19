@@ -193,3 +193,38 @@ void SsuSettings::upgrade()
         sync();
     }
 }
+
+void SsuSettings::resetValue(const QString &key)
+{
+    if (defaultSettingsFile.isEmpty()) {
+        SsuLog::print(LOG_ERR, QString("No default settings found"));
+        return;
+    }
+
+    int defaultConfigVersion = 0;
+    QSettings defaultSettings(defaultSettingsFile, QSettings::IniFormat);
+    if (defaultSettings.contains("configVersion"))
+        defaultConfigVersion = defaultSettings.value("configVersion").toInt();
+
+    QVariant defaultValue;
+
+    for (int i = 1; i <= defaultConfigVersion; i++) {
+        QString currentSection = QString("%1/").arg(i);
+        if (defaultSettings.contains(currentSection + "cmd-remove")) {
+            QStringList oldKeys = defaultSettings.value(currentSection + "cmd-remove").toStringList();
+            if (oldKeys.contains(key))
+                defaultValue.clear();
+        } else if (defaultSettings.contains(currentSection + key)) {
+            defaultValue = defaultSettings.value(currentSection + key);
+        }
+    }
+    if (defaultValue.isValid()) {
+        SsuLog::print(LOG_DEBUG, QString("Resetting %1 to %2 (default)")
+                      .arg(key)
+                      .arg(defaultValue.toString()));
+        setValue(key, defaultValue);
+    } else {
+        SsuLog::print(LOG_DEBUG, QString("Removing %1 (default)").arg(key));
+        remove(key);
+    }
+}

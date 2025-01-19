@@ -736,6 +736,7 @@ void Ssu::unregister()
     settings->setValue("privateKey", "");
     settings->setValue("certificate", "");
     settings->setValue("registered", false);
+    settings->resetValue("domain");
     settings->sync();
     emit registrationStatusChanged();
 }

@@ -66,6 +66,7 @@ private:
     void optStatus(QStringList opt);
     void optUpdateCredentials(QStringList opt);
     void optUpdateRepos(QStringList opt);
+    void optUnregister(QStringList opt);
 
     enum Actions {
         Remove,
