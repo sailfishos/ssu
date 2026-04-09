@@ -1,5 +1,5 @@
 Name: ssu
-Version: 1.6.1
+Version: 1.6.5
 Release: 1
 Summary: Seamless Software Upgrade
 License: GPLv2+ and LGPLv2+ and BSD

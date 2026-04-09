@@ -12,6 +12,38 @@
 
 #include "ssu.h"
 
+/**
+ * Represents the currently allowed sources for determening the device id.
+ * Unset configuration enables all sources to maintain backwards compatibility.
+ *
+ * The board mapping configuration key is "device-id-source" which defaults to value "any".
+ */
+struct SsuDeviceIdSource {
+    /**
+     * Allow using the IMEI code, if any, as basis of device id. Configuration value: "imei"
+     */
+
+    bool imei = false;
+    /**
+     * Allow using the WLAN adapter MAC address, if any, as basis of device id. Configuration value: "wlan-mac"
+     */
+
+    bool wlanMac = false;
+    /**
+     * Allow using the machine-id, as basis of device id. Configuration value: "machine-id"
+     *
+     * There are several locations where the read is attempted,
+     * see the source code of SsuDeviceInfo::deviceUid for details.
+     */
+    bool machineId = false;
+};
+
+inline bool operator==(SsuDeviceIdSource lhs, SsuDeviceIdSource rhs) {
+    return lhs.imei == rhs.imei
+        && lhs.wlanMac == rhs.wlanMac
+        && lhs.machineId == rhs.machineId;
+}
+
 class SsuSettings;
 
 class SsuDeviceInfo: public QObject
@@ -66,8 +98,17 @@ public:
     Q_INVOKABLE QString deviceModel();
 
     /**
-     * Calculate the device ID used in ssu requests
-     * @return The first imei from oFono ModemManager API, if available, or WLAN mac address, or device uid fallback code similar to QDeviceInfo::uniqueDeviceID()
+     * Read the board mapping configuration and determine the allowed source, or sources, of device id.
+     *
+     * The configuration can either allow a single source, or all/any sources at once.
+     */
+    SsuDeviceIdSource deviceIdSource();
+
+    /**
+     * Calculate the device ID used in ssu requests, according to board mapping configuration, if any.
+     * Without any configuration, return the first imei from oFono ModemManager API, or WLAN mac address,
+     * or device uid fallback code similar to QDeviceInfo::uniqueDeviceID().
+     * @return The device id string
      */
     Q_INVOKABLE QString deviceUid();
 
