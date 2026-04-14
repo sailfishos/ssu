@@ -22,6 +22,7 @@ private slots:
     void testAdaptationVariables();
     void testFeatureVariables();
     void testDeviceUid();
+    void testDeviceIdSource();
     void testVariableSection();
     void testValue();
 
@@ -73,6 +74,71 @@ void DeviceInfoTest::testFeatureVariables()
 void DeviceInfoTest::testDeviceUid()
 {
     QVERIFY2(!SsuDeviceInfo().deviceUid().isEmpty(), "No method to get device UID on this platform");
+}
+
+
+void DeviceInfoTest::testDeviceIdSource()
+{
+    {
+        SsuDeviceInfo deviceInfo("id-empty");
+        SsuDeviceIdSource actual, expected;
+        
+        actual = deviceInfo.deviceIdSource();
+        expected.imei = true;
+        expected.wlanMac = true;
+        expected.machineId = true;
+        QCOMPARE(actual, expected);
+    }
+    {
+        SsuDeviceInfo deviceInfo("id-any");
+        SsuDeviceIdSource actual, expected;
+        
+        actual = deviceInfo.deviceIdSource();
+        expected.imei = true;
+        expected.wlanMac = true;
+        expected.machineId = true;
+        QCOMPARE(actual, expected);
+    }
+    {
+        SsuDeviceInfo deviceInfo("id-invalid");
+        SsuDeviceIdSource actual, expected;
+        
+        actual = deviceInfo.deviceIdSource();
+        expected.imei = true;
+        expected.wlanMac = true;
+        expected.machineId = true;
+        QCOMPARE(actual, expected);
+    }
+    {
+        SsuDeviceInfo deviceInfo("id-imei");
+        SsuDeviceIdSource actual, expected;
+        
+        actual = deviceInfo.deviceIdSource();
+        expected.imei = true;
+        expected.wlanMac = false;
+        expected.machineId = false;
+        QCOMPARE(actual, expected);
+    }
+    {
+        SsuDeviceInfo deviceInfo("id-wlan");
+        SsuDeviceIdSource actual, expected;
+        
+        actual = deviceInfo.deviceIdSource();
+        expected.imei = false;
+        expected.wlanMac = true;
+        expected.machineId = false;
+        QCOMPARE(actual, expected);
+    }
+    {
+        SsuDeviceInfo deviceInfo("id-system");
+        SsuDeviceIdSource actual, expected;
+        
+        actual = deviceInfo.deviceIdSource();
+        expected.imei = false;
+        expected.wlanMac = false;
+        expected.machineId = true;
+        QCOMPARE(actual, expected);
+    }
 }
 
 void DeviceInfoTest::testVariableSection()

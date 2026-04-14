@@ -316,36 +316,70 @@ normalizeUid(const QString &uid)
     return uid.trimmed().replace(":", "").replace("-", "").toLower();
 }
 
+SsuDeviceIdSource SsuDeviceInfo::deviceIdSource()
+{
+    SsuDeviceIdSource source;
+
+    QString configValue =
+        boardMappings->value(deviceVariant(true) + "/device-id-source", "any").toString();
+    
+    if (!configValue.compare("imei")) {
+        source.imei = true;
+    } else if (!configValue.compare("wlan-mac")) {
+        source.wlanMac = true;
+    } else if (!configValue.compare("machine-id")) {
+        source.machineId = true;
+    } else {
+        if (!configValue.isEmpty() && configValue.compare("any")) {
+            SsuLog::print(LOG_WARNING, "Invalid device id configuration, allowing all sources");
+        }
+        source.imei = true;
+        source.wlanMac = true;
+        source.machineId = true;
+    }
+
+    return source;
+}
+
 QString SsuDeviceInfo::deviceUid()
 {
-    QStringList imeis = ofonoGetImeis();
-    if (imeis.size() > 0) {
-        return imeis[0];
-    }
+    SsuDeviceIdSource source = deviceIdSource();
 
-    QStringList wlanMacs = getWlanMacs();
-    if (wlanMacs.size() > 0) {
-        return normalizeUid(wlanMacs[0]);
-    }
-
-    SsuLog::print(LOG_WARNING, "Could not get IMEI(s) from ofono, nor WLAN mac, trying fallback");
-
-    // The fallback list is taken from QtSystems' qdeviceinfo_linux.cpp
-    QStringList fallbackFiles;
-    fallbackFiles << "/sys/devices/virtual/dmi/id/product_uuid";
-    fallbackFiles << "/etc/machine-id";
-    fallbackFiles << "/etc/unique-id";
-    fallbackFiles << "/var/lib/dbus/machine-id";
-
-    foreach (const QString &filename, fallbackFiles) {
-        QFile machineId(filename);
-        if (machineId.open(QFile::ReadOnly | QFile::Text) && machineId.size() > 0) {
-            QTextStream in(&machineId);
-            return normalizeUid(in.readAll());
+    if (source.imei) {
+        QStringList imeis = ofonoGetImeis();
+        if (imeis.size() > 0) {
+            return imeis[0];
         }
+        SsuLog::print(LOG_WARNING, "Could not get IMEI");
+    }
+    
+    if (source.wlanMac) {
+        QStringList wlanMacs = getWlanMacs();
+        if (wlanMacs.size() > 0) {
+            return normalizeUid(wlanMacs[0]);
+        }
+        SsuLog::print(LOG_WARNING, "Could not get WLAN MAC");
     }
 
-    SsuLog::print(LOG_CRIT, "Could not read fallback UID - returning empty string");
+    if (source.machineId) {
+        // The fallback list is taken from QtSystems' qdeviceinfo_linux.cpp
+        QStringList fallbackFiles;
+        fallbackFiles << "/sys/devices/virtual/dmi/id/product_uuid";
+        fallbackFiles << "/etc/machine-id";
+        fallbackFiles << "/etc/unique-id";
+        fallbackFiles << "/var/lib/dbus/machine-id";
+    
+        foreach (const QString &filename, fallbackFiles) {
+            QFile machineId(filename);
+            if (machineId.open(QFile::ReadOnly | QFile::Text) && machineId.size() > 0) {
+                QTextStream in(&machineId);
+                return normalizeUid(in.readAll());
+            }
+        }
+        SsuLog::print(LOG_CRIT, "Could not get machine id");
+    }
+    
+    SsuLog::print(LOG_CRIT, "Returning empty device id");
     return QString();
 }
 
