@@ -161,7 +161,7 @@ QVariant SsuVariables::variable(SsuSettings *settings, const QString &section, c
 
     // first check if the value is defined in the main section, and fall back
     // to default sections
-    if (value.type() == QMetaType::UnknownType) {
+    if (value.type() == QVariant::Invalid) {
         QString dSection = defaultSection(settings, section);
         if (!dSection.isEmpty())
             value = readVariable(settings, dSection, key, 0, false);
