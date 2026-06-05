@@ -15,6 +15,7 @@
 
 #include "libssu/sandbox_p.h"
 #include "libssu/ssulog_p.h"
+#include "constants.h"
 
 SsuUrlResolver::SsuUrlResolver()
     : QObject()
@@ -42,7 +43,7 @@ void SsuUrlResolver::ack() const
 
 bool SsuUrlResolver::writeZyppCredentialsIfNeeded(const QString &credentialsScope)
 {
-    QString filePath = Sandbox::map("/etc/zypp/credentials.d/" + credentialsScope);
+    QString filePath = Sandbox::map(QString("%1/%2").arg(ZYPP_CREDENTIALS_PATH).arg(credentialsScope));
     QFileInfo credentialsFileInfo(filePath);
 
     /// @TODO: add scope to lastCredentialsUpdate() to allow scope specific update
