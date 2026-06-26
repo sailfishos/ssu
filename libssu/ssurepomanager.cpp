@@ -324,7 +324,7 @@ void SsuRepoManager::update()
         SsuLog::print(LOG_ERR, QString::fromLatin1("Error: ") + QString::fromStdString(e.msg()));
         QDir repodir(Sandbox::map(ZYPP_REPO_PATH));
 
-        for (const QString file : repodir.entryList(QStringList() << "*.repo", QDir::Files)) {
+        for (const QString &file : repodir.entryList(QStringList() << "*.repo", QDir::Files)) {
             repodir.remove(file);
         }
     } catch (...) {

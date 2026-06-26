@@ -36,6 +36,26 @@
 
 #include "ssucli.h"
 
+static void resetZyppCredentials()
+{
+    QDir credsDir(ZYPP_CREDENTIALS_PATH);
+    if (!credsDir.exists()) {
+        return;
+    }
+
+    foreach (const QString &credsFileName, credsDir.entryList(QDir::Files)) {
+        if (credsFileName == "store") {
+            continue;
+        }
+
+        QString absFileName = credsDir.absoluteFilePath(credsFileName);
+        if (QFile::remove(absFileName)) {
+            QTextStream qerr(stderr);
+            qerr << QString("Could not remove '%1'").arg(absFileName) << endl;
+        }
+    }
+}
+
 SsuCli::SsuCli()
     : QObject()
 {
@@ -391,6 +411,7 @@ void SsuCli::optRegister(QStringList opt)
         ssu.sendRegistration(username, password);
     }
 
+    resetZyppCredentials();
     state = Busy;
 }
 
@@ -406,7 +427,7 @@ void SsuCli::optUnregister(QStringList opt)
         ssu.unregister();
     }
     qout << "Unregistered" << endl;
-
+    resetZyppCredentials();
     state = Idle;
 }
 
@@ -733,6 +754,7 @@ void SsuCli::optUpdateCredentials(QStringList opt)
         QCoreApplication::exit(1);
     } else {
         ssu.updateCredentials(force);
+        resetZyppCredentials();
         state = Busy;
     }
 }
